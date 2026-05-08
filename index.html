@@ -15,52 +15,82 @@ body{font-family:Calibri,Arial,sans-serif;background:#eef1f6;color:#1a1a2e;min-h
 .login-btn{display:inline-flex;align-items:center;gap:10px;background:#2471a3;border:none;border-radius:5px;padding:13px 28px;color:#fff;font-family:Calibri,Arial,sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;justify-content:center}
 #login-error{display:none;margin-top:12px;font-size:12px;color:#f1948a;background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);border-radius:4px;padding:8px 12px}
 #hub{display:none;min-height:100vh}
-.topbar{background:#fff;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid #d1d9e0;box-shadow:0 1px 4px rgba(0,0,0,.08);position:sticky;top:0;z-index:100;position:relative}
-.topbar::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1b4f72,#2471a3)}
+.topbar{background:#fff;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid #d1d9e0;box-shadow:0 1px 4px rgba(0,0,0,.08);position:sticky;top:0;z-index:100}
+.topbar::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1b4f72,#2471a3)}
 .topbar-logo{height:36px;width:auto}
-.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-right{display:flex;align-items:center;gap:12px}
 .user-chip{display:flex;align-items:center;gap:8px;background:#eef1f6;border-radius:20px;padding:6px 12px 6px 6px}
 .user-av{width:28px;height:28px;border-radius:50%;background:#1b4f72;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .user-name{font-size:12px;font-weight:600;color:#1b4f72}
+.admin-badge{background:#d35400;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px}
 .topbar-date{font-size:12px;color:#8a9bb0}
-.hub-body{padding:32px 36px;max-width:1400px;margin:0 auto}
-.hub-welcome{margin-bottom:28px}
-.hub-welcome h1{font-size:24px;font-weight:700;color:#1b4f72;margin-bottom:4px}
-.hub-welcome p{font-size:14px;color:#546e7a}
-.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:28px}
-.stat-box{background:#fff;border:1px solid #d1d9e0;border-radius:8px;padding:18px 20px;border-left:4px solid var(--s-color)}
-.stat-num{font-size:28px;font-weight:700;color:var(--s-color);line-height:1}
-.stat-label{font-size:11px;color:#546e7a;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.tiles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-bottom:40px}
-.tile{background:#fff;border-radius:10px;border:1px solid #d1d9e0;padding:28px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;text-decoration:none;display:block;color:inherit}
-.tile::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--tc)}
+.hub-body{padding:28px 32px;max-width:1500px;margin:0 auto}
+.hub-welcome{margin-bottom:22px}
+.hub-welcome h1{font-size:22px;font-weight:700;color:#1b4f72;margin-bottom:4px}
+.hub-welcome p{font-size:13px;color:#546e7a}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:22px}
+.stat-box{background:#fff;border:1px solid #d1d9e0;border-radius:8px;padding:16px 18px;border-left:4px solid var(--sc)}
+.stat-num{font-size:26px;font-weight:700;color:var(--sc);line-height:1}
+.stat-label{font-size:10px;color:#546e7a;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.tiles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:32px}
+.tile{background:#fff;border-radius:10px;border:1px solid #d1d9e0;padding:22px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;text-decoration:none;display:block;color:inherit}
+.tile::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--tc)}
 .tile:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.tile-icon{width:48px;height:48px;border-radius:10px;background:var(--tb);display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:22px}
-.tile-title{font-size:17px;font-weight:700;color:#1a1a2e;margin-bottom:6px}
-.tile-desc{font-size:13px;color:#546e7a;line-height:1.5}
-.tile-badge{position:absolute;top:16px;right:16px;background:var(--tc);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.tile-icon{width:44px;height:44px;border-radius:10px;background:var(--tb);display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:20px}
+.tile-title{font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:5px}
+.tile-desc{font-size:12px;color:#546e7a;line-height:1.5}
+.tile-badge{position:absolute;top:14px;right:14px;background:var(--tc);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
 .section-title{font-size:18px;font-weight:700;color:#1b4f72}
-.back-btn{display:inline-flex;align-items:center;gap:6px;background:#eef1f6;border:1px solid #d1d9e0;border-radius:5px;padding:7px 14px;font-size:13px;font-weight:600;color:#546e7a;cursor:pointer}
-.filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:5px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #d1d9e0;background:#fff;color:#546e7a;font-family:Calibri,Arial,sans-serif;transition:all .2s}
+.btn:hover{background:#eef1f6}
+.btn-primary{background:#1b4f72;border-color:#1b4f72;color:#fff}.btn-primary:hover{background:#154360}
+.btn-danger{background:#c0392b;border-color:#c0392b;color:#fff}.btn-danger:hover{background:#96281b}
+.btn-success{background:#1e8449;border-color:#1e8449;color:#fff}.btn-success:hover{background:#196f3d}
+.btn-sm{padding:5px 10px;font-size:12px}
+.tab-bar{display:flex;gap:4px;background:#eef1f6;border-radius:8px;padding:4px;margin-bottom:16px;width:fit-content;flex-wrap:wrap}
+.tab-btn{padding:7px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:#546e7a;font-family:Calibri,Arial,sans-serif}
+.tab-btn.active{background:#fff;color:#1b4f72;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.filter-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
 .filter-bar input,.filter-bar select{border:1px solid #d1d9e0;border-radius:5px;padding:7px 12px;font-size:13px;font-family:Calibri,Arial,sans-serif;background:#fff}
-.legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;font-size:12px;align-items:center}
-.legend-item{display:flex;align-items:center;gap:5px}
-.roster-wrap{overflow-x:auto;background:#fff;border-radius:10px;border:1px solid #d1d9e0}
-.roster-table{border-collapse:collapse;font-size:12px;width:100%}
-.roster-table th{background:#1b4f72;color:#fff;padding:9px 12px;text-align:left;font-size:10px;white-space:nowrap;letter-spacing:.3px}
-.roster-table td{padding:7px 10px;border-bottom:1px solid #eef1f6;white-space:nowrap}
+.roster-wrap{overflow-x:auto;background:#fff;border-radius:10px;border:1px solid #d1d9e0;margin-bottom:20px}
+.roster-table{border-collapse:collapse;font-size:11px;width:100%}
+.roster-table th{background:#1b4f72;color:#fff;padding:8px 6px;text-align:center;font-size:9px;white-space:nowrap;letter-spacing:.3px;font-weight:600}
+.roster-table th.name-th{text-align:left;padding-left:12px;min-width:150px;position:sticky;left:0;z-index:3;background:#1b4f72}
+.roster-table td{padding:5px 4px;border-bottom:1px solid #eef1f6;white-space:nowrap;text-align:center;vertical-align:middle}
+.roster-table td.name-col{text-align:left;padding-left:12px;font-weight:600;color:#1b4f72;position:sticky;left:0;background:#fff;z-index:1;min-width:150px}
 .roster-table tr:hover td{background:#f8f9fb}
-.name-col{font-weight:600;color:#1b4f72;min-width:140px}
-.day-cell{min-width:40px;text-align:center;padding:4px 2px}
-.s-on{background:#d5f5e3;color:#1e6e3c;border-radius:3px;padding:2px 4px;font-size:9px;font-weight:700;display:inline-block}
-.s-mob{background:#d6eaf8;color:#1b4f72;border-radius:3px;padding:2px 4px;font-size:9px;font-weight:700;display:inline-block}
-.s-dm{background:#fdebd0;color:#873600;border-radius:3px;padding:2px 4px;font-size:9px;font-weight:700;display:inline-block}
-.s-site{background:#fef9e7;color:#7d6608;border-radius:3px;padding:2px 5px;font-size:9px;font-weight:600;display:inline-block;max-width:70px;overflow:hidden;text-overflow:ellipsis}
-.s-off{color:#ccc;font-size:9px}
-.today-col{background:#fff8e1 !important}
+.roster-table tr:hover td.name-col{background:#f8f9fb}
+.month-header{background:#154360 !important;color:#a9cce3 !important;font-size:10px !important;letter-spacing:.5px;text-align:center}
+.today-col{background:#fff8e1 !important;border-left:2px solid #f59e0b !important;border-right:2px solid #f59e0b !important}
+.s-site{background:#fef9e7;color:#7d6608;border-radius:3px;padding:1px 4px;font-size:9px;font-weight:600;display:inline-block;max-width:68px;overflow:hidden;text-overflow:ellipsis;cursor:pointer;white-space:nowrap}
+.s-mob{background:#d6eaf8;color:#1b4f72;border-radius:3px;padding:1px 4px;font-size:9px;font-weight:700;display:inline-block;cursor:pointer}
+.s-dm{background:#fdebd0;color:#873600;border-radius:3px;padding:1px 4px;font-size:9px;font-weight:700;display:inline-block;cursor:pointer}
+.s-off{color:#ddd;font-size:10px;cursor:pointer}
+.s-leave{background:#e8daef;color:#5b2c6f;border-radius:3px;padding:1px 4px;font-size:9px;font-weight:600;display:inline-block;cursor:pointer}
+.s-course{background:#d5f5e3;color:#1e6e3c;border-radius:3px;padding:1px 4px;font-size:9px;font-weight:600;display:inline-block;cursor:pointer}
+.drag-over{background:#d6eaf8 !important}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;font-size:11px;align-items:center}
+.legend-item{display:flex;align-items:center;gap:4px;color:#546e7a}
+.admin-table{width:100%;border-collapse:collapse;font-size:13px}
+.admin-table th{text-align:left;padding:9px 14px;font-size:11px;font-weight:600;color:#546e7a;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #d1d9e0;background:#f8f9fb}
+.admin-table td{padding:10px 14px;border-bottom:1px solid #eef1f6;vertical-align:middle}
+.admin-table tr:hover td{background:#f8f9fb}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:10px;padding:28px;min-width:460px;max-width:560px;width:90%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal h2{font-size:17px;font-weight:700;color:#1b4f72;margin-bottom:18px}
+.form-group{margin-bottom:13px}
+.form-label{display:block;font-size:11px;font-weight:700;color:#546e7a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.form-control{width:100%;border:1px solid #d1d9e0;border-radius:5px;padding:8px 12px;font-size:13px;font-family:Calibri,Arial,sans-serif;color:#1a1a2e;background:#fff}
+.form-control:focus{outline:none;border-color:#2471a3;box-shadow:0 0 0 2px #d6eaf8}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid #eef1f6}
 #toast{position:fixed;bottom:24px;right:24px;background:#1b4f72;color:#fff;padding:12px 20px;border-radius:6px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);display:none;z-index:9999}
-#roster-section{display:none}
+#toast.err{background:#c0392b}
+.hidden{display:none !important}
+.cell-input{width:100%;border:none;background:transparent;font-size:9px;font-family:Calibri,Arial,sans-serif;text-align:center;padding:1px 2px;outline:none;color:#1a1a2e}
+.cell-input:focus{background:#d6eaf8;border-radius:2px}
 </style>
 </head>
 <body>
@@ -81,213 +111,412 @@ body{font-family:Calibri,Arial,sans-serif;background:#eef1f6;color:#1a1a2e;min-h
     <img src="https://raw.githubusercontent.com/FishyPTA/BladeTech-Ops/main/ProTech_Logo_Concepts_3.png" class="topbar-logo" alt="ProTech Access">
     <div class="topbar-right">
       <div class="topbar-date" id="top-date"></div>
+      <div id="admin-badge" class="admin-badge hidden">ADMIN</div>
       <div class="user-chip"><div class="user-av" id="uav">J</div><div class="user-name" id="uname">...</div></div>
     </div>
   </div>
   <div class="hub-body">
-    <div id="hub-main">
+    <div id="view-hub">
       <div class="hub-welcome"><h1 id="welcome-msg">Welcome back</h1><p>ProTech Access Operations Platform — select a module</p></div>
       <div class="stats-row">
-        <div class="stat-box" style="--s-color:#1b4f72"><div class="stat-num" id="s-swing">—</div><div class="stat-label">On Swing Today</div></div>
-        <div class="stat-box" style="--s-color:#1e8449"><div class="stat-num" id="s-sites">—</div><div class="stat-label">Active Sites</div></div>
-        <div class="stat-box" style="--s-color:#d35400"><div class="stat-num" id="s-mob">—</div><div class="stat-label">Mob/Demob Today</div></div>
-        <div class="stat-box" style="--s-color:#8e44ad"><div class="stat-num" id="s-off">—</div><div class="stat-label">Off Swing</div></div>
+        <div class="stat-box" style="--sc:#1b4f72"><div class="stat-num" id="s-swing">-</div><div class="stat-label">On Swing Today</div></div>
+        <div class="stat-box" style="--sc:#1e8449"><div class="stat-num" id="s-sites">-</div><div class="stat-label">Active Sites</div></div>
+        <div class="stat-box" style="--sc:#d35400"><div class="stat-num" id="s-mob">-</div><div class="stat-label">Mob/Demob Today</div></div>
+        <div class="stat-box" style="--sc:#8e44ad"><div class="stat-num" id="s-off">-</div><div class="stat-label">Off Swing</div></div>
       </div>
       <div class="tiles-grid">
         <a class="tile" style="--tc:#1b4f72;--tb:#d6eaf8" href="https://fishypta.github.io/BladeTech-Ops/ProTech_BladeOps_SharePoint_2.html" target="_blank">
-          <div class="tile-badge">Open</div><div class="tile-icon">🔧</div>
-          <div class="tile-title">Blade Operations</div>
-          <div class="tile-desc">Inspections, repairs, daily diary, QA pipeline and field reporting.</div>
+          <div class="tile-badge">Open</div><div class="tile-icon">🔩</div>
+          <div class="tile-title">Blade Operations & Repairs</div>
+          <div class="tile-desc">Blade inspections, repairs, QA pipeline, daily diary and field reporting.</div>
         </a>
-        <div class="tile" style="--tc:#17a589;--tb:#d1f2eb" onclick="toast('Coming soon')">
+        <div class="tile" style="--tc:#17a589;--tb:#d1f2eb" onclick="showToast('Coming soon')">
           <div class="tile-badge" style="background:#17a589">Soon</div><div class="tile-icon">🪢</div>
           <div class="tile-title">Field Operations</div>
           <div class="tile-desc">Rope access, component exchange, construction and general site works.</div>
         </div>
-        <div class="tile" style="--tc:#1e8449;--tb:#d5f5e3" onclick="showRoster()">
+        <div class="tile" style="--tc:#1e8449;--tb:#d5f5e3" onclick="showView('roster')">
           <div class="tile-badge">Active</div><div class="tile-icon">📅</div>
           <div class="tile-title">Roster & Scheduling</div>
-          <div class="tile-desc">Technician schedules, site assignments, swing rosters and mob/demob.</div>
+          <div class="tile-desc">Full year technician schedules, site assignments and mob/demob management.</div>
         </div>
-        <div class="tile" style="--tc:#8e44ad;--tb:#e8daef" onclick="toast('Coming soon')">
+        <div class="tile" style="--tc:#8e44ad;--tb:#e8daef" onclick="showToast('Coming soon')">
           <div class="tile-badge" style="background:#8e44ad">Soon</div><div class="tile-icon">👥</div>
           <div class="tile-title">Team & Certifications</div>
           <div class="tile-desc">Employee profiles, certifications, training records and contacts.</div>
         </div>
-        <div class="tile" style="--tc:#d35400;--tb:#fdebd0" onclick="toast('Coming soon')">
+        <div class="tile" style="--tc:#d35400;--tb:#fdebd0" onclick="showToast('Coming soon')">
           <div class="tile-badge" style="background:#d35400">Soon</div><div class="tile-icon">📊</div>
           <div class="tile-title">Reports & Analytics</div>
           <div class="tile-desc">Cross-site reporting, inspection summaries and compliance dashboards.</div>
         </div>
-        <div class="tile" style="--tc:#17a589;--tb:#d1f2eb" onclick="toast('Coming soon')">
-          <div class="tile-badge" style="background:#17a589">Soon</div><div class="tile-icon">🦺</div>
+        <div class="tile" style="--tc:#2e86c1;--tb:#d6eaf8" onclick="showToast('Coming soon')">
+          <div class="tile-badge" style="background:#2e86c1">Soon</div><div class="tile-icon">🦺</div>
           <div class="tile-title">Safety & SWMS</div>
           <div class="tile-desc">Safe work method statements, incident reporting and hazard management.</div>
         </div>
-        <div class="tile" style="--tc:#2e86c1;--tb:#d6eaf8" onclick="toast('Coming soon')">
-          <div class="tile-badge" style="background:#2e86c1">Soon</div><div class="tile-icon">📁</div>
-          <div class="tile-title">Documents</div>
-          <div class="tile-desc">Procedures, OEM manuals, certificates and project documentation.</div>
-        </div>
       </div>
     </div>
-    <div id="roster-section">
+    <div id="view-roster" class="hidden">
       <div class="section-header">
         <div class="section-title">📅 Roster & Scheduling — 2026</div>
-        <button class="back-btn" onclick="showHub()">← Back to Hub</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div id="admin-roster-btn" class="hidden"><button class="btn btn-primary btn-sm" onclick="showView('admin-roster')">⚙️ Manage</button></div>
+          <button class="btn btn-sm" onclick="showView('hub')">← Hub</button>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('all',this)">All</button>
+        <button class="tab-btn" onclick="switchTab('Vestas',this)">Vestas</button>
+        <button class="tab-btn" onclick="switchTab('Nordex',this)">Nordex</button>
+        <button class="tab-btn" onclick="switchTab('GE',this)">GE</button>
       </div>
       <div class="filter-bar">
-        <input type="text" id="r-search" placeholder="Search technician..." oninput="renderRoster()">
+        <input type="text" id="r-search" placeholder="🔍 Search technician..." oninput="renderRoster()" style="min-width:200px">
         <select id="r-site" onchange="renderRoster()"><option value="">All Sites</option></select>
-        <select id="r-status" onchange="renderRoster()">
-          <option value="">All Statuses</option>
-          <option value="on">On-Swing</option>
-          <option value="mob">Mob</option>
-          <option value="dm">Demob</option>
-          <option value="off">Off-Swing</option>
+        <select id="r-month" onchange="renderRoster()">
+          <option value="-1">Full Year</option>
+          <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+          <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+          <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+          <option value="9">October</option><option value="10">November</option><option value="11">December</option>
         </select>
       </div>
       <div class="legend">
-        <span style="font-weight:700;font-size:12px;color:#546e7a">Legend:</span>
+        <strong style="color:#546e7a">Legend:</strong>
         <div class="legend-item"><span class="s-site">SITE</span> On site</div>
-        <div class="legend-item"><span class="s-on">ON</span> On-Swing</div>
         <div class="legend-item"><span class="s-mob">MOB</span> Mobilising</div>
         <div class="legend-item"><span class="s-dm">DM</span> Demob</div>
-        <div class="legend-item"><span class="s-off">—</span> Off-Swing</div>
+        <div class="legend-item"><span class="s-leave">LEAVE</span> Leave</div>
+        <div class="legend-item"><span class="s-course">COURSE</span> Training</div>
+        <div class="legend-item"><span class="s-off">—</span> Off swing</div>
+        <div style="background:#fff8e1;border:1px solid #f59e0b;padding:2px 6px;border-radius:3px;font-size:9px;color:#92400e;font-weight:700">TODAY</div>
+        <span id="admin-hint" class="hidden" style="font-size:11px;color:#1b4f72;font-style:italic">💡 Admin: click any cell to edit</span>
       </div>
       <div class="roster-wrap"><table class="roster-table"><thead id="r-head"></thead><tbody id="r-body"></tbody></table></div>
     </div>
+    <div id="view-admin-roster" class="hidden">
+      <div class="section-header">
+        <div class="section-title">⚙️ Manage Roster</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="openAddTechModal()">+ Add Technician</button>
+          <button class="btn btn-sm" onclick="showView('roster')">← Roster</button>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchAdminTab('techs',this)">👤 Technicians</button>
+        <button class="tab-btn" onclick="switchAdminTab('assignments',this)">📋 Assignments</button>
+      </div>
+      <div id="admin-techs">
+        <div style="background:#fff;border-radius:10px;border:1px solid #d1d9e0;overflow:hidden">
+          <table class="admin-table"><thead><tr><th>Name</th><th>Client</th><th>Role</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="admin-techs-body"></tbody></table>
+        </div>
+      </div>
+      <div id="admin-assignments" class="hidden">
+        <div class="section-header" style="margin-bottom:12px">
+          <div style="font-size:13px;color:#546e7a">Add or edit site assignments</div>
+          <button class="btn btn-primary btn-sm" onclick="openAddAssignModal()">+ Add Assignment</button>
+        </div>
+        <div style="background:#fff;border-radius:10px;border:1px solid #d1d9e0;overflow:hidden">
+          <table class="admin-table"><thead><tr><th>Technician</th><th>Client</th><th>Site</th><th>Type</th><th>Start</th><th>End</th><th>Actions</th></tr></thead>
+          <tbody id="admin-assign-body"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="modal-tech">
+  <div class="modal">
+    <h2 id="modal-tech-title">Add Technician</h2>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-control" id="t-name" placeholder="e.g. John Smith"></div>
+      <div class="form-group"><label class="form-label">Client *</label><select class="form-control" id="t-client"><option>Vestas</option><option>Nordex</option><option>GE</option><option>Siemens Gamesa</option><option>Other</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Role</label><input class="form-control" id="t-role" placeholder="e.g. Blade Technician"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-control" id="t-phone"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-control" id="t-email"></div>
+      <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="t-status"><option value="1">Active</option><option value="0">Inactive</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Certifications</label><textarea class="form-control" id="t-certs" rows="2" placeholder="GWO BST, WAH, Rope Access Level 2..."></textarea></div>
+    <div class="form-group" style="display:flex;align-items:center;gap:10px"><input type="checkbox" id="t-isadmin" style="width:16px;height:16px;accent-color:#1b4f72"><label for="t-isadmin" style="font-size:13px;cursor:pointer">Grant Admin Access</label></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-tech')">Cancel</button><button class="btn btn-primary" onclick="saveTech()">Save</button></div>
+  </div>
+</div>
+<div class="modal-bg" id="modal-assign">
+  <div class="modal">
+    <h2 id="modal-assign-title">Add Assignment</h2>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Technician *</label><select class="form-control" id="a-tech" style="width:100%"></select></div>
+      <div class="form-group"><label class="form-label">Client</label><select class="form-control" id="a-client"><option>Vestas</option><option>Nordex</option><option>GE</option><option>Other</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Site *</label><input class="form-control" id="a-site" placeholder="e.g. Wambo-RA"></div>
+      <div class="form-group"><label class="form-label">Type</label><select class="form-control" id="a-type"><option>On-Swing</option><option>Mob</option><option>Demob</option><option>Off-Swing</option><option>Leave</option><option>Course</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Start Date *</label><input class="form-control" id="a-start" type="date"></div>
+      <div class="form-group"><label class="form-label">End Date</label><input class="form-control" id="a-end" type="date"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="a-notes" rows="2"></textarea></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-assign')">Cancel</button><button class="btn btn-primary" onclick="saveAssign()">Save</button></div>
+  </div>
+</div>
+<div class="modal-bg" id="modal-cell">
+  <div class="modal" style="min-width:320px;max-width:400px">
+    <h2>Edit Day</h2>
+    <div style="font-size:13px;color:#546e7a;margin-bottom:16px" id="cell-info"></div>
+    <div class="form-group"><label class="form-label">Assignment</label>
+      <select class="form-control" id="cell-type">
+        <option value="">— Off Swing —</option>
+        <option>Mob</option><option>Demob</option><option>Leave</option><option>Course</option>
+      </select>
+    </div>
+    <div class="form-group" id="cell-site-group"><label class="form-label">Site</label><input class="form-control" id="cell-site" placeholder="e.g. Wambo-RA, MRWF..."></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-cell')">Cancel</button><button class="btn btn-danger btn-sm" onclick="clearCell()">Clear</button><button class="btn btn-primary" onclick="saveCell()">Save</button></div>
   </div>
 </div>
 <div id="toast"></div>
 <script>
 const CLIENT_ID='6afdf782-311f-44d1-8162-380c4b596ab9';
 const TENANT_ID='bef16a9c-98ed-40cf-9dc4-09ba72ee589b';
+const ADMINS=['josh@protechaccess.com.au','madi@protechaccess.com.au','adam@protechaccess.com.au'];
 const msalConfig={auth:{clientId:CLIENT_ID,authority:'https://login.microsoftonline.com/'+TENANT_ID,redirectUri:location.href.split('?')[0].split('#')[0]},cache:{cacheLocation:'sessionStorage'}};
-let msalInst=null,curUser=null;
+let msalInst=null,curUser=null,isAdmin=false,spToken=null,spSiteId=null;
+let techs=[],assignments=[],editTechId=null,editAssignId=null,rosterTab='all',cellTech=null,cellDate=null;
 
-async function signIn(){
-  try{await msalInst.loginRedirect({scopes:['User.Read']});}
-  catch(e){const el=document.getElementById('login-error');el.style.display='block';el.textContent='Error: '+e.message;}
+async function signIn(){try{await msalInst.loginRedirect({scopes:['User.Read','Sites.ReadWrite.All']});}catch(e){showErr(e.message);}}
+
+async function getToken(){
+  const acc=msalInst.getActiveAccount();if(!acc)return;
+  try{const r=await msalInst.acquireTokenSilent({scopes:['Sites.ReadWrite.All'],account:acc});spToken=r.accessToken;}
+  catch(e){await msalInst.acquireTokenRedirect({scopes:['Sites.ReadWrite.All']});}
 }
-async function onIn(){
+
+async function graphGet(url){
+  await getToken();
+  const r=await fetch('https://graph.microsoft.com/v1.0'+url,{headers:{'Authorization':'Bearer '+spToken}});
+  if(!r.ok)throw new Error('GET failed:'+r.status);return r.json();
+}
+async function graphPost(url,body){
+  await getToken();
+  const r=await fetch('https://graph.microsoft.com/v1.0'+url,{method:'POST',headers:{'Authorization':'Bearer '+spToken,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok){const t=await r.text();throw new Error('POST failed:'+r.status+' '+t);}return r.json();
+}
+async function graphPatch(url,body){
+  await getToken();
+  const r=await fetch('https://graph.microsoft.com/v1.0'+url,{method:'PATCH',headers:{'Authorization':'Bearer '+spToken,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error('PATCH failed:'+r.status);return r.status===204?null:r.json();
+}
+async function graphDelete(url){
+  await getToken();
+  const r=await fetch('https://graph.microsoft.com/v1.0'+url,{method:'DELETE',headers:{'Authorization':'Bearer '+spToken}});
+  if(!r.ok)throw new Error('DELETE failed:'+r.status);
+}
+async function resolveSiteId(){const d=await graphGet('/sites/netorg10902910.sharepoint.com:/sites/BladeOperations');spSiteId=d.id;}
+async function spGet(list){const d=await graphGet('/sites/'+spSiteId+'/lists/'+list+'/items?expand=fields&$top=999');return(d.value||[]).map(i=>({...i.fields,_spId:i.id}));}
+async function spCreate(list,fields){const d=await graphPost('/sites/'+spSiteId+'/lists/'+list+'/items',{fields});return{...d.fields,_spId:d.id};}
+async function spUpdate(list,id,fields){return graphPatch('/sites/'+spSiteId+'/lists/'+list+'/items/'+id+'/fields',fields);}
+async function spDelete(list,id){return graphDelete('/sites/'+spSiteId+'/lists/'+list+'/items/'+id);}
+
+async function onSignedIn(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('hub').style.display='block';
-  const n=curUser.name||curUser.username;
-  document.getElementById('uname').textContent=n;
-  document.getElementById('uav').textContent=n[0].toUpperCase();
-  document.getElementById('welcome-msg').textContent='Welcome back, '+n.split(' ')[0];
+  const name=curUser.name||curUser.username;
+  const email=(curUser.username||'').toLowerCase();
+  isAdmin=ADMINS.includes(email);
+  document.getElementById('uname').textContent=name;
+  document.getElementById('uav').textContent=name[0].toUpperCase();
+  document.getElementById('welcome-msg').textContent='Welcome back, '+name.split(' ')[0];
   document.getElementById('top-date').textContent=new Date().toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-  initRoster();
-  calcStats();
+  if(isAdmin){document.getElementById('admin-badge').classList.remove('hidden');document.getElementById('admin-roster-btn').classList.remove('hidden');document.getElementById('admin-hint').classList.remove('hidden');}
+  try{await resolveSiteId();await loadData();}catch(e){console.warn('SP failed, using local:',e);loadLocal();calcStats();renderAdminTechs();renderAdminAssigns();}
 }
 
-// ROSTER DATA - All technicians combined
-const TECHS=[
-  {name:'Otis Lynch',client:'Vestas',sched:{12:'Mob',13:'Wambo-RA',14:'Wambo-RA',15:'Wambo-RA',16:'Wambo-RA',17:'Wambo-RA',18:'Wambo-RA',19:'Wambo-RA',20:'Wambo-RA',21:'Wambo-RA',22:'Wambo-RA',23:'Wambo-RA',24:'Wambo-RA',25:'Wambo-RA',26:'Wambo-RA',27:'Wambo-RA',28:'Wambo-RA',29:'Wambo-RA',30:'Wambo-RA',31:'Wambo-RA',32:'Wambo-RA',33:'Wambo-RA',34:'Wambo-RA',35:'Wambo-RA',36:'Wambo-RA',37:'Wambo-RA',38:'Demob',46:'Mob'}},
-  {name:'Vanessa Webb',client:'Vestas',sched:{12:'Mob',13:'MRWF',14:'MRWF',15:'MRWF',16:'MRWF',17:'MRWF',18:'MRWF',19:'MRWF',20:'MRWF',21:'MRWF',22:'MRWF',23:'MRWF',24:'MRWF',25:'MRWF',26:'MRWF',27:'MRWF',28:'MRWF',29:'MRWF',30:'MRWF',31:'MRWF',32:'MRWF',33:'MRWF',34:'MRWF',35:'MRWF',36:'MRWF',37:'Demob',45:'Mob',46:'Mob',47:'MRWF',48:'MRWF'}},
-  {name:'Rob Forrest',client:'Vestas',sched:{11:'Mob',12:'Mob',13:'Taralga',14:'Taralga',15:'Taralga',16:'Taralga',17:'Taralga',18:'Taralga',19:'Taralga',20:'Taralga',21:'Taralga',22:'Taralga',23:'Taralga',24:'Taralga',25:'Taralga',26:'Taralga',27:'Taralga',28:'Taralga',29:'Taralga',30:'Taralga',31:'Demob',32:'Demob',38:'Mob',39:'Mob',40:'Taralga',41:'Taralga',42:'Taralga',43:'Taralga',44:'Taralga',45:'Taralga',46:'Taralga',47:'Taralga',48:'Taralga'}},
-  {name:'Matt Stanley',client:'Vestas',sched:{12:'Mob',13:'Wambo-RA',14:'Wambo-RA',15:'Wambo-RA',16:'Wambo-RA',17:'Wambo-RA',18:'Wambo-RA',19:'Wambo-RA',20:'Wambo-RA',21:'Wambo-RA',22:'Wambo-RA',23:'Wambo-RA',24:'Wambo-RA',25:'Wambo-RA',26:'Wambo-RA',27:'Wambo-RA',28:'Wambo-RA',29:'Wambo-RA',30:'Wambo-RA',31:'Wambo-RA',32:'Wambo-RA',33:'Wambo-RA',34:'Wambo-RA',35:'Wambo-RA',36:'Wambo-RA',37:'Wambo-RA',38:'Demob',44:'Mob',45:'Wambo-RA',46:'Wambo-RA'}},
-  {name:'Diego Nunes',client:'Vestas',sched:{33:'Mob',34:'Lincoln Gap',35:'Lincoln Gap',36:'Lincoln Gap',37:'Lincoln Gap',38:'Lincoln Gap',39:'Lincoln Gap',40:'Demob'}},
-  {name:'John Dodds',client:'Vestas',sched:{1:'Mob',2:'Mob',3:'Mob',4:'Mob',5:'WDWF',6:'WDWF',7:'WDWF',8:'WDWF',9:'WDWF',10:'WDWF',11:'WDWF',12:'WDWF',13:'WDWF',14:'WDWF',15:'WDWF',16:'WDWF',17:'WDWF',18:'WDWF',19:'WDWF',20:'WDWF',21:'WDWF',22:'WDWF',23:'WDWF',24:'WDWF',25:'WDWF',26:'WDWF',27:'Demob',39:'Mob',40:'Wambo',41:'Wambo',42:'Wambo',43:'Wambo',44:'Wambo',45:'Wambo',46:'Wambo',47:'Wambo'}},
-  {name:'James Grierson',client:'Vestas',sched:{12:'Mob',13:'Wambo-RA',14:'Wambo-RA',15:'Wambo-RA',16:'Wambo-RA',17:'Wambo-RA',18:'Wambo-RA',19:'Wambo-RA',20:'Wambo-RA',21:'Wambo-RA',22:'Wambo-RA',23:'Wambo-RA',24:'Wambo-RA',25:'Wambo-RA',26:'Wambo-RA',27:'Wambo-RA',28:'Wambo-RA',29:'Wambo-RA',30:'Wambo-RA',31:'Wambo-RA',32:'Wambo-RA',33:'Wambo-RA',34:'Wambo-RA',35:'Wambo-RA',36:'Wambo-RA',37:'Wambo-RA',38:'Demob',45:'Mob'}},
-  {name:'Chiara Corazza',client:'Vestas',sched:{12:'Mob',13:'Wambo-RA',14:'Wambo-RA',15:'Wambo-RA',16:'Wambo-RA',17:'Wambo-RA',18:'Wambo-RA',19:'Wambo-RA',20:'Wambo-RA',21:'Wambo-RA',22:'Wambo-RA',23:'Wambo-RA',24:'Wambo-RA',25:'Wambo-RA',26:'Wambo-RA',27:'Wambo-RA',28:'Wambo-RA',29:'Wambo-RA',30:'Wambo-RA',31:'Wambo-RA',32:'Wambo-RA',33:'Wambo-RA',34:'Wambo-RA',35:'Wambo-RA',36:'Wambo-RA',37:'Wambo-RA',38:'Demob',45:'Mob'}},
-  {name:'Blair Munro',client:'Vestas',sched:{4:'Mob',5:'Wambo',6:'Wambo',7:'Wambo',8:'Wambo',9:'Wambo',10:'Wambo',11:'Wambo',12:'Wambo-RA',13:'Wambo-RA',14:'Wambo-RA',15:'Wambo-RA',16:'Wambo-RA',17:'Wambo-RA',18:'Wambo',19:'Wambo',20:'Wambo',21:'Wambo',22:'Wambo',23:'Wambo',24:'Wambo',25:'Wambo',26:'Wambo',27:'Wambo',28:'Wambo',29:'Wambo',30:'Wambo',31:'Mob',32:'Mob',33:'Lincoln Gap',34:'Lincoln Gap',35:'Lincoln Gap',36:'Lincoln Gap',37:'Lincoln Gap',38:'Demob',44:'Mob',45:'Wambo',46:'Wambo'}},
-  {name:'Kane Christmas',client:'Vestas',sched:{12:'Mob',13:'Wambo',14:'Wambo',15:'Wambo',16:'Wambo',17:'Wambo',18:'Wambo',19:'Wambo',20:'Wambo',21:'Wambo',22:'Wambo',23:'Wambo',24:'Wambo',25:'Wambo',26:'Wambo',27:'Wambo',28:'Wambo',29:'Wambo',30:'Wambo',31:'Wambo',32:'Wambo',33:'Wambo',34:'Wambo',35:'Wambo',36:'Wambo',37:'Wambo',38:'Wambo',39:'Wambo',40:'Wambo',41:'Wambo',42:'Wambo',43:'Wambo',44:'Wambo',45:'Wambo',46:'Wambo',47:'Wambo',48:'Wambo'}},
-  {name:'Jordan Goodfellow',client:'Vestas',sched:{27:'Mob',28:'WDWF',29:'WDWF',30:'WDWF',31:'WDWF',32:'WDWF',33:'WDWF',34:'WDWF',35:'WDWF',36:'WDWF',37:'WDWF',38:'WDWF',39:'WDWF',40:'WDWF',41:'WDWF',42:'WDWF',43:'WDWF',44:'WDWF',45:'WDWF',46:'WDWF',47:'WDWF',48:'WDWF'}},
-  {name:'Nina Gil',client:'Vestas',sched:{19:'Mob',20:'Wambo-RA',21:'Wambo-RA',22:'Wambo-RA',23:'Wambo-RA',24:'Wambo-RA',25:'Wambo-RA',26:'Wambo-RA',27:'Wambo-RA',28:'Wambo-RA',29:'Wambo-RA',30:'Wambo-RA',31:'Wambo-RA',32:'Wambo-RA',33:'Wambo-RA',34:'Wambo-RA',35:'Wambo-RA',36:'Wambo-RA',37:'Wambo-RA',38:'Wambo-RA',39:'Wambo',40:'Wambo',41:'Wambo',42:'Wambo',43:'Wambo',44:'Wambo',45:'Wambo',46:'Wambo',47:'Wambo-RA',48:'Wambo-RA'}},
-  {name:'Tom Crang',client:'Vestas',sched:{}},
-  {name:'Chaz Petzer',client:'Vestas',sched:{}},
-  {name:'Kurt Young',client:'Vestas',sched:{}},
-  {name:'Luke Robertson',client:'Vestas',sched:{}},
-  {name:'Tim Noad',client:'Vestas',sched:{}},
-  {name:'Shane Garland',client:'Vestas',sched:{}},
-  {name:'Markus Forsthuber',client:'Vestas',sched:{}},
-  {name:'Nathan Jones',client:'Vestas',sched:{}},
-  {name:'Alejandro Ocampo',client:'Vestas',sched:{}},
-];
-
-// Column dates — starting from Excel serial 46023 (Thu 5 Sep 2025... need to convert)
-// Excel serial 46023 = Sep 4 2025 (approx). Let's compute properly.
-function excelToDate(serial){
-  const d=new Date(Date.UTC(1899,11,30));
-  d.setUTCDate(d.getUTCDate()+serial);
-  return d;
-}
-const COL_DATES=[];
-for(let i=0;i<49;i++) COL_DATES.push(excelToDate(46023+i));
-
-function getStatus(val){
-  if(!val) return '';
-  const v=val.toLowerCase();
-  if(v==='demob') return 'dm';
-  if(v.includes('mob')) return 'mob';
-  return 'site';
+async function loadData(){
+  showToast('Loading...');
+  try{
+    const spTechs=await spGet('Technicians');
+    if(spTechs.length>0){
+      techs=spTechs.map(t=>({id:t._spId,name:t.FullName||t.Title||'',client:t.Client||'Vestas',role:t.Role||'',phone:t.Phone||'',email:t.Email||'',certs:t.Certifications||'',active:t.IsActive!==false,_spId:t._spId}));
+    } else {loadLocal();await seedTechs();}
+    const spA=await spGet('RosterEntries');
+    if(spA.length>0){
+      assignments=spA.map(a=>({id:a._spId,tech:a.TechName||'',client:a.Client||'',site:a.Site||'',type:a.EntryType||'On-Swing',start:a.StartDate||'',end:a.EndDate||'',notes:a.Notes||'',_spId:a._spId}));
+    } else {loadLocalAssigns();await seedAssigns();}
+    showToast('Loaded ✓');
+  }catch(e){console.warn(e);loadLocal();loadLocalAssigns();}
+  calcStats();renderAdminTechs();renderAdminAssigns();
 }
 
-function renderCell(val){
-  if(!val) return '<span class="s-off">—</span>';
-  const s=getStatus(val);
-  if(s==='mob') return '<span class="s-mob">MOB</span>';
-  if(s==='dm') return '<span class="s-dm">DM</span>';
-  return '<span class="s-site" title="'+val+'">'+val.slice(0,9)+'</span>';
+function loadLocal(){
+  techs=[
+    {id:1,name:'Otis Lynch',client:'Vestas',role:'Blade Technician',active:true},
+    {id:2,name:'Vanessa Webb',client:'Vestas',role:'Blade Technician',active:true},
+    {id:3,name:'Rob Forrest',client:'Vestas',role:'Blade Technician',active:true},
+    {id:4,name:'Matt Stanley',client:'Vestas',role:'Blade Technician',active:true},
+    {id:5,name:'Diego Nunes',client:'Vestas',role:'Blade Technician',active:true},
+    {id:6,name:'John Dodds',client:'Vestas',role:'Blade Technician',active:true},
+    {id:7,name:'James Grierson',client:'Vestas',role:'Blade Technician',active:true},
+    {id:8,name:'Chiara Corazza',client:'Vestas',role:'Blade Technician',active:true},
+    {id:9,name:'Blair Munro',client:'Vestas',role:'Blade Technician',active:true},
+    {id:10,name:'Kane Christmas',client:'Vestas',role:'Blade Technician',active:true},
+    {id:11,name:'Jordan Goodfellow',client:'Vestas',role:'Blade Technician',active:true},
+    {id:12,name:'Nina Gil',client:'Vestas',role:'Blade Technician',active:true},
+    {id:13,name:'Tom Crang',client:'Vestas',role:'Blade Technician',active:true},
+    {id:14,name:'Chaz Petzer',client:'Vestas',role:'Blade Technician',active:true},
+    {id:15,name:'Kurt Young',client:'Vestas',role:'Blade Technician',active:true},
+    {id:16,name:'Luke Robertson',client:'Vestas',role:'Blade Technician',active:true},
+    {id:17,name:'Tim Noad',client:'Vestas',role:'Blade Technician',active:true},
+    {id:18,name:'Shane Garland',client:'Vestas',role:'Blade Technician',active:true},
+    {id:19,name:'Markus Forsthuber',client:'Vestas',role:'Blade Technician',active:true},
+    {id:20,name:'Nathan Jones',client:'Vestas',role:'Blade Technician',active:true},
+    {id:21,name:'Alejandro Ocampo',client:'Vestas',role:'Blade Technician',active:true},
+  ];
 }
 
-function initRoster(){
-  const sites=new Set();
-  TECHS.forEach(t=>Object.values(t.sched).forEach(v=>{if(v&&v!=='Mob'&&v!=='Demob')sites.add(v);}));
-  const sf=document.getElementById('r-site');
-  sf.innerHTML='<option value="">All Sites</option>'+[...sites].sort().map(s=>'<option>'+s+'</option>').join('');
+function loadLocalAssigns(){
+  assignments=[
+    {id:'a1',tech:'Otis Lynch',client:'Vestas',site:'Wambo-RA',type:'On-Swing',start:'2026-03-23',end:'2026-05-03'},
+    {id:'a2',tech:'Vanessa Webb',client:'Vestas',site:'MRWF',type:'On-Swing',start:'2026-03-23',end:'2026-05-03'},
+    {id:'a3',tech:'Rob Forrest',client:'Vestas',site:'Taralga',type:'On-Swing',start:'2026-03-22',end:'2026-04-19'},
+    {id:'a4',tech:'Rob Forrest',client:'Vestas',site:'Taralga',type:'On-Swing',start:'2026-04-27',end:'2026-06-30'},
+    {id:'a5',tech:'Matt Stanley',client:'Vestas',site:'Wambo-RA',type:'On-Swing',start:'2026-03-23',end:'2026-05-03'},
+    {id:'a6',tech:'Diego Nunes',client:'Vestas',site:'Lincoln Gap',type:'On-Swing',start:'2026-04-13',end:'2026-04-27'},
+    {id:'a7',tech:'John Dodds',client:'Vestas',site:'WDWF',type:'On-Swing',start:'2026-01-02',end:'2026-03-29'},
+    {id:'a8',tech:'John Dodds',client:'Vestas',site:'Wambo',type:'On-Swing',start:'2026-04-27',end:'2026-09-30'},
+    {id:'a9',tech:'James Grierson',client:'Vestas',site:'Wambo-RA',type:'On-Swing',start:'2026-03-23',end:'2026-05-03'},
+    {id:'a10',tech:'Chiara Corazza',client:'Vestas',site:'Wambo-RA',type:'On-Swing',start:'2026-03-23',end:'2026-05-03'},
+    {id:'a11',tech:'Blair Munro',client:'Vestas',site:'Wambo',type:'On-Swing',start:'2026-01-05',end:'2026-09-30'},
+    {id:'a12',tech:'Kane Christmas',client:'Vestas',site:'Wambo',type:'On-Swing',start:'2026-03-23',end:'2026-12-31'},
+    {id:'a13',tech:'Jordan Goodfellow',client:'Vestas',site:'WDWF',type:'On-Swing',start:'2026-04-06',end:'2026-12-31'},
+    {id:'a14',tech:'Nina Gil',client:'Vestas',site:'Wambo-RA',type:'On-Swing',start:'2026-03-09',end:'2026-12-31'},
+  ];
+}
+
+async function seedTechs(){
+  for(const t of techs){
+    try{const s=await spCreate('Technicians',{Title:t.name,FullName:t.name,Client:t.client,Role:t.role||'',IsActive:true});t._spId=s._spId;}catch(e){}
+  }
+}
+async function seedAssigns(){
+  for(const a of assignments){
+    try{const s=await spCreate('RosterEntries',{Title:a.tech+'-'+a.site,TechName:a.tech,Client:a.client,Site:a.site,EntryType:a.type,StartDate:a.start||null,EndDate:a.end||null});a._spId=s._spId;}catch(e){}
+  }
+}
+
+function getTechStatus(tech,dateStr){
+  const myAssigns=assignments.filter(a=>a.tech===tech.name);
+  for(const a of myAssigns){
+    if(a.start<=dateStr&&(!a.end||a.end>=dateStr))return{site:a.site,type:a.type,id:a.id};
+  }
+  return null;
+}
+
+function renderCell(status,tech,dateStr){
+  const click=isAdmin?` onclick="openCellModal('${tech.name.replace(/'/g,"\'")}','${dateStr}')"` : '';
+  if(!status)return`<span class="s-off"${click}>—</span>`;
+  const t=status.type||'On-Swing';
+  if(t==='Mob')return`<span class="s-mob"${click}>MOB</span>`;
+  if(t==='Demob')return`<span class="s-dm"${click}>DM</span>`;
+  if(t==='Leave')return`<span class="s-leave"${click}>LEAVE</span>`;
+  if(t==='Course')return`<span class="s-course"${click}>COURSE</span>`;
+  return`<span class="s-site" title="${status.site}"${click}>${status.site.slice(0,9)}</span>`;
+}
+
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS=['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+function getDays(monthFilter){
+  const today=new Date();today.setHours(0,0,0,0);
+  const days=[];
+  if(monthFilter===-1){
+    for(let m=0;m<12;m++){const dm=new Date(2026,m+1,0).getDate();for(let d=1;d<=dm;d++)days.push(new Date(2026,m,d));}
+  } else {
+    const dm=new Date(2026,monthFilter+1,0).getDate();
+    for(let d=1;d<=dm;d++)days.push(new Date(2026,monthFilter,d));
+  }
+  return days;
+}
+
+function switchTab(tab,btn){
+  rosterTab=tab;
+  document.querySelectorAll('.tab-bar .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
   renderRoster();
 }
 
 function renderRoster(){
-  const q=document.getElementById('r-search').value.toLowerCase();
-  const sf=document.getElementById('r-site').value;
-  const stf=document.getElementById('r-status').value;
-  const today=new Date();
+  const search=(document.getElementById('r-search')||{value:''}).value.toLowerCase();
+  const siteFilter=(document.getElementById('r-site')||{value:''}).value;
+  const monthFilter=parseInt((document.getElementById('r-month')||{value:'-1'}).value);
+  const today=new Date();today.setHours(0,0,0,0);
+  const days=getDays(monthFilter);
 
-  let filtered=TECHS.filter(t=>{
-    if(q&&!t.name.toLowerCase().includes(q)) return false;
-    if(sf&&!Object.values(t.sched).includes(sf)) return false;
-    return true;
+  let filtered=techs.filter(t=>t.active!==false);
+  if(rosterTab!=='all')filtered=filtered.filter(t=>t.client===rosterTab);
+  if(search)filtered=filtered.filter(t=>t.name.toLowerCase().includes(search));
+  if(siteFilter)filtered=filtered.filter(t=>assignments.some(a=>a.tech===t.name&&a.site===siteFilter));
+
+  // Month header row
+  let monthRow='<tr><th class="name-th">Technician</th><th style="min-width:60px;position:sticky;left:150px;z-index:2;background:#1b4f72">Client</th>';
+  let curMonth=-1,span=0;
+  const mGroups=[];
+  days.forEach(d=>{
+    if(d.getMonth()!==curMonth){if(curMonth>=0)mGroups.push({m:curMonth,s:span});curMonth=d.getMonth();span=1;}else span++;
   });
+  if(curMonth>=0)mGroups.push({m:curMonth,s:span});
+  mGroups.forEach(g=>monthRow+=`<th colspan="${g.s}" class="month-header">${MONTHS[g.m]} 2026</th>`);
+  monthRow+='</tr>';
 
-  // Build header
-  let th='<tr><th style="min-width:140px;position:sticky;left:0;background:#1b4f72;z-index:2">Technician</th><th style="min-width:80px">Client</th>';
-  COL_DATES.forEach((d,i)=>{
+  // Day header row
+  let dayRow='<tr><th class="name-th"></th><th style="position:sticky;left:150px;z-index:2;background:#1b4f72"></th>';
+  days.forEach(d=>{
     const isToday=d.toDateString()===today.toDateString();
-    const dayStr=d.toLocaleDateString('en-AU',{weekday:'short'});
-    const dateStr=d.getDate()+'/'+(d.getMonth()+1);
-    th+=`<th class="day-cell${isToday?' today-col':''}" style="${isToday?'background:#f59e0b;color:#fff;':''}font-size:9px">${dayStr}<br>${dateStr}</th>`;
+    const isSun=d.getDay()===0,isSat=d.getDay()===6;
+    const wkend=isSun||isSat?'background:#0f3a5a;':'' ;
+    dayRow+=`<th class="day-cell${isToday?' today-col':''}" style="${isToday?'background:#f59e0b;color:#1a1a2e;':wkend}font-size:9px;min-width:32px">${DAYS[d.getDay()]}<br>${d.getDate()}</th>`;
   });
-  th+='</tr>';
+  dayRow+='</tr>';
 
-  let tb='';
-  filtered.forEach(t=>{
-    let row=`<tr><td class="name-col" style="position:sticky;left:0;background:#fff;z-index:1">${t.name}</td><td style="font-size:11px;color:#546e7a">${t.client}</td>`;
-    COL_DATES.forEach((d,i)=>{
+  // Data rows
+  let tbody='';
+  filtered.forEach(tech=>{
+    let row=`<tr><td class="name-col">${tech.name}</td><td style="font-size:11px;color:#546e7a;min-width:60px;position:sticky;left:150px;background:#fff;z-index:1">${tech.client}</td>`;
+    days.forEach(d=>{
       const isToday=d.toDateString()===today.toDateString();
-      row+=`<td class="day-cell${isToday?' today-col':''}">${renderCell(t.sched[i]||'')}</td>`;
+      const dateStr=d.toISOString().slice(0,10);
+      const status=getTechStatus(tech,dateStr);
+      row+=`<td class="day-cell${isToday?' today-col':''}">${renderCell(status,tech,dateStr)}</td>`;
     });
     row+='</tr>';
-    tb+=row;
+    tbody+=row;
   });
 
-  document.getElementById('r-head').innerHTML=th;
-  document.getElementById('r-body').innerHTML=tb||'<tr><td colspan="51" style="padding:20px;text-align:center;color:#aaa">No results</td></tr>';
+  document.getElementById('r-head').innerHTML=monthRow+dayRow;
+  document.getElementById('r-body').innerHTML=tbody||'<tr><td colspan="400" style="padding:20px;text-align:center;color:#aaa">No technicians found</td></tr>';
+
+  // Update site filter
+  const sites=new Set();
+  assignments.forEach(a=>{if(a.site)sites.add(a.site);});
+  const sf=document.getElementById('r-site');
+  if(sf){const cur=sf.value;sf.innerHTML='<option value="">All Sites</option>'+[...sites].sort().map(s=>`<option ${s===cur?'selected':''}>${s}</option>`).join('');}
 }
 
 function calcStats(){
-  const today=new Date();
+  const today=new Date();today.setHours(0,0,0,0);
+  const todayStr=today.toISOString().slice(0,10);
   let swing=0,sites=new Set(),mob=0,off=0;
-  TECHS.forEach(t=>{
-    let todayVal='';
-    COL_DATES.forEach((d,i)=>{if(d.toDateString()===today.toDateString()) todayVal=t.sched[i]||'';});
-    const s=getStatus(todayVal);
-    if(s==='site'||todayVal){if(todayVal&&s!=='mob'&&s!=='dm') {swing++;sites.add(todayVal);}}
-    if(s==='mob'||s==='dm') mob++;
-    if(!todayVal) off++;
+  techs.forEach(t=>{
+    const s=getTechStatus(t,todayStr);
+    if(!s){off++;return;}
+    const type=s.type||'On-Swing';
+    if(type==='Mob'||type==='Demob')mob++;
+    else if(type==='Off-Swing'||type==='Leave')off++;
+    else{swing++;sites.add(s.site);}
   });
   document.getElementById('s-swing').textContent=swing;
   document.getElementById('s-sites').textContent=sites.size;
@@ -295,21 +524,204 @@ function calcStats(){
   document.getElementById('s-off').textContent=off;
 }
 
-function showRoster(){document.getElementById('hub-main').style.display='none';document.getElementById('roster-section').style.display='block';}
-function showHub(){document.getElementById('hub-main').style.display='block';document.getElementById('roster-section').style.display='none';}
+// CELL EDIT MODAL
+function openCellModal(techName,dateStr){
+  cellTech=techName;cellDate=dateStr;
+  const d=new Date(dateStr+'T00:00:00');
+  const tech=techs.find(t=>t.name===techName);
+  const status=getTechStatus(tech,dateStr);
+  document.getElementById('cell-info').textContent=techName+' — '+d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('cell-type').value=status?status.type:'';
+  document.getElementById('cell-site').value=status?status.site:'';
+  document.getElementById('modal-cell').classList.add('open');
+}
+
+function clearCell(){
+  const tech=techs.find(t=>t.name===cellTech);
+  const status=getTechStatus(tech,cellDate);
+  if(status){
+    assignments=assignments.filter(a=>(a._spId||a.id)!=status.id);
+    try{spDelete('RosterEntries',status.id);}catch(e){}
+  }
+  closeModal('modal-cell');renderRoster();calcStats();showToast('Cleared');
+}
+
+async function saveCell(){
+  const type=document.getElementById('cell-type').value;
+  const site=document.getElementById('cell-site').value.trim();
+  if(type&&type!=='Off-Swing'&&!site&&type!=='Leave'&&type!=='Course'){showToast('Enter a site name','err');return;}
+  const tech=techs.find(t=>t.name===cellTech);
+  const existing=getTechStatus(tech,cellDate);
+
+  if(!type){clearCell();return;}
+
+  const data={tech:cellTech,client:tech.client||'Vestas',site:site||type,type,start:cellDate,end:cellDate,notes:''};
+
+  if(existing){
+    const idx=assignments.findIndex(a=>(a._spId||a.id)==existing.id);
+    if(idx>=0)assignments[idx]={...assignments[idx],...data};
+    try{await spUpdate('RosterEntries',existing.id,{Site:site||type,EntryType:type,StartDate:cellDate,EndDate:cellDate});}catch(e){}
+  } else {
+    const newA={...data,id:'c'+Date.now()};
+    assignments.push(newA);
+    try{const s=await spCreate('RosterEntries',{Title:cellTech+'-'+site,TechName:cellTech,Client:tech.client||'Vestas',Site:site||type,EntryType:type,StartDate:cellDate,EndDate:cellDate});newA._spId=s._spId;}catch(e){}
+  }
+  closeModal('modal-cell');renderRoster();calcStats();showToast('Saved ✓');
+}
+
+// ADMIN TECHS
+function renderAdminTechs(){
+  const tbody=document.getElementById('admin-techs-body');
+  if(!tbody)return;
+  tbody.innerHTML=techs.map(t=>`<tr>
+    <td style="font-weight:600">${t.name}</td><td>${t.client}</td>
+    <td style="color:#546e7a">${t.role||'—'}</td>
+    <td style="color:#546e7a">${t.email||'—'}</td>
+    <td><span style="background:${t.active!==false?'#d5f5e3':'#fadbd8'};color:${t.active!==false?'#1e8449':'#922b21'};padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">${t.active!==false?'Active':'Inactive'}</span></td>
+    <td><div style="display:flex;gap:6px">
+      <button class="btn btn-sm" onclick='editTech(${JSON.stringify(t).replace(/"/g,"&quot;")})'>Edit</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteTech('${t._spId||t.id}','${t.name}')">Remove</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function renderAdminAssigns(){
+  const tbody=document.getElementById('admin-assign-body');
+  if(!tbody)return;
+  tbody.innerHTML=assignments.map(a=>`<tr>
+    <td style="font-weight:600">${a.tech}</td><td>${a.client}</td>
+    <td><span class="s-site" style="max-width:100px">${a.site}</span></td>
+    <td style="color:#546e7a">${a.type}</td>
+    <td style="font-size:11px;font-family:monospace">${a.start}</td>
+    <td style="font-size:11px;font-family:monospace">${a.end||'—'}</td>
+    <td><div style="display:flex;gap:6px">
+      <button class="btn btn-sm" onclick="editAssign('${a._spId||a.id}')">Edit</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteAssign('${a._spId||a.id}','${a.tech}')">Remove</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function openAddTechModal(){
+  editTechId=null;
+  document.getElementById('modal-tech-title').textContent='Add Technician';
+  ['t-name','t-role','t-phone','t-email','t-certs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('t-client').value='Vestas';document.getElementById('t-status').value='1';document.getElementById('t-isadmin').checked=false;
+  document.getElementById('modal-tech').classList.add('open');
+}
+
+function editTech(t){
+  editTechId=t._spId||t.id;
+  document.getElementById('modal-tech-title').textContent='Edit Technician';
+  document.getElementById('t-name').value=t.name||'';document.getElementById('t-client').value=t.client||'Vestas';
+  document.getElementById('t-role').value=t.role||'';document.getElementById('t-phone').value=t.phone||'';
+  document.getElementById('t-email').value=t.email||'';document.getElementById('t-certs').value=t.certs||'';
+  document.getElementById('t-status').value=t.active!==false?'1':'0';document.getElementById('t-isadmin').checked=t.isAdmin||false;
+  document.getElementById('modal-tech').classList.add('open');
+}
+
+async function saveTech(){
+  const name=document.getElementById('t-name').value.trim();
+  if(!name){showToast('Name required','err');return;}
+  const data={name,client:document.getElementById('t-client').value,role:document.getElementById('t-role').value,phone:document.getElementById('t-phone').value,email:document.getElementById('t-email').value,certs:document.getElementById('t-certs').value,active:document.getElementById('t-status').value==='1',isAdmin:document.getElementById('t-isadmin').checked};
+  const spF={Title:name,FullName:name,Client:data.client,Role:data.role,Phone:data.phone,Email:data.email,Certifications:data.certs,IsActive:data.active,IsAdmin:data.isAdmin};
+  if(editTechId){
+    const idx=techs.findIndex(t=>(t._spId||t.id)==editTechId);
+    if(idx>=0)techs[idx]={...techs[idx],...data};
+    try{await spUpdate('Technicians',editTechId,spF);showToast('Updated ✓');}catch(e){showToast('Saved locally','err');}
+  } else {
+    const nt={...data,id:Date.now()};techs.push(nt);
+    try{const s=await spCreate('Technicians',spF);nt._spId=s._spId;showToast('Added ✓');}catch(e){showToast('Saved locally','err');}
+  }
+  closeModal('modal-tech');renderAdminTechs();renderRoster();calcStats();
+}
+
+async function deleteTech(id,name){
+  if(!confirm('Remove '+name+'?'))return;
+  techs=techs.filter(t=>(t._spId||t.id)!=id);
+  try{await spDelete('Technicians',id);showToast('Removed');}catch(e){showToast('Removed locally','err');}
+  renderAdminTechs();renderRoster();calcStats();
+}
+
+function openAddAssignModal(){
+  editAssignId=null;
+  document.getElementById('modal-assign-title').textContent='Add Assignment';
+  const sel=document.getElementById('a-tech');
+  sel.innerHTML=techs.map(t=>`<option>${t.name}</option>`).join('');
+  document.getElementById('a-client').value='Vestas';document.getElementById('a-site').value='';
+  document.getElementById('a-type').value='On-Swing';document.getElementById('a-start').value='';
+  document.getElementById('a-end').value='';document.getElementById('a-notes').value='';
+  document.getElementById('modal-assign').classList.add('open');
+}
+
+function editAssign(id){
+  const a=assignments.find(x=>(x._spId||x.id)==id);if(!a)return;
+  editAssignId=id;
+  document.getElementById('modal-assign-title').textContent='Edit Assignment';
+  const sel=document.getElementById('a-tech');
+  sel.innerHTML=techs.map(t=>`<option ${t.name===a.tech?'selected':''}>${t.name}</option>`).join('');
+  document.getElementById('a-client').value=a.client||'Vestas';document.getElementById('a-site').value=a.site||'';
+  document.getElementById('a-type').value=a.type||'On-Swing';document.getElementById('a-start').value=a.start||'';
+  document.getElementById('a-end').value=a.end||'';document.getElementById('a-notes').value=a.notes||'';
+  document.getElementById('modal-assign').classList.add('open');
+}
+
+async function saveAssign(){
+  const site=document.getElementById('a-site').value.trim();
+  const start=document.getElementById('a-start').value;
+  if(!site||!start){showToast('Site and start date required','err');return;}
+  const data={tech:document.getElementById('a-tech').value,client:document.getElementById('a-client').value,site,type:document.getElementById('a-type').value,start,end:document.getElementById('a-end').value,notes:document.getElementById('a-notes').value};
+  const spF={Title:data.tech+'-'+site,TechName:data.tech,Client:data.client,Site:site,EntryType:data.type,StartDate:start||null,EndDate:data.end||null,Notes:data.notes};
+  if(editAssignId){
+    const idx=assignments.findIndex(a=>(a._spId||a.id)==editAssignId);
+    if(idx>=0)assignments[idx]={...assignments[idx],...data};
+    try{await spUpdate('RosterEntries',editAssignId,spF);showToast('Updated ✓');}catch(e){showToast('Saved locally','err');}
+  } else {
+    const na={...data,id:'a'+Date.now()};assignments.push(na);
+    try{const s=await spCreate('RosterEntries',spF);na._spId=s._spId;showToast('Added ✓');}catch(e){showToast('Saved locally','err');}
+  }
+  closeModal('modal-assign');renderAdminAssigns();renderRoster();calcStats();
+}
+
+async function deleteAssign(id,tech){
+  if(!confirm('Remove assignment for '+tech+'?'))return;
+  assignments=assignments.filter(a=>(a._spId||a.id)!=id);
+  try{await spDelete('RosterEntries',id);showToast('Removed');}catch(e){showToast('Removed locally','err');}
+  renderAdminAssigns();renderRoster();calcStats();
+}
+
+function switchAdminTab(tab,btn){
+  document.querySelectorAll('#view-admin-roster .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('admin-techs').classList.toggle('hidden',tab!=='techs');
+  document.getElementById('admin-assignments').classList.toggle('hidden',tab!=='assignments');
+}
+
+function showView(name){
+  ['hub','roster','admin-roster'].forEach(v=>{const el=document.getElementById('view-'+v);if(el)el.classList.toggle('hidden',v!==name);});
+  if(name==='roster'){const m=parseInt((document.getElementById('r-month')||{value:'-1'}).value||'-1');if(m===-1){document.getElementById('r-month').value=new Date().getMonth();}renderRoster();}
+  if(name==='admin-roster'){renderAdminTechs();renderAdminAssigns();}
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-bg'))e.target.classList.remove('open');});
+
 let tt=null;
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';if(tt)clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',3000);}
+function showToast(msg,type){
+  const t=document.getElementById('toast');t.textContent=msg;t.className=type==='err'?'err':'';t.style.display='block';
+  if(tt)clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',3000);
+}
+function showErr(msg){const el=document.getElementById('login-error');el.style.display='block';el.textContent=msg;}
 
 document.addEventListener('DOMContentLoaded',async()=>{
   const h=document.getElementById('redirect-hint');
-  if(h) h.textContent='Redirect URI: '+location.href.split('?')[0].split('#')[0];
+  if(h)h.textContent='Redirect URI: '+location.href.split('?')[0].split('#')[0];
   try{
     msalInst=await msal.PublicClientApplication.createPublicClientApplication(msalConfig);
     const resp=await msalInst.handleRedirectPromise();
-    if(resp&&resp.account){curUser=resp.account;msalInst.setActiveAccount(resp.account);await onIn();return;}
+    if(resp&&resp.account){curUser=resp.account;msalInst.setActiveAccount(resp.account);await onSignedIn();return;}
     const accs=msalInst.getAllAccounts();
-    if(accs.length>0){curUser=accs[0];msalInst.setActiveAccount(accs[0]);await onIn();}
-  }catch(e){const el=document.getElementById('login-error');el.style.display='block';el.textContent='Auth error: '+e.message;}
+    if(accs.length>0){curUser=accs[0];msalInst.setActiveAccount(accs[0]);await onSignedIn();}
+  }catch(e){showErr('Auth error: '+e.message);}
 });
 </script>
 </body>
