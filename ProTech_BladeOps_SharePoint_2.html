@@ -4420,7 +4420,7 @@ function addNordexFinding() {
   renderNordexFindings();
 }
 function renderNordexFindings() {
-  const c = document.getElementById('nr-findings-container');
+  const c = document.getElementById('ni2-findings-container') || document.getElementById('nr-findings-container');
   if (!nrFindings.length) { 
     c.innerHTML='<div style="color:#8a9bb0;font-size:12px;font-style:italic;padding:4px 0">No findings added. Click Add Finding.</div>'; 
     return; 
