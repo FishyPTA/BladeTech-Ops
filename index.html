@@ -93,6 +93,7 @@ table.rt th.today-col{background:#f59e0b !important;color:#1a1a2e !important}
 #toast{position:fixed;bottom:24px;right:24px;background:#1b4f72;color:#fff;padding:11px 20px;border-radius:6px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.2);display:none;z-index:9999;max-width:300px}
 #toast.err{background:#c0392b}
 .hidden{display:none!important}
+.range-start{outline:3px solid #f59e0b!important;outline-offset:-2px}.range-preview{background:#fff3cd!important}
 </style>
 </head>
 <body>
@@ -203,7 +204,7 @@ table.rt th.today-col{background:#f59e0b !important;color:#1a1a2e !important}
         <div class="leg-item"><span class="chip chip-course">COURSE</span> Training</div>
         <div class="leg-item"><span class="chip chip-off">—</span> Off swing</div>
         <div style="background:#fffde7;border:1px solid #f59e0b;padding:2px 7px;border-radius:3px;font-size:9px;color:#92400e;font-weight:700">TODAY</div>
-        <span id="admin-hint" class="hidden" style="color:#1b4f72;font-style:italic">💡 Drag a name onto any day to assign. Click a cell to edit.</span>
+        <span id="admin-hint" class="hidden" style="color:#1b4f72;font-style:italic">💡 Drag a name onto any day. Click to edit one day. Shift+click two cells on the same row to assign a whole range.</span>
       </div>
       <div class="roster-wrap">
         <table class="rt"><thead id="r-head"></thead><tbody id="r-body"></tbody></table>
@@ -560,7 +561,7 @@ function renderRoster(){
       row+=`<td class="${isToday?'today-col':wk?'wkend-col':''}"
         ondragover="onDragOver(event)"
         ondragleave="onDragLeave(event)"
-        ondrop="onDrop(event,'${dn}','${dateStr}')">${chipHtml(st,tech.name,dateStr,isAdmin)}</td>`;
+        ondrop="onDrop(event,'${dn}','${dateStr}')" onclick="onCellClick(event,'${dn}','${dateStr}')" data-tech="${dn}" data-date="${dateStr}">${chipHtml(st,tech.name,dateStr,isAdmin)}</td>`;
     });
     row+='</tr>';
     tbody+=row;
@@ -827,5 +828,6 @@ document.addEventListener('DOMContentLoaded',async()=>{
   }catch(e){showErr('Auth error: '+e.message);console.error(e);}
 });
 </script>
+<div class="modal-bg" id="modal-range"><div class="modal" style="min-width:320px;max-width:420px"><h2>Assign Date Range</h2><div id="range-info" style="font-size:13px;color:#7f8c8d;margin-bottom:16px;font-style:italic"></div><div class="fg"><label>Type</label><select id="range-type"><option>On-Swing</option><option>Mob</option><option>Demob</option><option>Leave</option><option>Course</option><option value="">Clear range</option></select></div><div class="fg"><label>Site</label><input id="range-site" placeholder="e.g. Wambo-RA, MRWF..."></div><div class="mf"><button class="btn" onclick="cancelRange()">Cancel</button><button class="btn btn-primary" onclick="saveRange()">Apply to Range</button></div></div></div>
 </body>
 </html>
