@@ -2,335 +2,207 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>ProTech Access — Operations Hub</title>
-<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.0/lib/msal-browser.min.js">
-// === CELL DRAG RANGE SELECTION ===
-var _selTech=null,_selStart=null,_selEnd=null,_isDragging=false;
-
-function onCellMouseDown(e,techName,dateStr){
-  if(!isAdmin)return;
-  e.preventDefault();
-  _selTech=techName;_selStart=dateStr;_selEnd=dateStr;_isDragging=true;
-  highlightRange(techName,dateStr,dateStr);
-}
-function onCellMouseEnter(e,techName,dateStr){
-  if(!_isDragging||_selTech!==techName)return;
-  _selEnd=dateStr;
-  highlightRange(techName,_selStart,_selEnd);
-}
-function onCellMouseUp(e,techName,dateStr){
-  if(!_isDragging)return;
-  _isDragging=false;_selEnd=dateStr;
-  var s=_selStart<=_selEnd?_selStart:_selEnd;
-  var en=_selStart<=_selEnd?_selEnd:_selStart;
-  clearCellHL();
-  if(s===en){openCellModal(_selTech,s);}
-  else{openRangeModal(_selTech,s,en);}
-  _selTech=null;_selStart=null;_selEnd=null;
-}
-document.addEventListener('mouseup',function(){
-  if(_isDragging){
-    _isDragging=false;
-    if(_selTech&&_selStart&&_selEnd){
-      var s=_selStart<=_selEnd?_selStart:_selEnd;
-      var en=_selStart<=_selEnd?_selEnd:_selStart;
-      clearCellHL();
-      if(s===en){openCellModal(_selTech,s);}else{openRangeModal(_selTech,s,en);}
-    }
-    _selTech=null;_selStart=null;_selEnd=null;
-  }
-});
-function highlightRange(techName,startDate,endDate){
-  clearCellHL();
-  var s=startDate<=endDate?startDate:endDate;
-  var en=startDate<=endDate?endDate:startDate;
-  document.querySelectorAll('[data-tech][data-date]').forEach(function(td){
-    if(td.dataset.tech!==techName)return;
-    var d=td.dataset.date;
-    if(d>=s&&d<=en)td.classList.add(d===s?'cell-sel-start':'cell-selecting');
-  });
-}
-function clearCellHL(){
-  document.querySelectorAll('.cell-selecting,.cell-sel-start').forEach(function(el){
-    el.classList.remove('cell-selecting','cell-sel-start');
-  });
-}
-function openRangeModal(techName,startDate,endDate){
-  var sd=new Date(startDate+'T00:00:00'),ed=new Date(endDate+'T00:00:00');
-  var days=Math.round((ed-sd)/(1000*60*60*24))+1;
-  document.getElementById('range-info').textContent=techName+' | '+
-    sd.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' to '+
-    ed.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' ('+days+' days)';
-  document.getElementById('range-type').value='On-Swing';
-  document.getElementById('range-site').value='';
-  var m=document.getElementById('modal-range');
-  m.dataset.tech=techName;m.dataset.start=startDate;m.dataset.end=endDate;
-  m.classList.add('open');
-  setTimeout(function(){document.getElementById('range-site').focus();},150);
-}
-function cancelRange(){clearCellHL();closeModal('modal-range');}
-async function saveRange(){
-  var m=document.getElementById('modal-range');
-  var techName=m.dataset.tech,startDate=m.dataset.start,endDate=m.dataset.end;
-  var type=document.getElementById('range-type').value;
-  var site=document.getElementById('range-site').value.trim();
-  if(type&&type!=='Leave'&&type!=='Course'&&!site){toast('Enter a site name','err');return;}
-  var tech=techs.find(function(t){return t.name===techName;});
-  var overlap=assigns.filter(function(a){return a.tech===techName&&a.start<=endDate&&(!a.end||a.end>=startDate);});
-  for(var i=0;i<overlap.length;i++){
-    assigns=assigns.filter(function(a){return a.id!==overlap[i].id;});
-    try{await spDel('RosterEntries',overlap[i]._spId||overlap[i].id);}catch(ex){}
-  }
-  if(type){
-    var data={tech:techName,client:tech?tech.client:'Vestas',site:site||type,type:type,start:startDate,end:endDate,notes:''};
-    var na=Object.assign({},data,{id:'r'+Date.now()});assigns.push(na);
-    try{
-      var spF={Title:techName+'-'+site,TechName:techName,Client:data.client,Site:site||type,EntryType:type,StartDate:startDate,EndDate:endDate};
-      var s=await spCreate('RosterEntries',spF);na._spId=s._spId;na.id=s._spId;
-      toast('Saved');
-    }catch(ex){toast('Saved locally');}
-  }else{toast('Range cleared');}
-  closeModal('modal-range');populateFilters();renderRoster();calcStats();
-}
-
-// === ROSTER EXPORT / PRINT / SHARE ===
-function exportRosterCSV(){
-  var mf=parseInt(document.getElementById('r-month').value);
-  var cf=document.getElementById('r-client').value;
-  var days=getDays(mf);
-  var rows=[['Technician','Client'].concat(days.map(function(d){return d.toISOString().slice(0,10);}))];
-  techs.filter(function(t){return t.active!==false&&(!cf||t.client===cf);}).forEach(function(tech){
-    var row=[tech.name,tech.client];
-    days.forEach(function(d){
-      var ds=d.toISOString().slice(0,10);
-      var st=getStatus(tech.name,ds);
-      row.push(st?st.site+(st.type!=='On-Swing'?' ('+st.type+')':''):'');
-    });
-    rows.push(row);
-  });
-  var csv=rows.map(function(r){return r.map(function(c){return '"'+(c||'').replace(/"/g,'""')+'"';}).join(',');}).join('
-');
-  var blob=new Blob([csv],{type:'text/csv'});
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  var label=mf<0?'FullYear':['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mf];
-  a.download='ProTech-Roster-'+label+'-2026.csv';
-  a.click();
-  toast('CSV downloaded');
-}
-
-function printRoster(){
-  window.print();
-}
-
-function shareRoster(){
-  var mf=parseInt(document.getElementById('r-month').value);
-  var label=mf<0?'Full Year 2026':['January','February','March','April','May','June','July','August','September','October','November','December'][mf]+' 2026';
-  var url=window.location.href.split('?')[0]+'?view=roster&month='+mf;
-  if(navigator.share){
-    navigator.share({title:'ProTech Roster - '+label,url:window.location.href});
-  } else {
-    navigator.clipboard.writeText(window.location.href).then(function(){toast('Link copied to clipboard');});
-  }
-}
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.0/lib/msal-browser.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Calibri,Arial,sans-serif;background:#eef1f6;color:#1a1a2e;min-height:100vh}
-#login-screen{display:flex;position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#1b4f72 0%,#0a1628 100%);align-items:center;justify-content:center}
-.login-box{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:40px 48px;text-align:center;min-width:360px;backdrop-filter:blur(10px)}
-.login-logo{height:68px;width:auto;margin:0 auto 10px;display:block;object-fit:contain}
-.login-sub{font-size:11px;color:#7fb3d3;letter-spacing:3px;text-transform:uppercase;margin-bottom:28px}
-.login-btn{display:inline-flex;align-items:center;gap:10px;background:#2471a3;border:none;border-radius:6px;padding:14px 28px;color:#fff;font-family:Calibri,Arial,sans-serif;font-size:15px;font-weight:600;cursor:pointer;width:100%;justify-content:center;transition:background .2s}
-.login-btn:hover{background:#1a5276}
-#login-error{display:none;margin-top:12px;font-size:12px;color:#f1948a;background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);border-radius:4px;padding:8px 12px}
-#hub{display:none;min-height:100vh;display:none}
-.topbar{background:#fff;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:2px solid #eef1f6;box-shadow:0 2px 8px rgba(0,0,0,.06);position:sticky;top:0;z-index:200}
-.topbar-logo{height:34px;width:auto;object-fit:contain}
-.topbar-right{display:flex;align-items:center;gap:12px}
-.user-chip{display:flex;align-items:center;gap:8px;background:#eef1f6;border-radius:20px;padding:5px 14px 5px 5px}
-.user-av{width:28px;height:28px;border-radius:50%;background:#1b4f72;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.user-name{font-size:12px;font-weight:600;color:#1b4f72}
-.admin-badge{background:#c0392b;color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;letter-spacing:.5px}
-.topbar-date{font-size:12px;color:#95a5a6}
-.hub-body{padding:28px 32px;max-width:1600px;margin:0 auto}
-.hub-welcome{margin-bottom:20px}
-.hub-welcome h1{font-size:22px;font-weight:700;color:#1b4f72}
-.hub-welcome p{font-size:13px;color:#7f8c8d;margin-top:2px}
-.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px}
-.stat-card{background:#fff;border-radius:8px;padding:16px 18px;border-left:4px solid var(--c);box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.stat-n{font-size:28px;font-weight:700;color:var(--c);line-height:1}
-.stat-l{font-size:10px;color:#95a5a6;margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:32px}
+#login-screen{display:flex;position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#1b4f72,#0a1628);align-items:center;justify-content:center}
+.lbox{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:40px 48px;text-align:center;min-width:360px}
+.llogo{height:68px;width:auto;margin:0 auto 10px;display:block;object-fit:contain}
+.lsub{font-size:11px;color:#7fb3d3;letter-spacing:3px;text-transform:uppercase;margin-bottom:28px}
+.lbtn{display:inline-flex;align-items:center;gap:10px;background:#2471a3;border:none;border-radius:6px;padding:14px 28px;color:#fff;font-family:Calibri,Arial,sans-serif;font-size:15px;font-weight:600;cursor:pointer;width:100%;justify-content:center}
+.lbtn:hover{background:#1a5276}
+#lerr{display:none;margin-top:12px;font-size:12px;color:#f1948a;background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);border-radius:4px;padding:8px 12px}
+#hub{display:none}
+.tb{background:#fff;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:3px solid #1b4f72;box-shadow:0 2px 8px rgba(0,0,0,.06);position:sticky;top:0;z-index:200}
+.tb-logo{height:34px;width:auto;object-fit:contain}
+.tb-r{display:flex;align-items:center;gap:12px}
+.uchip{display:flex;align-items:center;gap:8px;background:#eef1f6;border-radius:20px;padding:5px 14px 5px 5px}
+.uav{width:28px;height:28px;border-radius:50%;background:#1b4f72;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.uname{font-size:12px;font-weight:600;color:#1b4f72}
+.abadge{background:#c0392b;color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px}
+.tbdate{font-size:12px;color:#95a5a6}
+.hbody{padding:24px 28px;max-width:1600px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.sc{background:#fff;border-radius:8px;padding:16px 18px;border-left:4px solid var(--c);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.sn{font-size:28px;font-weight:700;color:var(--c);line-height:1}
+.sl{font-size:10px;color:#95a5a6;margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:8px}
 .tile{background:#fff;border-radius:10px;padding:22px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;text-decoration:none;display:block;color:inherit;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid #e8ecf0}
 .tile::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--tc)}
 .tile:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.12)}
-.tile-icon{width:42px;height:42px;border-radius:10px;background:var(--tb);display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:20px}
-.tile-title{font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:4px}
-.tile-desc{font-size:12px;color:#7f8c8d;line-height:1.5}
-.tile-badge{position:absolute;top:14px;right:14px;background:var(--tc);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
-.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap}
-.section-title{font-size:17px;font-weight:700;color:#1b4f72}
-.btn{display:inline-flex;align-items:center;gap:6px;border-radius:5px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #d1d9e0;background:#fff;color:#546e7a;font-family:Calibri,Arial,sans-serif;transition:all .15s}
-.btn:hover{background:#eef1f6;border-color:#b0bec5}
-.btn-primary{background:#1b4f72;border-color:#1b4f72;color:#fff}.btn-primary:hover{background:#154360}
-.btn-danger{background:#c0392b;border-color:#c0392b;color:#fff}.btn-danger:hover{background:#96281b}
+.ti{width:42px;height:42px;border-radius:10px;background:var(--tb);display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:20px}
+.tt{font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:4px}
+.td{font-size:12px;color:#7f8c8d;line-height:1.5}
+.tbadge{position:absolute;top:14px;right:14px;background:var(--tc);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:5px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #d1d9e0;background:#fff;color:#546e7a;font-family:Calibri,Arial,sans-serif;transition:all .15s;white-space:nowrap}
+.btn:hover{background:#eef1f6}
+.btnp{background:#1b4f72;border-color:#1b4f72;color:#fff}.btnp:hover{background:#154360}
+.btnd{background:#c0392b;border-color:#c0392b;color:#fff}.btnd:hover{background:#96281b}
+.btns{background:#1e8449;border-color:#1e8449;color:#fff}.btns:hover{background:#196f3d}
 .btn-sm{padding:5px 10px;font-size:12px}
-.filter-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-.filter-bar input,.filter-bar select{border:1px solid #d1d9e0;border-radius:5px;padding:7px 12px;font-size:13px;font-family:Calibri,Arial,sans-serif;background:#fff;color:#1a1a2e}
-.filter-bar input:focus,.filter-bar select:focus{outline:none;border-color:#2471a3}
-.roster-wrap{overflow-x:auto;background:#fff;border-radius:10px;border:1px solid #e0e6ed;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+.stitle{font-size:17px;font-weight:700;color:#1b4f72}
+.bgrp{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fbar{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.fbar input,.fbar select{border:1px solid #d1d9e0;border-radius:5px;padding:7px 12px;font-size:13px;font-family:Calibri,Arial,sans-serif;background:#fff;color:#1a1a2e;height:36px}
+.fbar input:focus,.fbar select:focus{outline:none;border-color:#2471a3}
+.rwrap{overflow-x:auto;background:#fff;border-radius:10px;border:1px solid #e0e6ed;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 table.rt{border-collapse:collapse;font-size:11px;min-width:100%}
-table.rt th{background:#1b4f72;color:#fff;padding:7px 5px;text-align:center;font-size:9px;white-space:nowrap;letter-spacing:.3px;font-weight:600;user-select:none}
-table.rt th.sth{text-align:left;padding-left:12px;min-width:155px;position:sticky;left:0;z-index:3;background:#1b4f72}
-table.rt th.cth{text-align:left;min-width:70px;position:sticky;left:155px;z-index:3;background:#1b4f72}
-table.rt td{padding:4px 3px;border-bottom:1px solid #eef1f6;text-align:center;vertical-align:middle}
-table.rt td.ntd{text-align:left;padding-left:12px;font-weight:600;color:#1b4f72;position:sticky;left:0;background:#fff;z-index:1;min-width:155px;cursor:grab;user-select:none}
-table.rt td.ntd:active{cursor:grabbing}
-table.rt td.ctd{text-align:left;font-size:11px;color:#7f8c8d;position:sticky;left:155px;background:#fff;z-index:1;min-width:70px;padding-left:8px}
-table.rt tr:hover td.ntd,table.rt tr:hover td.ctd{background:#f5f8fb}
+table.rt th{background:#1b4f72;color:#fff;padding:7px 4px;text-align:center;font-size:9px;white-space:nowrap;font-weight:600}
+table.rt th.sth{text-align:left;padding-left:10px;min-width:150px;position:sticky;left:0;z-index:3;background:#1b4f72}
+table.rt th.cth{text-align:left;min-width:65px;position:sticky;left:150px;z-index:3;background:#1b4f72;padding-left:6px}
+table.rt td{padding:3px 2px;border-bottom:1px solid #f0f4f8;text-align:center;vertical-align:middle}
+table.rt td.ntd{text-align:left;padding-left:10px;font-weight:600;color:#1b4f72;position:sticky;left:0;background:#fff;z-index:1;min-width:150px;cursor:pointer}
+table.rt td.ntd:hover{background:#d6eaf8!important;color:#154360}
+table.rt td.ctd{text-align:left;font-size:10px;color:#7f8c8d;position:sticky;left:150px;background:#fff;z-index:1;min-width:65px;padding-left:6px}
 table.rt tr:hover td{background:#f8fafc}
-.mh{background:#0f3a5a !important;color:#7fb3d3 !important;font-size:10px !important;text-align:center;letter-spacing:.4px}
-.wkend-col{background:#f5f8fb !important}
-.today-col{background:#fffde7 !important;border-left:2px solid #f59e0b !important;border-right:2px solid #f59e0b !important}
-table.rt th.today-col{background:#f59e0b !important;color:#1a1a2e !important}
-.chip{border-radius:3px;padding:1px 5px;font-size:9px;font-weight:700;display:inline-block;white-space:nowrap;max-width:72px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
-.chip-site{background:#fef9e7;color:#7d6608}
-.chip-mob{background:#d6eaf8;color:#1b4f72}
-.chip-dm{background:#fdebd0;color:#873600}
-.chip-leave{background:#e8daef;color:#5b2c6f}
-.chip-course{background:#d5f5e3;color:#1e6e3c}
-.chip-off{color:#ccc;font-size:10px}
-.drop-target{background:#d6eaf8 !important;outline:2px dashed #2471a3 !important;outline-offset:-2px}
-.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;font-size:11px;align-items:center;color:#7f8c8d}
-.leg-item{display:flex;align-items:center;gap:4px}
-.admin-table{width:100%;border-collapse:collapse;font-size:13px}
-.admin-table th{text-align:left;padding:9px 14px;font-size:11px;font-weight:700;color:#7f8c8d;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #eef1f6;background:#f8f9fb}
-.admin-table td{padding:10px 14px;border-bottom:1px solid #eef1f6;vertical-align:middle}
-.admin-table tr:hover td{background:#f8f9fb}
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(10,22,40,.55);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
-.modal-bg.open{display:flex}
-.modal{background:#fff;border-radius:12px;padding:28px;min-width:440px;max-width:540px;width:90%;max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.25)}
+table.rt tr:hover td.ntd,table.rt tr:hover td.ctd{background:#f0f7ff}
+.mhdr{background:#0f3a5a!important;color:#7fb3d3!important;font-size:10px!important;text-align:center}
+.wkend{background:#f5f8fb!important}
+.todayh{background:#f59e0b!important;color:#1a1a2e!important}
+.todayc{background:#fffde7!important;border-left:2px solid #f59e0b!important;border-right:2px solid #f59e0b!important}
+.chip{border-radius:3px;padding:2px 5px;font-size:9px;font-weight:700;display:inline-block;white-space:nowrap;max-width:70px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+.cs{background:#fef9e7;color:#7d6608}
+.cm{background:#d6eaf8;color:#1b4f72}
+.cdm{background:#fdebd0;color:#873600}
+.cl{background:#e8daef;color:#5b2c6f}
+.cc{background:#d5f5e3;color:#1e6e3c}
+.co{color:#ccc;font-size:10px}
+.lgnd{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;align-items:center;color:#7f8c8d}
+.lgnd-i{display:flex;align-items:center;gap:4px}
+/* QUICK ASSIGN PANEL */
+.qao{display:none;position:fixed;inset:0;background:rgba(10,22,40,.4);z-index:500}
+.qao.open{display:block}
+.qap{position:fixed;top:0;right:0;bottom:0;width:380px;background:#fff;box-shadow:-8px 0 32px rgba(0,0,0,.15);z-index:501;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s ease}
+.qap.open{transform:translateX(0)}
+.qahead{padding:20px 20px 16px;border-bottom:2px solid #eef1f6;background:#1b4f72;color:#fff;position:relative}
+.qatn{font-size:18px;font-weight:700;margin-bottom:2px}
+.qasub{font-size:12px;color:#a9cce3}
+.qacl{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;line-height:1}
+.qacl:hover{background:rgba(255,255,255,.3)}
+.qabody{flex:1;overflow-y:auto;padding:16px}
+.qasect{margin-bottom:20px}
+.qasect-title{font-size:11px;font-weight:700;color:#7f8c8d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #eef1f6}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:11px;font-weight:700;color:#546e7a;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.fg input,.fg select{width:100%;border:1px solid #d1d9e0;border-radius:5px;padding:8px 12px;font-size:13px;font-family:Calibri,Arial,sans-serif;color:#1a1a2e;background:#fff}
+.fg input:focus,.fg select:focus{outline:none;border-color:#2471a3;box-shadow:0 0 0 3px rgba(36,113,163,.1)}
+.fgr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qali{display:flex;flex-direction:column;gap:8px}
+.qaitem{background:#f8f9fb;border:1px solid #e0e6ed;border-radius:6px;padding:10px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.qainfo{flex:1;min-width:0}
+.qasite{font-weight:700;color:#1b4f72;font-size:13px}
+.qadates{font-size:11px;color:#7f8c8d;margin-top:2px}
+.qatype{font-size:10px;font-weight:700;margin-top:3px;color:#546e7a}
+.qafoot{padding:14px 16px;border-top:2px solid #eef1f6;display:flex;gap:10px}
+/* ADMIN TABLE */
+.atable{width:100%;border-collapse:collapse;font-size:13px}
+.atable th{text-align:left;padding:9px 14px;font-size:11px;font-weight:700;color:#7f8c8d;text-transform:uppercase;border-bottom:2px solid #eef1f6;background:#f8f9fb}
+.atable td{padding:10px 14px;border-bottom:1px solid #eef1f6;vertical-align:middle}
+.atable tr:hover td{background:#f8f9fb}
+/* MODAL */
+.mbg{display:none;position:fixed;inset:0;background:rgba(10,22,40,.5);z-index:1000;align-items:center;justify-content:center}
+.mbg.open{display:flex}
+.modal{background:#fff;border-radius:12px;padding:28px;min-width:420px;max-width:520px;width:90%;max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.25)}
 .modal h2{font-size:16px;font-weight:700;color:#1b4f72;margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid #eef1f6}
-.fg{margin-bottom:13px}
-.fg label{display:block;font-size:10px;font-weight:700;color:#7f8c8d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
-.fg input,.fg select,.fg textarea{width:100%;border:1px solid #d1d9e0;border-radius:5px;padding:8px 12px;font-size:13px;font-family:Calibri,Arial,sans-serif;color:#1a1a2e;background:#fff}
-.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:#2471a3;box-shadow:0 0 0 3px rgba(36,113,163,.1)}
-.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .mf{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid #eef1f6}
-.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}
+.fgm{margin-bottom:12px}
+.fgm label{display:block;font-size:11px;font-weight:700;color:#546e7a;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.fgm input,.fgm select,.fgm textarea{width:100%;border:1px solid #d1d9e0;border-radius:5px;padding:8px 12px;font-size:13px;font-family:Calibri,Arial,sans-serif;color:#1a1a2e;background:#fff}
 #toast{position:fixed;bottom:24px;right:24px;background:#1b4f72;color:#fff;padding:11px 20px;border-radius:6px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.2);display:none;z-index:9999;max-width:300px}
 #toast.err{background:#c0392b}
 .hidden{display:none!important}
-.range-start{outline:3px solid #f59e0b!important;outline-offset:-2px}.range-preview{background:#fff3cd!important}
-
-.cell-selecting{background:#dbeafe!important;outline:1px solid #2471a3!important}
-.cell-sel-start{background:#bfdbfe!important;outline:2px solid #1b4f72!important}
-td.day-cell{user-select:none;-webkit-user-select:none}
-@media print{
-  .topbar,.filter-bar,.legend,.section-hdr .btn,.section-hdr button,#admin-roster-btn{display:none!important}
-  .roster-wrap{overflow:visible!important}
-  body{background:#fff!important}
-  table.rt th{background:#1b4f72!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-}
+@media print{.tb,.fbar,.lgnd,.shdr .bgrp,#admin-roster-btn,.qap,.qao{display:none!important}.rwrap{overflow:visible!important;box-shadow:none!important}body{background:#fff!important}.hbody{padding:8px!important}table.rt th{background:#1b4f72!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style>
 </head>
 <body>
 
 <div id="login-screen">
-  <div class="login-box">
-    <img src="https://raw.githubusercontent.com/FishyPTA/BladeTech-Ops/main/ProTech_Logo_Concepts_3.png" class="login-logo" alt="ProTech Access">
-    <div class="login-sub">Operations Hub</div>
-    <button class="login-btn" onclick="signIn()">
+  <div class="lbox">
+    <img src="https://raw.githubusercontent.com/FishyPTA/BladeTech-Ops/main/ProTech_Logo_Concepts_3.png" class="llogo" alt="ProTech Access">
+    <div class="lsub">Operations Hub</div>
+    <button class="lbtn" onclick="signIn()">
       <svg width="20" height="20" viewBox="0 0 21 21" fill="none"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
       Sign in with Microsoft
     </button>
-    <div id="login-error"></div>
+    <div id="lerr"></div>
   </div>
 </div>
 
 <div id="hub">
-  <div class="topbar">
-    <img src="https://raw.githubusercontent.com/FishyPTA/BladeTech-Ops/main/ProTech_Logo_Concepts_3.png" class="topbar-logo" alt="ProTech Access">
-    <div class="topbar-right">
-      <span class="topbar-date" id="top-date"></span>
-      <span id="admin-badge" class="admin-badge hidden">ADMIN</span>
-      <div class="user-chip"><div class="user-av" id="uav">?</div><div class="user-name" id="uname">...</div></div>
+  <div class="tb">
+    <img src="https://raw.githubusercontent.com/FishyPTA/BladeTech-Ops/main/ProTech_Logo_Concepts_3.png" class="tb-logo" alt="ProTech Access">
+    <div class="tb-r">
+      <span class="tbdate" id="top-date"></span>
+      <span id="admin-badge" class="abadge hidden">ADMIN</span>
+      <div class="uchip"><div class="uav" id="uav">?</div><div class="uname" id="uname">...</div></div>
     </div>
   </div>
+  <div class="hbody">
 
-  <div class="hub-body">
-
-    <!-- HUB HOME -->
     <div id="view-hub">
-      <div class="hub-welcome">
-        <h1 id="welcome-msg">Welcome back</h1>
-        <p>ProTech Access Operations Platform — select a module below</p>
+      <div style="margin-bottom:20px">
+        <h1 id="welcome-msg" style="font-size:22px;font-weight:700;color:#1b4f72"></h1>
+        <p style="font-size:13px;color:#7f8c8d;margin-top:2px">ProTech Access Operations Platform</p>
       </div>
-      <div class="stats-row">
-        <div class="stat-card" style="--c:#1b4f72"><div class="stat-n" id="s-swing">—</div><div class="stat-l">On Swing Today</div></div>
-        <div class="stat-card" style="--c:#1e8449"><div class="stat-n" id="s-sites">—</div><div class="stat-l">Active Sites</div></div>
-        <div class="stat-card" style="--c:#d35400"><div class="stat-n" id="s-mob">—</div><div class="stat-l">Mob / Demob</div></div>
-        <div class="stat-card" style="--c:#7d3c98"><div class="stat-n" id="s-off">—</div><div class="stat-l">Off Swing</div></div>
+      <div class="stats">
+        <div class="sc" style="--c:#1b4f72"><div class="sn" id="s-swing">—</div><div class="sl">On Swing Today</div></div>
+        <div class="sc" style="--c:#1e8449"><div class="sn" id="s-sites">—</div><div class="sl">Active Sites</div></div>
+        <div class="sc" style="--c:#d35400"><div class="sn" id="s-mob">—</div><div class="sl">Mob / Demob</div></div>
+        <div class="sc" style="--c:#7d3c98"><div class="sn" id="s-off">—</div><div class="sl">Off Swing</div></div>
       </div>
       <div class="tiles">
         <a class="tile" style="--tc:#1b4f72;--tb:#d6eaf8" href="https://fishypta.github.io/BladeTech-Ops/ProTech_BladeOps_SharePoint_2.html" target="_blank">
-          <div class="tile-badge">Open</div><div class="tile-icon">🔩</div>
-          <div class="tile-title">Blade Operations & Repairs</div>
-          <div class="tile-desc">Blade inspections, repairs, QA pipeline, daily diary and field reporting.</div>
+          <div class="tbadge">Open</div><div class="ti">🔩</div>
+          <div class="tt">Blade Operations & Repairs</div>
+          <div class="td">Blade inspections, repairs, QA pipeline, daily diary and field reporting.</div>
         </a>
         <div class="tile" style="--tc:#17a589;--tb:#d1f2eb" onclick="toast('Coming soon')">
-          <div class="tile-badge" style="background:#17a589">Soon</div><div class="tile-icon">🪢</div>
-          <div class="tile-title">Field Operations</div>
-          <div class="tile-desc">Rope access, component exchange, construction and general site works.</div>
+          <div class="tbadge" style="background:#17a589">Soon</div><div class="ti">🪢</div>
+          <div class="tt">Field Operations</div>
+          <div class="td">Rope access, component exchange, construction and general site works.</div>
         </div>
         <div class="tile" style="--tc:#1e8449;--tb:#d5f5e3" onclick="showView('roster')">
-          <div class="tile-badge">Active</div><div class="tile-icon">📅</div>
-          <div class="tile-title">Roster & Scheduling</div>
-          <div class="tile-desc">Full year technician schedules, site assignments and swing management.</div>
+          <div class="tbadge">Active</div><div class="ti">📅</div>
+          <div class="tt">Roster & Scheduling</div>
+          <div class="td">Full year technician schedules, site assignments and swing management.</div>
         </div>
         <div class="tile" style="--tc:#7d3c98;--tb:#e8daef" onclick="toast('Coming soon')">
-          <div class="tile-badge" style="background:#7d3c98">Soon</div><div class="tile-icon">👥</div>
-          <div class="tile-title">Team & Certifications</div>
-          <div class="tile-desc">Employee profiles, certifications, training records and contacts.</div>
+          <div class="tbadge" style="background:#7d3c98">Soon</div><div class="ti">👥</div>
+          <div class="tt">Team & Certifications</div>
+          <div class="td">Employee profiles, certifications, training records and contacts.</div>
         </div>
         <div class="tile" style="--tc:#d35400;--tb:#fdebd0" onclick="toast('Coming soon')">
-          <div class="tile-badge" style="background:#d35400">Soon</div><div class="tile-icon">📊</div>
-          <div class="tile-title">Reports & Analytics</div>
-          <div class="tile-desc">Cross-site reporting, inspection summaries and compliance dashboards.</div>
+          <div class="tbadge" style="background:#d35400">Soon</div><div class="ti">📊</div>
+          <div class="tt">Reports & Analytics</div>
+          <div class="td">Cross-site reporting, inspection summaries and compliance dashboards.</div>
         </div>
         <div class="tile" style="--tc:#2e86c1;--tb:#d6eaf8" onclick="toast('Coming soon')">
-          <div class="tile-badge" style="background:#2e86c1">Soon</div><div class="tile-icon">🦺</div>
-          <div class="tile-title">Safety & SWMS</div>
-          <div class="tile-desc">Safe work method statements, incident reporting and hazard management.</div>
+          <div class="tbadge" style="background:#2e86c1">Soon</div><div class="ti">🦺</div>
+          <div class="tt">Safety & SWMS</div>
+          <div class="td">Safe work method statements, incident reporting and hazard management.</div>
         </div>
       </div>
     </div>
 
-    <!-- ROSTER VIEW -->
     <div id="view-roster" class="hidden">
-      <div class="section-hdr">
-        <div class="section-title">📅 Roster & Scheduling — 2026</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <div id="admin-roster-btn" class="hidden">
-            <button class="btn btn-primary btn-sm" onclick="showView('admin')">⚙️ Manage Technicians</button>
-          </div>
-          <button class="btn btn-sm" onclick="exportRosterCSV()">⬇ Export CSV</button>
-          <button class="btn btn-sm" onclick="printRoster()">🖨 Print</button>
-          <button class="btn btn-sm" onclick="shareRoster()">🔗 Share</button>
+      <div class="shdr">
+        <div class="stitle">Roster & Scheduling — 2026</div>
+        <div class="bgrp">
+          <button class="btn btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+          <button class="btn btn-sm" onclick="window.print()">🖨 Print</button>
+          <button class="btn btn-sm" onclick="copyLink()">🔗 Share Link</button>
+          <div id="admin-roster-btn" class="hidden"><button class="btn btnp btn-sm" onclick="showView('admin')">⚙️ Manage</button></div>
           <button class="btn btn-sm" onclick="showView('hub')">← Hub</button>
         </div>
       </div>
-      <div class="filter-bar">
-        <input type="text" id="r-search" placeholder="🔍 Search name..." oninput="renderRoster()" style="min-width:180px">
-        <select id="r-client" onchange="renderRoster()">
-          <option value="">All Clients</option>
-        </select>
-        <select id="r-site" onchange="renderRoster()">
-          <option value="">All Sites</option>
-        </select>
+      <div class="fbar">
+        <input type="text" id="r-search" placeholder="Search name..." oninput="renderRoster()" style="min-width:180px">
+        <select id="r-client" onchange="renderRoster()"><option value="">All Clients</option></select>
+        <select id="r-site" onchange="renderRoster()"><option value="">All Sites</option></select>
         <select id="r-month" onchange="renderRoster()">
           <option value="-1">Full Year</option>
           <option value="0">January</option><option value="1">February</option><option value="2">March</option>
@@ -339,163 +211,106 @@ td.day-cell{user-select:none;-webkit-user-select:none}
           <option value="9">October</option><option value="10">November</option><option value="11">December</option>
         </select>
       </div>
-      <div class="legend">
+      <div class="lgnd">
         <strong>Legend:</strong>
-        <div class="leg-item"><span class="chip chip-site">SITE</span> On site</div>
-        <div class="leg-item"><span class="chip chip-mob">MOB</span> Mobilising</div>
-        <div class="leg-item"><span class="chip chip-dm">DM</span> Demob</div>
-        <div class="leg-item"><span class="chip chip-leave">LEAVE</span> Leave</div>
-        <div class="leg-item"><span class="chip chip-course">COURSE</span> Training</div>
-        <div class="leg-item"><span class="chip chip-off">—</span> Off swing</div>
-        <div style="background:#fffde7;border:1px solid #f59e0b;padding:2px 7px;border-radius:3px;font-size:9px;color:#92400e;font-weight:700">TODAY</div>
-        <span id="admin-hint" class="hidden" style="color:#1b4f72;font-style:italic">💡 Drag a name onto a day cell to assign. Click and drag across multiple days on a row to assign a range.</span>
+        <div class="lgnd-i"><span class="chip cs">SITE</span>On site</div>
+        <div class="lgnd-i"><span class="chip cm">MOB</span>Mobilising</div>
+        <div class="lgnd-i"><span class="chip cdm">DM</span>Demob</div>
+        <div class="lgnd-i"><span class="chip cl">LEAVE</span>Leave</div>
+        <div class="lgnd-i"><span class="chip cc">COURSE</span>Training</div>
+        <div class="lgnd-i"><span class="chip co">—</span>Off swing</div>
+        <span id="admin-hint" class="hidden" style="color:#1b4f72;font-style:italic;font-size:11px">Click a technician name to open the quick-assign panel</span>
       </div>
-      <div class="roster-wrap">
-        <table class="rt"><thead id="r-head"></thead><tbody id="r-body"></tbody></table>
-      </div>
+      <div class="rwrap"><table class="rt"><thead id="r-head"></thead><tbody id="r-body"></tbody></table></div>
     </div>
 
-    <!-- ADMIN VIEW -->
     <div id="view-admin" class="hidden">
-      <div class="section-hdr">
-        <div class="section-title">⚙️ Manage Technicians & Assignments</div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-primary btn-sm" onclick="openTechModal()">+ Add Technician</button>
+      <div class="shdr">
+        <div class="stitle">Manage Technicians</div>
+        <div class="bgrp">
+          <button class="btn btnp btn-sm" onclick="openTechModal()">+ Add Technician</button>
           <button class="btn btn-sm" onclick="showView('roster')">← Roster</button>
         </div>
       </div>
-      <div style="margin-bottom:16px">
-        <div style="display:flex;gap:8px;background:#eef1f6;padding:4px;border-radius:7px;width:fit-content">
-          <button class="btn btn-sm" id="atab-techs" style="background:#fff;color:#1b4f72" onclick="adminTab('techs')">👤 Technicians</button>
-          <button class="btn btn-sm" id="atab-assign" onclick="adminTab('assign')">📋 Assignments</button>
-        </div>
-      </div>
-      <div id="admin-techs-panel">
-        <div style="background:#fff;border-radius:10px;border:1px solid #e0e6ed;overflow:hidden">
-          <table class="admin-table"><thead><tr><th>Name</th><th>Client</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="atechs-body"></tbody>
-        </table></div>
-      </div>
-      <div id="admin-assign-panel" class="hidden">
-        <div class="section-hdr" style="margin-bottom:10px">
-          <span style="font-size:13px;color:#7f8c8d">Manage site assignments for technicians</span>
-          <button class="btn btn-primary btn-sm" onclick="openAssignModal()">+ Add Assignment</button>
-        </div>
-        <div style="background:#fff;border-radius:10px;border:1px solid #e0e6ed;overflow:hidden">
-          <table class="admin-table"><thead><tr><th>Technician</th><th>Client</th><th>Site</th><th>Type</th><th>Start</th><th>End</th><th>Actions</th></tr></thead>
-          <tbody id="aassign-body"></tbody>
-        </table></div>
+      <div style="background:#fff;border-radius:10px;border:1px solid #e0e6ed;overflow:hidden">
+        <table class="atable"><thead><tr><th>Name</th><th>Client</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="atechs-body"></tbody></table>
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- QUICK ASSIGN PANEL -->
+<div class="qao" id="qa-overlay" onclick="closeQA()"></div>
+<div class="qap" id="qa-panel">
+  <div class="qahead">
+    <button class="qacl" onclick="closeQA()">✕</button>
+    <div class="qatn" id="qa-name">Technician</div>
+    <div class="qasub" id="qa-client">Client</div>
+  </div>
+  <div class="qabody">
+    <div class="qasect">
+      <div class="qasect-title">Add / Edit Assignment</div>
+      <div class="fgr">
+        <div class="fg"><label>Site *</label><input id="qa-site" placeholder="e.g. Wambo-RA" list="qa-site-list"><datalist id="qa-site-list"></datalist></div>
+        <div class="fg"><label>Type</label><select id="qa-type"><option>On-Swing</option><option>Mob</option><option>Demob</option><option>Leave</option><option>Course</option><option>Off-Swing</option></select></div>
+      </div>
+      <div class="fgr">
+        <div class="fg"><label>Start Date *</label><input type="date" id="qa-start"></div>
+        <div class="fg"><label>End Date</label><input type="date" id="qa-end"></div>
+      </div>
+      <button class="btn btns" style="width:100%;justify-content:center;padding:10px" onclick="qaAdd()">+ Add Assignment</button>
+    </div>
+    <div class="qasect">
+      <div class="qasect-title">Current Assignments</div>
+      <div class="qali" id="qa-list"><div style="font-size:12px;color:#95a5a6;text-align:center;padding:12px">No assignments yet</div></div>
+    </div>
   </div>
 </div>
 
 <!-- TECH MODAL -->
-<div class="modal-bg" id="modal-tech">
+<div class="mbg" id="modal-tech">
   <div class="modal">
     <h2 id="tech-modal-title">Add Technician</h2>
-    <div class="fg-row">
-      <div class="fg"><label>Full Name *</label><input id="t-name" placeholder="e.g. John Smith"></div>
-      <div class="fg"><label>Client *</label>
-        <select id="t-client">
-          <option>Vestas</option><option>Nordex</option><option>GE</option><option>Siemens Gamesa</option><option>Other</option>
-        </select>
-      </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="fgm"><label>Full Name *</label><input id="t-name" placeholder="John Smith"></div>
+      <div class="fgm"><label>Client *</label><select id="t-client"><option>Vestas</option><option>Nordex</option><option>GE</option><option>Siemens Gamesa</option><option>Other</option></select></div>
+      <div class="fgm"><label>Role</label><input id="t-role" placeholder="Blade Technician"></div>
+      <div class="fgm"><label>Phone</label><input id="t-phone"></div>
+      <div class="fgm"><label>Email</label><input id="t-email" type="email"></div>
+      <div class="fgm"><label>Status</label><select id="t-status"><option value="1">Active</option><option value="0">Inactive</option></select></div>
     </div>
-    <div class="fg-row">
-      <div class="fg"><label>Role</label><input id="t-role" placeholder="e.g. Blade Technician"></div>
-      <div class="fg"><label>Phone</label><input id="t-phone"></div>
-    </div>
-    <div class="fg-row">
-      <div class="fg"><label>Email</label><input id="t-email" type="email"></div>
-      <div class="fg"><label>Status</label>
-        <select id="t-status"><option value="1">Active</option><option value="0">Inactive</option></select>
-      </div>
-    </div>
-    <div class="fg"><label>Certifications</label><textarea id="t-certs" rows="2" placeholder="GWO BST, WAH, Rope Access Level 2..."></textarea></div>
+    <div class="fgm"><label>Certifications</label><textarea id="t-certs" rows="2" placeholder="GWO BST, WAH, Rope Access..."></textarea></div>
     <div class="mf">
       <button class="btn" onclick="closeModal('modal-tech')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveTech()">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- ASSIGN MODAL -->
-<div class="modal-bg" id="modal-assign">
-  <div class="modal">
-    <h2 id="assign-modal-title">Add Assignment</h2>
-    <div class="fg-row">
-      <div class="fg"><label>Technician *</label><select id="a-tech" style="width:100%"></select></div>
-      <div class="fg"><label>Client</label><select id="a-client"><option>Vestas</option><option>Nordex</option><option>GE</option><option>Other</option></select></div>
-    </div>
-    <div class="fg-row">
-      <div class="fg"><label>Site *</label><input id="a-site" placeholder="e.g. Wambo, MRWF, Taralga..."><datalist id="site-list"></datalist></div>
-      <div class="fg"><label>Type</label>
-        <select id="a-type">
-          <option>On-Swing</option><option>Mob</option><option>Demob</option><option>Leave</option><option>Course</option><option>Off-Swing</option>
-        </select>
-      </div>
-    </div>
-    <div class="fg-row">
-      <div class="fg"><label>Start Date *</label><input id="a-start" type="date"></div>
-      <div class="fg"><label>End Date</label><input id="a-end" type="date"></div>
-    </div>
-    <div class="fg"><label>Notes</label><textarea id="a-notes" rows="2"></textarea></div>
-    <div class="mf">
-      <button class="btn" onclick="closeModal('modal-assign')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveAssign()">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- CELL EDIT MODAL -->
-<div class="modal-bg" id="modal-cell">
-  <div class="modal" style="min-width:300px;max-width:380px">
-    <h2>Edit Day</h2>
-    <div id="cell-info" style="font-size:13px;color:#7f8c8d;margin-bottom:16px;font-style:italic"></div>
-    <div class="fg">
-      <label>Type</label>
-      <select id="cell-type">
-        <option value="">— Off Swing —</option>
-        <option>On-Swing</option><option>Mob</option><option>Demob</option><option>Leave</option><option>Course</option>
-      </select>
-    </div>
-    <div class="fg" id="cell-site-grp">
-      <label>Site</label>
-      <input id="cell-site" placeholder="e.g. Wambo-RA, MRWF...">
-    </div>
-    <div class="mf">
-      <button class="btn" onclick="closeModal('modal-cell')">Cancel</button>
-      <button class="btn btn-danger btn-sm" onclick="clearCell()">Clear Day</button>
-      <button class="btn btn-primary" onclick="saveCell()">Save</button>
+      <button class="btn btnp" onclick="saveTech()">Save</button>
     </div>
   </div>
 </div>
 
 <div id="toast"></div>
+
 <script>
 const CLIENT_ID='6afdf782-311f-44d1-8162-380c4b596ab9';
 const TENANT_ID='bef16a9c-98ed-40cf-9dc4-09ba72ee589b';
 const ADMINS=['josh@protechaccess.com.au','madi@protechaccess.com.au','adam@protechaccess.com.au'];
-const LOGO='https://raw.githubusercontent.com/FishyPTA/BladeTech-Ops/main/ProTech_Logo_Concepts_3.png';
 const SP_SITE='netorg10902910.sharepoint.com:/sites/BladeOperations';
 const msalCfg={auth:{clientId:CLIENT_ID,authority:'https://login.microsoftonline.com/'+TENANT_ID,redirectUri:location.href.split('?')[0].split('#')[0]},cache:{cacheLocation:'sessionStorage'}};
 
 let msalInst=null,curUser=null,isAdmin=false,spToken=null,spSiteId=null;
-let techs=[],assigns=[],editTechId=null,editAssignId=null;
-let dragSrcTech=null,cellTech=null,cellDate=null;
+let techs=[],assigns=[],editTechId=null,qaTech=null;
 
-// ── AUTH ──────────────────────────────────────────────────────────────
+// AUTH
 async function signIn(){try{await msalInst.loginRedirect({scopes:['User.Read','Sites.ReadWrite.All']});}catch(e){showErr(e.message);}}
 
 async function getToken(){
   const acc=msalInst.getActiveAccount();
-  const r=await msalInst.acquireTokenSilent({scopes:['Sites.ReadWrite.All'],account:acc}).catch(()=>msalInst.acquireTokenRedirect({scopes:['Sites.ReadWrite.All']}));
-  if(r)spToken=r.accessToken;
+  try{const r=await msalInst.acquireTokenSilent({scopes:['Sites.ReadWrite.All'],account:acc});spToken=r.accessToken;}
+  catch(e){await msalInst.acquireTokenRedirect({scopes:['Sites.ReadWrite.All']});}
 }
 
-// ── GRAPH HELPERS ─────────────────────────────────────────────────────
+// GRAPH
 async function gFetch(method,path,body){
   await getToken();
   const opts={method,headers:{'Authorization':'Bearer '+spToken,'Content-Type':'application/json'}};
@@ -506,27 +321,18 @@ async function gFetch(method,path,body){
   if(!r.ok)throw new Error(d.error?.message||r.status);
   return d;
 }
-async function gGet(p){return gFetch('GET',p);}
-async function gPost(p,b){return gFetch('POST',p,b);}
-async function gPatch(p,b){return gFetch('PATCH',p,b);}
-async function gDel(p){return gFetch('DELETE',p);}
+const gGet=p=>gFetch('GET',p);
+const gPost=(p,b)=>gFetch('POST',p,b);
+const gPatch=(p,b)=>gFetch('PATCH',p,b);
+const gDel=p=>gFetch('DELETE',p);
 
-async function resolveSite(){
-  const d=await gGet('/sites/'+SP_SITE);
-  spSiteId=d.id;
-}
-async function spList(list){
-  const d=await gGet('/sites/'+spSiteId+'/lists/'+list+'/items?expand=fields&$top=999');
-  return(d.value||[]).map(i=>({...i.fields,_spId:i.id}));
-}
-async function spCreate(list,fields){
-  const d=await gPost('/sites/'+spSiteId+'/lists/'+list+'/items',{fields});
-  return{...d.fields,_spId:d.id};
-}
+async function resolveSite(){const d=await gGet('/sites/'+SP_SITE);spSiteId=d.id;}
+async function spList(list){const d=await gGet('/sites/'+spSiteId+'/lists/'+list+'/items?expand=fields&$top=999');return(d.value||[]).map(i=>({...i.fields,_spId:i.id}));}
+async function spCreate(list,fields){const d=await gPost('/sites/'+spSiteId+'/lists/'+list+'/items',{fields});return{...d.fields,_spId:d.id};}
 async function spUpdate(list,id,fields){return gPatch('/sites/'+spSiteId+'/lists/'+list+'/items/'+id+'/fields',fields);}
 async function spDel(list,id){return gDel('/sites/'+spSiteId+'/lists/'+list+'/items/'+id);}
 
-// ── SIGN IN HANDLER ───────────────────────────────────────────────────
+// SIGN IN HANDLER
 async function onIn(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('hub').style.display='block';
@@ -542,30 +348,19 @@ async function onIn(){
     document.getElementById('admin-roster-btn').classList.remove('hidden');
     document.getElementById('admin-hint').classList.remove('hidden');
   }
-  try{
-    toast('Loading data...');
-    await resolveSite();
-    await loadFromSP();
-  }catch(e){
-    console.warn('SharePoint unavailable, using local data:',e);
-    loadLocal();
-  }
-  populateFilters();
-  calcStats();
-  renderAdminTechs();
-  renderAdminAssigns();
+  try{toast('Loading...');await resolveSite();await loadSP();}
+  catch(e){console.warn('SP offline, using local data',e);loadLocal();}
+  populateFilters();calcStats();renderAdminTechs();
 }
 
-// ── DATA LOADING ──────────────────────────────────────────────────────
-async function loadFromSP(){
-  const [spTechs,spAssigns]=await Promise.all([spList('Technicians'),spList('RosterEntries')]);
-  if(spTechs.length){
-    techs=spTechs.map(t=>({_spId:t._spId,name:t.FullName||t.Title||'',client:t.Client||'Vestas',role:t.Role||'',phone:t.Phone||'',email:t.Email||'',certs:t.Certifications||'',active:t.IsActive!==false}));
-  }else{loadLocalTechs();await seedTechs();}
-  if(spAssigns.length){
-    assigns=spAssigns.map(a=>({_spId:a._spId,id:a._spId,tech:a.TechName||'',client:a.Client||'',site:a.Site||'',type:a.EntryType||'On-Swing',start:a.StartDate?a.StartDate.slice(0,10):'',end:a.EndDate?a.EndDate.slice(0,10):'',notes:a.Notes||''}));
-  }else{loadLocalAssigns();await seedAssigns();}
-  toast('Loaded ✓');
+// DATA
+async function loadSP(){
+  const[st,sa]=await Promise.all([spList('Technicians'),spList('RosterEntries')]);
+  if(st.length){techs=st.map(t=>({_spId:t._spId,name:t.FullName||t.Title||'',client:t.Client||'Vestas',role:t.Role||'',phone:t.Phone||'',email:t.Email||'',certs:t.Certifications||'',active:t.IsActive!==false}));}
+  else{loadLocalTechs();await seedTechs();}
+  if(sa.length){assigns=sa.map(a=>({_spId:a._spId,id:a._spId,tech:a.TechName||'',client:a.Client||'',site:a.Site||'',type:a.EntryType||'On-Swing',start:a.StartDate?a.StartDate.slice(0,10):'',end:a.EndDate?a.EndDate.slice(0,10):'',notes:a.Notes||''}));}
+  else{loadLocalAssigns();await seedAssigns();}
+  toast('Loaded');
 }
 
 function loadLocal(){loadLocalTechs();loadLocalAssigns();}
@@ -617,23 +412,20 @@ function loadLocalAssigns(){
 async function seedTechs(){for(const t of techs){try{const s=await spCreate('Technicians',{Title:t.name,FullName:t.name,Client:t.client,Role:t.role||'',IsActive:true});t._spId=s._spId;}catch(e){}}}
 async function seedAssigns(){for(const a of assigns){try{const s=await spCreate('RosterEntries',{Title:a.tech+'-'+a.site,TechName:a.tech,Client:a.client,Site:a.site,EntryType:a.type,StartDate:a.start||null,EndDate:a.end||null});a._spId=s._spId;a.id=s._spId;}catch(e){}}}
 
-// ── ROSTER LOGIC ──────────────────────────────────────────────────────
+// ROSTER LOGIC
 function getStatus(techName,dateStr){
-  for(const a of assigns){
-    if(a.tech===techName&&a.start<=dateStr&&(!a.end||a.end>=dateStr))return a;
-  }
+  for(const a of assigns){if(a.tech===techName&&a.start<=dateStr&&(!a.end||a.end>=dateStr))return a;}
   return null;
 }
 
-function chipHtml(status,techName,dateStr,admin){
-  const ed=admin?` onclick="openCellModal('${techName.replace(/'/g,"\\'")}','${dateStr}')" style="cursor:pointer"`:'';
-  if(!status)return`<span class="chip chip-off"${ed}>—</span>`;
+function chipHtml(status){
+  if(!status)return '<span class="chip co">—</span>';
   const t=status.type;
-  if(t==='Mob')return`<span class="chip chip-mob"${ed}>MOB</span>`;
-  if(t==='Demob')return`<span class="chip chip-dm"${ed}>DM</span>`;
-  if(t==='Leave')return`<span class="chip chip-leave"${ed}>LEAVE</span>`;
-  if(t==='Course')return`<span class="chip chip-course"${ed}>COURSE</span>`;
-  return`<span class="chip chip-site" title="${status.site}"${ed}>${status.site.slice(0,9)}</span>`;
+  if(t==='Mob')return '<span class="chip cm">MOB</span>';
+  if(t==='Demob')return '<span class="chip cdm">DM</span>';
+  if(t==='Leave')return '<span class="chip cl">LEAVE</span>';
+  if(t==='Course')return '<span class="chip cc">COURSE</span>';
+  return '<span class="chip cs" title="'+status.site+'">'+status.site.slice(0,9)+'</span>';
 }
 
 const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -650,13 +442,11 @@ function populateFilters(){
   const clients=new Set(techs.map(t=>t.client));
   const sites=new Set(assigns.map(a=>a.site).filter(Boolean));
   const cs=document.getElementById('r-client');
-  cs.innerHTML='<option value="">All Clients</option>'+[...clients].sort().map(c=>`<option>${c}</option>`).join('');
+  if(cs){cs.innerHTML='<option value="">All Clients</option>'+[...clients].sort().map(c=>'<option>'+c+'</option>').join('');}
   const ss=document.getElementById('r-site');
-  const curSite=ss.value;
-  ss.innerHTML='<option value="">All Sites</option>'+[...sites].sort().map(s=>`<option${s===curSite?' selected':''}>${s}</option>`).join('');
-  // datalist for assign modal
-  const dl=document.getElementById('site-list');
-  if(dl)dl.innerHTML=[...sites].sort().map(s=>`<option value="${s}">`).join('');
+  if(ss){const cur=ss.value;ss.innerHTML='<option value="">All Sites</option>'+[...sites].sort().map(s=>'<option'+(s===cur?' selected':'')+'>'+s+'</option>').join('');}
+  const dl=document.getElementById('qa-site-list');
+  if(dl)dl.innerHTML=[...sites].sort().map(s=>'<option value="'+s+'">').join('');
 }
 
 function renderRoster(){
@@ -665,7 +455,6 @@ function renderRoster(){
   const sf=document.getElementById('r-site').value;
   const mf=parseInt(document.getElementById('r-month').value);
   const today=new Date();today.setHours(0,0,0,0);
-  const todayStr=today.toISOString().slice(0,10);
   const days=getDays(mf);
 
   let rows=techs.filter(t=>t.active!==false);
@@ -673,46 +462,42 @@ function renderRoster(){
   if(cf)rows=rows.filter(t=>t.client===cf);
   if(sf)rows=rows.filter(t=>assigns.some(a=>a.tech===t.name&&a.site===sf));
 
-  // Build month header
+  // Month header row
   let mRow='<tr><th class="sth">Technician</th><th class="cth">Client</th>';
   let curM=-1,span=0,mGroups=[];
   days.forEach(d=>{if(d.getMonth()!==curM){if(curM>=0)mGroups.push({m:curM,s:span});curM=d.getMonth();span=1;}else span++;});
   if(curM>=0)mGroups.push({m:curM,s:span});
-  mGroups.forEach(g=>mRow+=`<th colspan="${g.s}" class="mh">${MO[g.m]} 2026</th>`);
+  mGroups.forEach(g=>mRow+='<th colspan="'+g.s+'" class="mhdr">'+MO[g.m]+' 2026</th>');
   mRow+='</tr>';
 
-  // Build day header
+  // Day header row
   let dRow='<tr><th class="sth"></th><th class="cth"></th>';
   days.forEach(d=>{
     const isToday=d.toDateString()===today.toDateString();
     const wk=d.getDay()===0||d.getDay()===6;
-    dRow+=`<th class="${isToday?'today-col':wk?'wkend-col':''}" style="min-width:30px;font-size:9px">${DY[d.getDay()]}<br>${d.getDate()}</th>`;
+    dRow+='<th class="'+(isToday?'todayh':wk?'wkend':'')+'" style="min-width:30px;font-size:9px">'+DY[d.getDay()]+'<br>'+d.getDate()+'</th>';
   });
   dRow+='</tr>';
 
-  // Build data rows
+  // Data rows
   let tbody='';
   rows.forEach(tech=>{
-    const dn=tech.name.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-    let row=`<tr>
-      <td class="ntd" draggable="true" ondragstart="onDragStart(event,'${dn}')">${tech.name}</td>
-      <td class="ctd">${tech.client}</td>`;
+    const esc=tech.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+    const clickFn=isAdmin?'onclick="openQA(\''+esc+'\')"':'';
+    let row='<tr><td class="ntd" '+clickFn+' title="'+(isAdmin?'Click to assign dates':tech.name)+'">'+tech.name+'</td><td class="ctd">'+tech.client+'</td>';
     days.forEach(d=>{
       const isToday=d.toDateString()===today.toDateString();
-      const dateStr=d.toISOString().slice(0,10);
-      const st=getStatus(tech.name,dateStr);
       const wk=d.getDay()===0||d.getDay()===6;
-      row+=`<td class="${isToday?'today-col':wk?'wkend-col':''}"
-        ondragover="onDragOver(event)"
-        ondragleave="onDragLeave(event)"
-        ondrop="onDrop(event,'${dn}','${dateStr}')" onmousedown="onCellMouseDown(event,'${dn}','${dateStr}')" onmouseenter="onCellMouseEnter(event,'${dn}','${dateStr}')" onmouseup="onCellMouseUp(event,'${dn}','${dateStr}')" data-tech="${dn}" data-date="${dateStr}" style="cursor:cell">${chipHtml(st,tech.name,dateStr,isAdmin)}</td>`;
+      const ds=d.toISOString().slice(0,10);
+      const st=getStatus(tech.name,ds);
+      row+='<td class="'+(isToday?'todayc':wk?'wkend':'')+'">'+chipHtml(st)+'</td>';
     });
     row+='</tr>';
     tbody+=row;
   });
 
   document.getElementById('r-head').innerHTML=mRow+dRow;
-  document.getElementById('r-body').innerHTML=tbody||`<tr><td colspan="400" style="padding:24px;text-align:center;color:#bbb">No technicians found</td></tr>`;
+  document.getElementById('r-body').innerHTML=tbody||'<tr><td colspan="400" style="padding:24px;text-align:center;color:#bbb">No technicians found</td></tr>';
 }
 
 function calcStats(){
@@ -722,8 +507,8 @@ function calcStats(){
     if(t.active===false)return;
     const s=getStatus(t.name,todayStr);
     if(!s){off++;return;}
-    if(s.type==='Mob'||s.type==='Demob'){mob++;}
-    else if(s.type==='Off-Swing'||s.type==='Leave'){off++;}
+    if(s.type==='Mob'||s.type==='Demob')mob++;
+    else if(s.type==='Off-Swing'||s.type==='Leave')off++;
     else{swing++;sites.add(s.site);}
   });
   document.getElementById('s-swing').textContent=swing;
@@ -732,95 +517,129 @@ function calcStats(){
   document.getElementById('s-off').textContent=off;
 }
 
-// ── DRAG AND DROP ─────────────────────────────────────────────────────
-function onDragStart(e,techName){
-  dragSrcTech=techName;
-  e.dataTransfer.effectAllowed='copy';
-  e.dataTransfer.setData('text/plain',techName);
-}
-function onDragOver(e){
-  e.preventDefault();
-  e.dataTransfer.dropEffect='copy';
-  e.currentTarget.classList.add('drop-target');
-}
-function onDragLeave(e){e.currentTarget.classList.remove('drop-target');}
-function onDrop(e,rowTechName,dateStr){
-  e.preventDefault();
-  e.currentTarget.classList.remove('drop-target');
-  const src=dragSrcTech||rowTechName;
-  dragSrcTech=null;
-  // Open cell modal with that tech + date pre-filled
-  cellTech=src;cellDate=dateStr;
-  const tech=techs.find(t=>t.name===src);
-  const st=getStatus(src,dateStr);
-  const d=new Date(dateStr+'T00:00:00');
-  document.getElementById('cell-info').textContent=src+' — '+d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('cell-type').value=st?st.type:'On-Swing';
-  document.getElementById('cell-site').value=st?st.site:'';
-  document.getElementById('modal-cell').classList.add('open');
-  setTimeout(()=>document.getElementById('cell-site').focus(),120);
+// QUICK ASSIGN PANEL
+function openQA(techName){
+  qaTech=techs.find(t=>t.name===techName);
+  if(!qaTech)return;
+  document.getElementById('qa-name').textContent=qaTech.name;
+  document.getElementById('qa-client').textContent=qaTech.client;
+  document.getElementById('qa-site').value='';
+  document.getElementById('qa-type').value='On-Swing';
+  document.getElementById('qa-start').value='';
+  document.getElementById('qa-end').value='';
+  renderQAList();
+  document.getElementById('qa-overlay').classList.add('open');
+  document.getElementById('qa-panel').classList.add('open');
+  setTimeout(function(){document.getElementById('qa-site').focus();},300);
 }
 
-// ── CELL EDIT ─────────────────────────────────────────────────────────
-function openCellModal(techName,dateStr){
-  cellTech=techName;cellDate=dateStr;
-  const st=getStatus(techName,dateStr);
-  const d=new Date(dateStr+'T00:00:00');
-  document.getElementById('cell-info').textContent=techName+' — '+d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('cell-type').value=st?st.type:'';
-  document.getElementById('cell-site').value=st?st.site:'';
-  document.getElementById('modal-cell').classList.add('open');
+function closeQA(){
+  document.getElementById('qa-overlay').classList.remove('open');
+  document.getElementById('qa-panel').classList.remove('open');
+  qaTech=null;
 }
 
-async function saveCell(){
-  const type=document.getElementById('cell-type').value;
-  const site=document.getElementById('cell-site').value.trim();
-  if(type&&type!=='Leave'&&type!=='Course'&&type!=='Off-Swing'&&!site){toast('Enter a site name','err');return;}
-  if(!type){clearCell();return;}
-  const tech=techs.find(t=>t.name===cellTech);
-  const existing=getStatus(cellTech,cellDate);
-  const data={tech:cellTech,client:tech?.client||'Vestas',site:site||type,type,start:cellDate,end:cellDate};
-  const spF={Title:cellTech+'-'+site,TechName:cellTech,Client:data.client,Site:site||type,EntryType:type,StartDate:cellDate,EndDate:cellDate};
-  if(existing){
-    const idx=assigns.findIndex(a=>a.id===existing.id);
-    if(idx>=0)assigns[idx]={...assigns[idx],...data};
-    try{await spUpdate('RosterEntries',existing._spId||existing.id,spF);}catch(e){}
-  }else{
-    const na={...data,id:'c'+Date.now()};
-    assigns.push(na);
-    try{const s=await spCreate('RosterEntries',spF);na._spId=s._spId;na.id=s._spId;}catch(e){}
+function renderQAList(){
+  const myAssigns=assigns.filter(a=>a.tech===qaTech.name).sort((a,b)=>a.start.localeCompare(b.start));
+  const el=document.getElementById('qa-list');
+  if(!myAssigns.length){el.innerHTML='<div style="font-size:12px;color:#95a5a6;text-align:center;padding:12px">No assignments yet</div>';return;}
+  el.innerHTML=myAssigns.map(a=>{
+    const sid=a._spId||a.id;
+    return '<div class="qaitem"><div class="qainfo">'+
+      '<div class="qasite">'+a.site+'</div>'+
+      '<div class="qadates">'+a.start+' to '+(a.end||'—')+'</div>'+
+      '<div class="qatype">'+a.type+'</div>'+
+      '</div>'+
+      '<button class="btn btnd btn-sm" onclick="qaDelete(\''+sid+'\')">Remove</button>'+
+      '</div>';
+  }).join('');
+}
+
+async function qaAdd(){
+  const site=document.getElementById('qa-site').value.trim();
+  const type=document.getElementById('qa-type').value;
+  const start=document.getElementById('qa-start').value;
+  const end=document.getElementById('qa-end').value;
+  if(!site){toast('Enter a site name','err');return;}
+  if(!start){toast('Enter a start date','err');return;}
+  if(!qaTech)return;
+  const data={tech:qaTech.name,client:qaTech.client||'Vestas',site,type,start,end:end||start,notes:''};
+  const na={...data,id:'q'+Date.now()};
+  assigns.push(na);
+  try{
+    const spF={Title:qaTech.name+'-'+site,TechName:qaTech.name,Client:data.client,Site:site,EntryType:type,StartDate:start,EndDate:end||start};
+    const s=await spCreate('RosterEntries',spF);
+    na._spId=s._spId;na.id=s._spId;
+    toast('Assignment added');
+  }catch(e){toast('Saved locally');}
+  document.getElementById('qa-site').value='';
+  document.getElementById('qa-start').value='';
+  document.getElementById('qa-end').value='';
+  renderQAList();populateFilters();renderRoster();calcStats();
+}
+
+async function qaDelete(id){
+  if(!confirm('Remove this assignment?'))return;
+  assigns=assigns.filter(a=>(a._spId||a.id)!=id);
+  try{await spDel('RosterEntries',id);toast('Removed');}catch(e){toast('Removed locally');}
+  renderQAList();renderRoster();calcStats();
+}
+
+// EXPORT / PRINT / SHARE
+function exportCSV(){
+  const mf=parseInt(document.getElementById('r-month').value);
+  const cf=document.getElementById('r-client').value;
+  const days=getDays(mf);
+  let rows=techs.filter(t=>t.active!==false&&(!cf||t.client===cf));
+  const header=['Technician','Client'].concat(days.map(d=>d.toISOString().slice(0,10)));
+  const lines=[header];
+  rows.forEach(function(tech){
+    const row=[tech.name,tech.client];
+    days.forEach(function(d){
+      const ds=d.toISOString().slice(0,10);
+      const st=getStatus(tech.name,ds);
+      row.push(st?(st.site+(st.type!=='On-Swing'?' ('+st.type+')':'')):'');
+    });
+    lines.push(row);
+  });
+  const csv=lines.map(function(r){return r.map(function(c){return'"'+(c||'').replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  const label=mf<0?'FullYear':MO[mf];
+  a.download='ProTech-Roster-'+label+'-2026.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  toast('CSV downloaded');
+}
+
+function copyLink(){
+  const url=window.location.href.split('?')[0]+'?view=roster';
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(function(){toast('Link copied to clipboard');});
+  } else {
+    var ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    toast('Link copied');
   }
-  closeModal('modal-cell');
-  populateFilters();renderRoster();calcStats();toast('Saved ✓');
 }
 
-async function clearCell(){
-  const existing=getStatus(cellTech,cellDate);
-  if(existing){
-    assigns=assigns.filter(a=>a.id!==existing.id);
-    try{await spDel('RosterEntries',existing._spId||existing.id);}catch(e){}
-  }
-  closeModal('modal-cell');renderRoster();calcStats();toast('Cleared');
-}
-
-// ── ADMIN: TECHS ──────────────────────────────────────────────────────
+// ADMIN TECHS
 function renderAdminTechs(){
-  document.getElementById('atechs-body').innerHTML=techs.map(t=>`<tr>
-    <td style="font-weight:600">${t.name}</td>
-    <td>${t.client}</td>
-    <td style="color:#7f8c8d">${t.role||'—'}</td>
-    <td><span class="status-dot" style="background:${t.active!==false?'#1e8449':'#c0392b'}"></span>${t.active!==false?'Active':'Inactive'}</td>
-    <td><div style="display:flex;gap:6px">
-      <button class="btn btn-sm" onclick='editTech(${JSON.stringify(t)})'>Edit</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteTech('${t._spId||t.id}','${t.name}')">Remove</button>
-    </div></td>
-  </tr>`).join('');
+  document.getElementById('atechs-body').innerHTML=techs.map(t=>'<tr>'+
+    '<td style="font-weight:600">'+t.name+'</td>'+
+    '<td>'+t.client+'</td>'+
+    '<td style="color:#7f8c8d">'+(t.role||'—')+'</td>'+
+    '<td><span style="background:'+(t.active!==false?'#d5f5e3':'#fadbd8')+';color:'+(t.active!==false?'#1e6e3c':'#922b21')+';padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">'+(t.active!==false?'Active':'Inactive')+'</span></td>'+
+    '<td><div style="display:flex;gap:6px">'+
+    '<button class="btn btn-sm" onclick=\'editTech('+JSON.stringify(t)+')\'>Edit</button>'+
+    '<button class="btn btnd btn-sm" onclick="deleteTech(\''+(t._spId||t.id)+'\',\''+t.name+'\')">Remove</button>'+
+    '</div></td></tr>'
+  ).join('');
 }
 
 function openTechModal(){
   editTechId=null;
   document.getElementById('tech-modal-title').textContent='Add Technician';
-  ['t-name','t-role','t-phone','t-email','t-certs'].forEach(id=>document.getElementById(id).value='');
+  ['t-name','t-role','t-phone','t-email','t-certs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('t-client').value='Vestas';
   document.getElementById('t-status').value='1';
   document.getElementById('modal-tech').classList.add('open');
@@ -846,112 +665,38 @@ async function saveTech(){
   const spF={Title:name,FullName:name,Client:data.client,Role:data.role,Phone:data.phone,Email:data.email,Certifications:data.certs,IsActive:data.active};
   if(editTechId){
     const idx=techs.findIndex(t=>(t._spId||t.id)==editTechId);
-    if(idx>=0)techs[idx]={...techs[idx],...data,_spId:techs[idx]._spId};
-    try{await spUpdate('Technicians',editTechId,spF);toast('Updated ✓');}catch(e){toast('Saved locally');}
+    if(idx>=0)techs[idx]={...techs[idx],...data};
+    try{await spUpdate('Technicians',editTechId,spF);toast('Updated');}catch(e){toast('Saved locally');}
   }else{
     const nt={...data,id:Date.now()};techs.push(nt);
-    try{const s=await spCreate('Technicians',spF);nt._spId=s._spId;toast('Added ✓');}catch(e){toast('Saved locally');}
+    try{const s=await spCreate('Technicians',spF);nt._spId=s._spId;toast('Added');}catch(e){toast('Saved locally');}
   }
   closeModal('modal-tech');populateFilters();renderAdminTechs();renderRoster();calcStats();
 }
 
 async function deleteTech(id,name){
-  if(!confirm('Remove '+name+' from the roster?'))return;
+  if(!confirm('Remove '+name+'?'))return;
   techs=techs.filter(t=>(t._spId||t.id)!=id);
   try{await spDel('Technicians',id);toast('Removed');}catch(e){toast('Removed locally');}
   renderAdminTechs();renderRoster();calcStats();
 }
 
-// ── ADMIN: ASSIGNMENTS ────────────────────────────────────────────────
-function renderAdminAssigns(){
-  document.getElementById('aassign-body').innerHTML=[...assigns].sort((a,b)=>a.tech.localeCompare(b.tech)).map(a=>`<tr>
-    <td style="font-weight:600">${a.tech}</td>
-    <td>${a.client}</td>
-    <td><span class="chip chip-site">${a.site}</span></td>
-    <td style="color:#7f8c8d">${a.type}</td>
-    <td style="font-family:monospace;font-size:11px">${a.start}</td>
-    <td style="font-family:monospace;font-size:11px">${a.end||'—'}</td>
-    <td><div style="display:flex;gap:6px">
-      <button class="btn btn-sm" onclick="editAssign('${a._spId||a.id}')">Edit</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteAssign('${a._spId||a.id}','${a.tech}')">Remove</button>
-    </div></td>
-  </tr>`).join('');
-}
-
-function openAssignModal(){
-  editAssignId=null;
-  document.getElementById('assign-modal-title').textContent='Add Assignment';
-  document.getElementById('a-tech').innerHTML=techs.filter(t=>t.active!==false).map(t=>`<option>${t.name}</option>`).join('');
-  document.getElementById('a-client').value='Vestas';
-  ['a-site','a-start','a-end','a-notes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('a-type').value='On-Swing';
-  document.getElementById('modal-assign').classList.add('open');
-}
-
-function editAssign(id){
-  const a=assigns.find(x=>(x._spId||x.id)==id);if(!a)return;
-  editAssignId=id;
-  document.getElementById('assign-modal-title').textContent='Edit Assignment';
-  document.getElementById('a-tech').innerHTML=techs.filter(t=>t.active!==false).map(t=>`<option${t.name===a.tech?' selected':''}>${t.name}</option>`).join('');
-  document.getElementById('a-client').value=a.client||'Vestas';
-  document.getElementById('a-site').value=a.site||'';
-  document.getElementById('a-type').value=a.type||'On-Swing';
-  document.getElementById('a-start').value=a.start||'';
-  document.getElementById('a-end').value=a.end||'';
-  document.getElementById('a-notes').value=a.notes||'';
-  document.getElementById('modal-assign').classList.add('open');
-}
-
-async function saveAssign(){
-  const site=document.getElementById('a-site').value.trim();
-  const start=document.getElementById('a-start').value;
-  if(!site||!start){toast('Site and start date are required','err');return;}
-  const techName=document.getElementById('a-tech').value;
-  const data={tech:techName,client:document.getElementById('a-client').value,site,type:document.getElementById('a-type').value,start,end:document.getElementById('a-end').value,notes:document.getElementById('a-notes').value};
-  const spF={Title:techName+'-'+site,TechName:techName,Client:data.client,Site:site,EntryType:data.type,StartDate:start,EndDate:data.end||null,Notes:data.notes};
-  if(editAssignId){
-    const idx=assigns.findIndex(a=>(a._spId||a.id)==editAssignId);
-    if(idx>=0)assigns[idx]={...assigns[idx],...data};
-    try{await spUpdate('RosterEntries',editAssignId,spF);toast('Updated ✓');}catch(e){toast('Saved locally');}
-  }else{
-    const na={...data,id:'a'+Date.now()};assigns.push(na);
-    try{const s=await spCreate('RosterEntries',spF);na._spId=s._spId;na.id=s._spId;toast('Added ✓');}catch(e){toast('Saved locally');}
-  }
-  closeModal('modal-assign');populateFilters();renderAdminAssigns();renderRoster();calcStats();
-}
-
-async function deleteAssign(id,tech){
-  if(!confirm('Remove assignment for '+tech+'?'))return;
-  assigns=assigns.filter(a=>(a._spId||a.id)!=id);
-  try{await spDel('RosterEntries',id);toast('Removed');}catch(e){toast('Removed locally');}
-  renderAdminAssigns();renderRoster();calcStats();
-}
-
-// ── UI HELPERS ────────────────────────────────────────────────────────
+// UI HELPERS
 function showView(name){
   ['hub','roster','admin'].forEach(v=>{
     const el=document.getElementById('view-'+v);
     if(el)el.classList.toggle('hidden',v!==name);
   });
   if(name==='roster'){
-    // Default to current month
     const sel=document.getElementById('r-month');
-    if(sel.value==='-1')sel.value=String(new Date().getMonth());
+    if(sel&&sel.value==='-1')sel.value=String(new Date().getMonth());
     renderRoster();
   }
-  if(name==='admin'){renderAdminTechs();renderAdminAssigns();}
-}
-
-function adminTab(tab){
-  ['techs','assign'].forEach(t=>{
-    document.getElementById('admin-'+t+'-panel').classList.toggle('hidden',t!==tab);
-    const btn=document.getElementById('atab-'+t);
-    if(btn){btn.style.background=t===tab?'#fff':'';btn.style.color=t===tab?'#1b4f72':'';}
-  });
+  if(name==='admin')renderAdminTechs();
 }
 
 function closeModal(id){document.getElementById(id).classList.remove('open');}
-document.addEventListener('click',e=>{if(e.target.classList.contains('modal-bg'))e.target.classList.remove('open');});
+document.addEventListener('click',function(e){if(e.target.classList.contains('mbg'))e.target.classList.remove('open');});
 
 let _tt=null;
 function toast(msg,type){
@@ -959,19 +704,18 @@ function toast(msg,type){
   el.textContent=msg;el.className=type==='err'?'err':'';el.style.display='block';
   if(_tt)clearTimeout(_tt);_tt=setTimeout(()=>el.style.display='none',3000);
 }
-function showErr(msg){const el=document.getElementById('login-error');el.style.display='block';el.textContent=msg;}
+function showErr(msg){const el=document.getElementById('lerr');el.style.display='block';el.textContent=msg;}
 
-// ── BOOT ──────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded',async()=>{
+// BOOT
+document.addEventListener('DOMContentLoaded',async function(){
   try{
     msalInst=await msal.PublicClientApplication.createPublicClientApplication(msalCfg);
     const resp=await msalInst.handleRedirectPromise();
-    if(resp?.account){curUser=resp.account;msalInst.setActiveAccount(resp.account);await onIn();return;}
+    if(resp&&resp.account){curUser=resp.account;msalInst.setActiveAccount(resp.account);await onIn();return;}
     const accs=msalInst.getAllAccounts();
     if(accs.length){curUser=accs[0];msalInst.setActiveAccount(accs[0]);await onIn();}
   }catch(e){showErr('Auth error: '+e.message);console.error(e);}
 });
 </script>
-<div class="modal-bg" id="modal-range"><div class="modal" style="min-width:320px;max-width:420px"><h2>Assign Date Range</h2><div id="range-info" style="font-size:13px;color:#7f8c8d;margin-bottom:16px;font-style:italic"></div><div class="fg"><label>Type</label><select id="range-type"><option>On-Swing</option><option>Mob</option><option>Demob</option><option>Leave</option><option>Course</option><option value="">Clear range</option></select></div><div class="fg"><label>Site</label><input id="range-site" placeholder="e.g. Wambo-RA, MRWF..."></div><div class="mf"><button class="btn" onclick="cancelRange()">Cancel</button><button class="btn btn-primary" onclick="saveRange()">Apply to Range</button></div></div></div>
 </body>
 </html>
