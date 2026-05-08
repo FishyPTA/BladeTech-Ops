@@ -4,7 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ProTech Access — Operations Hub</title>
-<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.0/lib/msal-browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.0/lib/msal-browser.min.js">
+let dragTech=null;
+function dragStart(e,n){dragTech=n;e.dataTransfer.effectAllowed="copy";e.dataTransfer.setData("text",n);}
+function dragOver(e){e.preventDefault();e.currentTarget.classList.add("drag-over");}
+function dragLeave(e){e.currentTarget.classList.remove("drag-over");}
+function dropCell(e,techName,dateStr){e.preventDefault();e.currentTarget.classList.remove("drag-over");const src=dragTech||techName;dragTech=null;cellTech=src;cellDate=dateStr;const d=new Date(dateStr+"T00:00:00");const tech=techs.find(t=>t.name===src);const status=getTechStatus(tech,dateStr);document.getElementById("cell-info").textContent=src+" — "+d.toLocaleDateString("en-AU",{weekday:"long",day:"numeric",month:"long"});document.getElementById("cell-type").value=status?status.type:"On-Swing";document.getElementById("cell-site").value=status?status.site:"";document.getElementById("modal-cell").classList.add("open");setTimeout(()=>document.getElementById("cell-site").focus(),100);}
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Calibri,Arial,sans-serif;background:#eef1f6;color:#1a1a2e;min-height:100vh}
@@ -485,12 +491,12 @@ function renderRoster(){
   // Data rows
   let tbody='';
   filtered.forEach(tech=>{
-    let row=`<tr><td class="name-col">${tech.name}</td><td style="font-size:11px;color:#546e7a;min-width:60px;position:sticky;left:150px;background:#fff;z-index:1">${tech.client}</td>`;
+    let row=`<tr><td class="name-col" draggable="true" ondragstart="dragStart(event,'${tech.name}')" style="cursor:grab">${tech.name}</td><td style="font-size:11px;color:#546e7a;min-width:60px;position:sticky;left:150px;background:#fff;z-index:1">${tech.client}</td>`;
     days.forEach(d=>{
       const isToday=d.toDateString()===today.toDateString();
       const dateStr=d.toISOString().slice(0,10);
       const status=getTechStatus(tech,dateStr);
-      row+=`<td class="day-cell${isToday?' today-col':''}">${renderCell(status,tech,dateStr)}</td>`;
+      row+=`<td class="day-cell${isToday?' today-col':''}" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropCell(event,'${tech.name}','${dateStr}')">${renderCell(status,tech,dateStr)}</td>`;
     });
     row+='</tr>';
     tbody+=row;
