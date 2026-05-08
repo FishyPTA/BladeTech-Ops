@@ -6,9 +6,10 @@
 <title>ProTech Access — Blade Ops Platform</title>
 <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.0/lib/msal-browser.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Calibri" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
+body,input,select,textarea,button{font-family:Calibri,Arial,sans-serif}
 :root{
   --bg:#dde3ee;
   --n1:#f0f2f5;--n2:#ffffff;--n3:#f8f9fb;--n4:#edf0f5;--n5:#1b4f72;--n6:#2471a3;--n7:#2e86c1;--n8:#1a6496;
@@ -23,14 +24,14 @@
   --pur:#6c3483;--pur2:#5b2c6f;--pur3:#e8daef;
   --r:3px;--r2:4px;--r3:6px;
 }
-html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background:var(--bg);color:var(--t1)}
+html,body{height:100%;overflow:hidden;font-family:'Calibri',sans-serif;background:var(--bg);color:var(--t1)}
 .app{display:flex;height:100vh;overflow:hidden}
 
 /* ── SIDEBAR ── */
 .sb{width:240px;background:#1b4f72;border-right:none;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;overflow-x:hidden}
 .sb-logo{padding:18px 16px 14px;border-bottom:1px solid var(--b1);flex-shrink:0}
 .sb-nav{padding:8px;flex:1;overflow-y:auto}
-.nav-section{font-family:'Rajdhani',sans-serif;font-size:9px;font-weight:700;color:#a9cce3;letter-spacing:2.5px;text-transform:uppercase;padding:10px 8px 4px;margin-top:4px}
+.nav-section{font-family:'Calibri',sans-serif;font-size:9px;font-weight:700;color:#a9cce3;letter-spacing:2.5px;text-transform:uppercase;padding:10px 8px 4px;margin-top:4px}
 .nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);cursor:pointer;font-size:13px;font-weight:500;color:#aed6f1;transition:all .15s;margin-bottom:1px;border:1px solid transparent;white-space:nowrap;user-select:none}
 .nav-item:hover{background:#154360;color:#ffffff}
 .nav-item.active{background:#2e86c1;color:#ffffff;border-color:transparent}
@@ -47,9 +48,9 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .topbar{height:54px;padding:0 24px;background:#ffffff;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.1)}
 .topbar::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#1b4f72}
-.page-title{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;letter-spacing:0;color:#1a1a2e}
+.page-title{font-family:'Calibri',sans-serif;font-size:16px;font-weight:600;letter-spacing:0;color:#1a1a2e}
 .top-actions{display:flex;gap:8px;align-items:center}
-.top-date{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t4)}
+.top-date{font-family:'Calibri',sans-serif;font-size:11px;color:var(--t4)}
 .page-body{flex:1;overflow-y:auto;padding:20px 24px;background:var(--bg)}
 
 /* ── VIEWS ── */
@@ -57,7 +58,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 .view.active{display:block}
 
 /* ── BUTTONS ── */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--b2);background:var(--n3);color:var(--t1);transition:all .15s;font-family:'Barlow',sans-serif;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--b2);background:var(--n3);color:var(--t1);transition:all .15s;font-family:'Calibri',sans-serif;white-space:nowrap}
 .btn:hover{background:var(--n4);border-color:var(--b3)}
 .btn-primary{background:var(--n5);border-color:var(--n6);color:#fff}.btn-primary:hover{background:var(--n6)}
 .btn-success{background:var(--grn2);border-color:var(--grn2);color:#fff}.btn-success:hover{background:#15803d}
@@ -69,27 +70,27 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 /* ── CARDS ── */
 .card{background:#ffffff;border:1px solid var(--b1);border-radius:var(--r2);overflow:hidden;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .card-header{padding:12px 18px;border-bottom:1px solid var(--b1);background:#ffffff;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0}
-.card-title{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;color:#546e7a}
+.card-title{font-family:'Calibri',sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;color:#546e7a}
 .card-body{padding:18px}
 
 /* ── STATS GRID ── */
 .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
 .stat-card{background:#ffffff;border:1px solid var(--b1);border-radius:var(--r2);padding:16px;border-top:3px solid #1b4f72;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.stat-label{font-family:'Rajdhani',sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
-.stat-value{font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;line-height:1}
+.stat-label{font-family:'Calibri',sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.stat-value{font-family:'Calibri',sans-serif;font-size:30px;font-weight:700;line-height:1}
 .stat-sub{font-size:11px;color:var(--t3);margin-top:5px}
 .sv-blue{color:#0070d1}.sv-green{color:#2d9d78}.sv-yellow{color:#e8a600}.sv-red{color:#d93025}.sv-steel{color:#546e7a}.sv-orange{color:#e06400}
 
 /* ── TABLE ── */
 .data-table{width:100%;border-collapse:collapse;font-size:13px}
-.data-table th{text-align:left;padding:8px 14px;font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--b1);background:#f0f2f5;white-space:nowrap}
+.data-table th{text-align:left;padding:8px 14px;font-family:'Calibri',sans-serif;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--b1);background:#f0f2f5;white-space:nowrap}
 .data-table td{padding:10px 14px;border-bottom:1px solid #eef0f3;color:var(--t1);vertical-align:middle}
 .data-table tbody tr:hover td{background:#d6eaf8;cursor:pointer}
 .data-table tbody tr:last-child td{border-bottom:none}
-.mono{font-family:'JetBrains Mono',monospace;font-size:11px;color:#0070d1}
+.mono{font-family:'Calibri',sans-serif;font-size:11px;color:#0070d1}
 
 /* ── BADGES ── */
-.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-family:'Calibri',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
 .badge-blue{background:#0a1628;color:var(--n8);border:1px solid var(--n5)}
 .badge-green{background:var(--grn3);color:var(--grn);border:1px solid var(--grn2)}
 .badge-yellow{background:#fef9e7;color:#7d6608;border:1px solid #f9e79f}
@@ -108,8 +109,8 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 .form-group.full{flex:0 0 100%}
 .form-group.w2{flex:2}
 .form-group.w3{flex:3}
-.form-label{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px}
-.form-control{background:#ffffff;border:1px solid #c5cdd5;border-radius:var(--r);padding:8px 12px;color:var(--t1);font-family:'Barlow',sans-serif;font-size:13px;width:100%;transition:border-color .15s}
+.form-label{font-family:'Calibri',sans-serif;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px}
+.form-control{background:#ffffff;border:1px solid #c5cdd5;border-radius:var(--r);padding:8px 12px;color:var(--t1);font-family:'Calibri',sans-serif;font-size:13px;width:100%;transition:border-color .15s}
 .form-control:focus{outline:none;border-color:#2471a3;box-shadow:0 0 0 2px #d6eaf8}
 select.form-control option{background:var(--n2)}
 textarea.form-control{resize:vertical;min-height:80px}
@@ -118,7 +119,7 @@ select[multiple].form-control{min-height:80px}
 /* ── FINDING BLOCK ── */
 .finding-block{background:#ffffff;border:1px solid #c5cdd5;border-left:3px solid var(--n5);border-radius:var(--r);padding:14px;margin-bottom:12px}
 .finding-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.finding-num{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:.5px}
+.finding-num{font-family:'Calibri',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:.5px}
 
 /* ── UPLOAD ZONE ── */
 .upload-zone{border:2px dashed var(--b2);border-radius:var(--r2);padding:24px;text-align:center;cursor:pointer;transition:all .15s}
@@ -133,18 +134,18 @@ select[multiple].form-control{min-height:80px}
 .kanban-board{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--b1);border-radius:var(--r2);overflow:hidden}
 .kanban-col{border-right:1px solid var(--b1)}
 .kanban-col:last-child{border-right:none}
-.kanban-col-header{padding:10px 14px;background:#1b4f72;border-bottom:1px solid #154360;display:flex;align-items:center;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--t4)}
+.kanban-col-header{padding:10px 14px;background:#1b4f72;border-bottom:1px solid #154360;display:flex;align-items:center;justify-content:space-between;font-family:'Calibri',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--t4)}
 .kanban-cards{padding:10px;min-height:220px}
 .kanban-card{background:#f8f9fb;border:1px solid var(--b1);border-left:3px solid #2471a3;border-radius:var(--r);padding:11px;margin-bottom:8px;cursor:pointer;transition:all .15s}
 .kanban-card:hover{border-left-color:#1b4f72;background:#d6eaf8}
-.kc-id{font-family:'JetBrains Mono',monospace;font-size:10px;color:#2471a3;margin-bottom:3px}
-.kc-title{font-size:12px;font-weight:600;font-family:'Rajdhani',sans-serif;margin-bottom:3px}
+.kc-id{font-family:'Calibri',sans-serif;font-size:10px;color:#2471a3;margin-bottom:3px}
+.kc-title{font-size:12px;font-weight:600;font-family:'Calibri',sans-serif;margin-bottom:3px}
 .kc-meta{font-size:11px;color:var(--t4);margin-bottom:6px}
 .kc-tags{display:flex;gap:4px;flex-wrap:wrap}
 
 /* ── TABS ── */
 .tab-bar{display:flex;border-bottom:1px solid var(--b1);background:#f0f2f5;flex-wrap:wrap;flex-shrink:0;border-bottom:2px solid #d1d9e0}
-.tab-item{padding:10px 14px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:#546e7a;cursor:pointer;border-bottom:2px solid transparent;transition:all .12s;text-transform:none;letter-spacing:0;white-space:nowrap}
+.tab-item{padding:10px 14px;font-family:'Calibri',sans-serif;font-size:11px;font-weight:700;color:#546e7a;cursor:pointer;border-bottom:2px solid transparent;transition:all .12s;text-transform:none;letter-spacing:0;white-space:nowrap}
 .tab-item:hover{color:#1b4f72;background:#e8f0f7}
 .tab-item.active{color:#1b4f72;border-bottom-color:#1b4f72;background:#ffffff}
 .tab-panel{display:none;padding:18px}
@@ -156,7 +157,7 @@ select[multiple].form-control{min-height:80px}
 .modal-box{background:#ffffff;border:1px solid var(--b1);border-radius:var(--r2);box-shadow:0 4px 20px rgba(0,0,0,.2);width:720px;max-width:95vw;max-height:88vh;overflow-y:auto;display:flex;flex-direction:column}
 .modal-box.modal-lg{width:860px}
 .modal-head{padding:15px 20px;border-bottom:1px solid var(--b1);background:#1b4f72;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.modal-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700}
+.modal-title{font-family:'Calibri',sans-serif;font-size:18px;font-weight:700}
 .modal-body{padding:20px;flex:1}
 .modal-foot{padding:13px 20px;border-top:1px solid var(--b1);display:flex;justify-content:flex-end;gap:8px;flex-shrink:0}
 .modal-close{background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:20px;padding:2px 6px;border-radius:var(--r);line-height:1}
@@ -167,20 +168,20 @@ select[multiple].form-control{min-height:80px}
 .proc-card{background:#f8f9fb;border:1px solid var(--b1);border-radius:var(--r);padding:10px;cursor:pointer;transition:all .15s}
 .proc-card:hover,.proc-card.selected{border-color:#2471a3;background:#d6eaf8}
 .proc-card.selected{border-left:3px solid #1b4f72}
-.proc-card-name{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;margin-bottom:2px}
+.proc-card-name{font-family:'Calibri',sans-serif;font-size:12px;font-weight:700;margin-bottom:2px}
 .proc-card-cat{font-size:11px;color:var(--t4)}
 
 /* ── STEP LIST ── */
 .step-list{}.step-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--b1)}
 .step-item:last-child{border-bottom:none}
-.step-num{width:26px;height:26px;border-radius:50%;background:#1b4f72;color:#fff;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.step-body{flex:1}.step-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;margin-bottom:3px}
+.step-num{width:26px;height:26px;border-radius:50%;background:#1b4f72;color:#fff;font-family:'Calibri',sans-serif;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-body{flex:1}.step-title{font-family:'Calibri',sans-serif;font-size:13px;font-weight:700;margin-bottom:3px}
 .step-desc{font-size:12px;color:var(--t3);line-height:1.5}
 .step-mats{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
 .step-mat-tag{background:#d6eaf8;color:#1b4f72;border:1px solid #a9cce3;border-radius:4px;font-size:10px;padding:2px 7px}
 
 /* ── MAT CATEGORY CHIPS ── */
-.cat-chip{display:inline-block;padding:1px 7px;border-radius:10px;font-family:'Rajdhani',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.cat-chip{display:inline-block;padding:1px 7px;border-radius:10px;font-family:'Calibri',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .chip-resin{background:#111827;color:#60a5fa;border:1px solid #1e4db7}
 .chip-fabric{background:#052e16;color:#22c55e;border:1px solid #166534}
 .chip-core{background:#052e16;color:#6ee7b7;border:1px solid #065f46}
@@ -200,15 +201,15 @@ select[multiple].form-control{min-height:80px}
 /* ── REPORT ── */
 .report-doc{padding:40px 50px;font-size:13px;line-height:1.8}
 .report-hdr{border-bottom:3px solid var(--n5);padding-bottom:20px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start}
-.report-co{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:var(--n7);letter-spacing:2px}
-.report-doctype{font-family:'Rajdhani',sans-serif;font-size:9px;text-transform:uppercase;letter-spacing:3px;color:var(--t4);margin-top:3px}
+.report-co{font-family:'Calibri',sans-serif;font-size:26px;font-weight:700;color:var(--n7);letter-spacing:2px}
+.report-doctype{font-family:'Calibri',sans-serif;font-size:9px;text-transform:uppercase;letter-spacing:3px;color:var(--t4);margin-top:3px}
 .report-meta-table td{padding:2px 10px;font-size:12px;color:var(--t2)}
-.report-meta-table td:first-child{color:var(--t4);font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:right}
-.report-sec{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--s2);margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--b1)}
+.report-meta-table td:first-child{color:var(--t4);font-family:'Calibri',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:right}
+.report-sec{font-family:'Calibri',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--s2);margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--b1)}
 .report-finding{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--b1)}
 .report-finding:last-child{border-bottom:none}
-.rf-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t4);width:24px;flex-shrink:0;padding-top:2px}
-.rf-body{flex:1}.rf-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;margin-bottom:3px}
+.rf-num{font-family:'Calibri',sans-serif;font-size:10px;color:var(--t4);width:24px;flex-shrink:0;padding-top:2px}
+.rf-body{flex:1}.rf-title{font-family:'Calibri',sans-serif;font-size:13px;font-weight:700;margin-bottom:3px}
 .rf-meta{font-size:12px;color:var(--t3)}
 
 /* ── TOAST ── */
@@ -221,7 +222,7 @@ hr.div{border:none;border-top:1px solid var(--b1);margin:16px 0}
 /* ── EMPTY STATE ── */
 .empty-state{padding:48px 24px;text-align:center}
 .empty-state i{font-size:40px;color:var(--t4);display:block;margin-bottom:12px}
-.empty-state h3{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;margin-bottom:6px}
+.empty-state h3{font-family:'Calibri',sans-serif;font-size:16px;font-weight:600;margin-bottom:6px}
 .empty-state p{font-size:12px;color:var(--t3)}
 
 /* ── QC CHECKS ── */
@@ -235,7 +236,7 @@ hr.div{border:none;border-top:1px solid var(--b1);margin:16px 0}
 .mat-row:hover{background:var(--n3)}
 .mat-row:last-child{border-bottom:none}
 .mat-row-head{display:grid;grid-template-columns:2fr 110px 120px 90px 80px 70px 80px 50px;align-items:center;padding:7px 14px;border-bottom:1px solid var(--b1);gap:8px;background:#f0f2f5}
-.mat-row-head span{font-family:'Rajdhani',sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px}
+.mat-row-head span{font-family:'Calibri',sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px}
 .stock-ok{color:var(--grn);font-weight:600}
 .stock-low{color:var(--ylw);font-weight:600}
 .stock-out{color:var(--red);font-weight:700}
@@ -253,7 +254,7 @@ hr.div{border:none;border-top:1px solid var(--b1);margin:16px 0}
 .snow-field-inline{flex-direction:row;align-items:center;padding:6px 0}
 .snow-field-inline .snow-label{min-width:140px;flex-shrink:0;margin-bottom:0}
 .snow-label{font-size:13px;font-weight:400;color:#1a1a2e;display:block}
-.snow-input{background:#ffffff;border:1px solid #c5cdd5;border-radius:3px;padding:6px 10px;color:#1a1a2e;font-family:'Barlow',sans-serif;font-size:13px;width:100%;transition:border-color .12s;outline:none}
+.snow-input{background:#ffffff;border:1px solid #c5cdd5;border-radius:3px;padding:6px 10px;color:#1a1a2e;font-family:'Calibri',sans-serif;font-size:13px;width:100%;transition:border-color .12s;outline:none}
 .snow-input:focus{border-color:#1b4f72;box-shadow:0 0 0 2px rgba(27,79,114,.15)}
 select.snow-input option{background:#ffffff}
 textarea.snow-input{resize:vertical;min-height:70px}
@@ -262,7 +263,7 @@ textarea.snow-input{resize:vertical;min-height:70px}
 
 /* ── VIEW MODE TOGGLE ── */
 .mode-toggle{display:flex;background:#f0f2f5;border:1px solid var(--b1);border-radius:4px;padding:3px;gap:2px}
-.mode-btn{padding:5px 14px;border-radius:3px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'Barlow',sans-serif;transition:all .15s;color:var(--t3);background:transparent}
+.mode-btn{padding:5px 14px;border-radius:3px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'Calibri',sans-serif;transition:all .15s;color:var(--t3);background:transparent}
 .mode-btn.active{background:#1b4f72;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 
 /* ── FIELD TECH VIEW ── */
@@ -276,13 +277,13 @@ body.field-mode .sb{width:220px}
 /* ── FIELD CARDS (touch-optimised) ── */
 .field-card{background:#fff;border-radius:8px;border:1px solid var(--b1);margin-bottom:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .field-card-header{background:#1b4f72;padding:14px 18px;display:flex;align-items:center;gap:10px}
-.field-card-title{color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:.5px}
+.field-card-title{color:#fff;font-family:'Calibri',sans-serif;font-size:15px;font-weight:700;letter-spacing:.5px}
 .field-card-body{padding:16px 18px}
 .field-row{margin-bottom:14px}
 .field-label{font-size:12px;font-weight:600;color:#546e7a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.field-input{width:100%;padding:11px 14px;border:1.5px solid var(--b2);border-radius:6px;font-size:15px;font-family:'Barlow',sans-serif;color:var(--t1);background:#fff;transition:border-color .15s;-webkit-appearance:none}
+.field-input{width:100%;padding:11px 14px;border:1.5px solid var(--b2);border-radius:6px;font-size:15px;font-family:'Calibri',sans-serif;color:var(--t1);background:#fff;transition:border-color .15s;-webkit-appearance:none}
 .field-input:focus{border-color:#1b4f72;outline:none;box-shadow:0 0 0 3px rgba(27,79,114,.12)}
-.field-big-btn{width:100%;padding:16px;border-radius:8px;border:none;font-size:15px;font-weight:700;font-family:'Barlow',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .15s;margin-bottom:10px}
+.field-big-btn{width:100%;padding:16px;border-radius:8px;border:none;font-size:15px;font-weight:700;font-family:'Calibri',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .15s;margin-bottom:10px}
 .field-big-btn i{font-size:18px}
 .field-big-btn-primary{background:#1b4f72;color:#fff}
 .field-big-btn-success{background:#1e8449;color:#fff}
@@ -307,7 +308,7 @@ body.offline .offline-bar{display:flex}
 /* ── ANALYTICS DASHBOARD ── */
 .analytics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
 .anl-card{background:#fff;border:1px solid var(--b1);border-radius:4px;padding:16px;border-left:4px solid var(--acc)}
-.anl-num{font-family:'Rajdhani',sans-serif;font-size:34px;font-weight:700;line-height:1;color:var(--acc)}
+.anl-num{font-family:'Calibri',sans-serif;font-size:34px;font-weight:700;line-height:1;color:var(--acc)}
 .anl-label{font-size:11px;color:var(--t4);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
 .anl-sub{font-size:11px;color:var(--t3);margin-top:3px}
 .chart-bar-wrap{background:#f0f2f5;border-radius:3px;height:8px;flex:1;overflow:hidden}
@@ -320,12 +321,12 @@ body.offline .offline-bar{display:flex}
 <!-- ════ LOGIN SCREEN ════ -->
 <div id="login-screen" style="display:flex;position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#1b4f72 0%,#0a1628 100%);align-items:center;justify-content:center;flex-direction:column;gap:24px">
   <div style="text-align:center">
-    <div style="font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;color:#fff;letter-spacing:2px">PROTECH ACCESS</div>
-    <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:500;color:#a9cce3;letter-spacing:4px;text-transform:uppercase;margin-top:4px">Blade Operations Platform</div>
+    <div style="font-family:'Calibri',sans-serif;font-size:32px;font-weight:700;color:#fff;letter-spacing:2px">PROTECH ACCESS</div>
+    <div style="font-family:'Calibri',sans-serif;font-size:14px;font-weight:500;color:#a9cce3;letter-spacing:4px;text-transform:uppercase;margin-top:4px">Blade Operations Platform</div>
   </div>
   <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:32px 40px;text-align:center;min-width:320px">
     <div id="login-status" style="font-size:13px;color:#a9cce3;margin-bottom:20px">Sign in with your ProTech Microsoft account</div>
-    <button id="login-btn" onclick="signIn()" style="display:inline-flex;align-items:center;gap:10px;background:#2471a3;border:none;border-radius:4px;padding:12px 28px;color:#fff;font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;justify-content:center">
+    <button id="login-btn" onclick="signIn()" style="display:inline-flex;align-items:center;gap:10px;background:#2471a3;border:none;border-radius:4px;padding:12px 28px;color:#fff;font-family:'Calibri',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;justify-content:center">
       <svg width="20" height="20" viewBox="0 0 21 21" fill="none"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
       Sign in with Microsoft
     </button>
@@ -351,9 +352,9 @@ body.offline .offline-bar{display:flex}
         <polygon points="8,22 14,18 22,22" fill="#1e4db7" opacity=".5"/>
         <polygon points="22,12 28,22 16,22" fill="#f1f5fb" opacity=".9"/>
       </g>
-      <text x="50" y="28" font-family="Rajdhani,sans-serif" font-weight="700" font-size="22" fill="#1e4db7" letter-spacing="1">PRO</text>
-      <text x="88" y="28" font-family="Rajdhani,sans-serif" font-weight="700" font-size="22" fill="#94a3b8" letter-spacing="1">TECH</text>
-      <text x="88" y="40" font-family="Rajdhani,sans-serif" font-weight="500" font-size="9" fill="#7a8fa8" letter-spacing="3">ACCESS</text>
+      <text x="50" y="28" font-family="Calibri,sans-serif" font-weight="700" font-size="22" fill="#1e4db7" letter-spacing="1">PRO</text>
+      <text x="88" y="28" font-family="Calibri,sans-serif" font-weight="700" font-size="22" fill="#94a3b8" letter-spacing="1">TECH</text>
+      <text x="88" y="40" font-family="Calibri,sans-serif" font-weight="500" font-size="9" fill="#7a8fa8" letter-spacing="3">ACCESS</text>
     </svg>
   </div>
   <nav class="sb-nav">
@@ -707,8 +708,8 @@ body.offline .offline-bar{display:flex}
       <div class="tab-bar" id="mat-tab-bar"></div>
       <div style="padding:16px 18px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--b1)">
         <div style="display:flex;gap:8px;align-items:center">
-          <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--s1)" id="mat-tab-label">All Materials</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t4)" id="mat-count-label"></span>
+          <span style="font-family:'Calibri',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--s1)" id="mat-tab-label">All Materials</span>
+          <span style="font-family:'Calibri',sans-serif;font-size:11px;color:var(--t4)" id="mat-count-label"></span>
         </div>
         <div style="display:flex;gap:8px">
           <input class="form-control" id="mat-search" placeholder="Search name, part no., supplier…" style="width:260px" oninput="renderMaterialTable()">
@@ -735,8 +736,8 @@ body.offline .offline-bar{display:flex}
       </div>
       <div style="padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--b1)">
         <div style="display:flex;gap:8px;align-items:center">
-          <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--s1)" id="rfab-tab-label">All Reinforcement Fabrics</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t4)" id="rfab-count-label"></span>
+          <span style="font-family:'Calibri',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--s1)" id="rfab-tab-label">All Reinforcement Fabrics</span>
+          <span style="font-family:'Calibri',sans-serif;font-size:11px;color:var(--t4)" id="rfab-count-label"></span>
         </div>
         <div style="display:flex;gap:8px">
           <input class="form-control" id="rfab-search" placeholder="Search fabric, weave, spec…" style="width:260px" oninput="renderRfabTable()">
@@ -787,7 +788,7 @@ body.offline .offline-bar{display:flex}
     </div>
     <div id="report-preview-section" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--s1)">Report Preview</span>
+        <span style="font-family:'Calibri',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--s1)">Report Preview</span>
         <button class="btn btn-success btn-sm" onclick="saveGeneratedReport()"><i class="ti ti-download"></i>Save Report</button>
       </div>
       <div class="card"><div id="report-preview-content"></div></div>
@@ -1089,7 +1090,7 @@ body.offline .offline-bar{display:flex}
         <div style="width:220px;flex-shrink:0;position:sticky;top:16px">
 
           <!-- SUBMIT BUTTON — dark navy like SNOW -->
-          <button onclick="generateNordexReport()" style="width:100%;background:#1b4f72;border:none;color:#ffffff;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;border-radius:3px;margin-bottom:12px;font-family:'Barlow',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .12s" onmouseover="this.style.background='#154360'" onmouseout="this.style.background='#1b4f72'">
+          <button onclick="generateNordexReport()" style="width:100%;background:#1b4f72;border:none;color:#ffffff;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;border-radius:3px;margin-bottom:12px;font-family:'Calibri',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .12s" onmouseover="this.style.background='#154360'" onmouseout="this.style.background='#1b4f72'">
             <i class="ti ti-file-export"></i> Submit / Export .docx
           </button>
 
@@ -1291,7 +1292,7 @@ body.offline .offline-bar{display:flex}
 
         <!-- RIGHT PANEL -->
         <div style="width:220px;flex-shrink:0;position:sticky;top:16px">
-          <button onclick="generateInspectionReport()" style="width:100%;background:#1b4f72;border:none;color:#ffffff;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;border-radius:3px;margin-bottom:12px;font-family:'Barlow',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .12s" onmouseover="this.style.background='#154360'" onmouseout="this.style.background='#1b4f72'">
+          <button onclick="generateInspectionReport()" style="width:100%;background:#1b4f72;border:none;color:#ffffff;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;border-radius:3px;margin-bottom:12px;font-family:'Calibri',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .12s" onmouseover="this.style.background='#154360'" onmouseout="this.style.background='#1b4f72'">
             <i class="ti ti-file-export"></i> Submit / Export .docx
           </button>
           <div style="background:#ffffff;border:1px solid #d1d9e0;border-radius:3px;padding:14px">
@@ -1361,7 +1362,7 @@ body.offline .offline-bar{display:flex}
     <!-- ADD/EDIT MODAL -->
     <div id="modal-serial" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;display:none;align-items:center;justify-content:center">
       <div style="background:#fff;border-radius:6px;padding:24px;width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.25)">
-        <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:16px">Add / Edit Turbine</div>
+        <div style="font-family:'Calibri',sans-serif;font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:16px">Add / Edit Turbine</div>
         <div class="form-row">
           <div class="form-group w2">
             <label class="form-label">Wind Farm</label>
@@ -1416,15 +1417,15 @@ body.offline .offline-bar{display:flex}
       <!-- Quick stats row -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
         <div style="background:#fff;border-radius:6px;border:1px solid var(--b1);padding:12px;text-align:center">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:#1b4f72" id="field-insp-today">0</div>
+          <div style="font-family:'Calibri',sans-serif;font-size:26px;font-weight:700;color:#1b4f72" id="field-insp-today">0</div>
           <div style="font-size:11px;color:var(--t4);font-weight:600">Today's Inspections</div>
         </div>
         <div style="background:#fff;border-radius:6px;border:1px solid var(--b1);padding:12px;text-align:center">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:#1e8449" id="field-rep-today">0</div>
+          <div style="font-family:'Calibri',sans-serif;font-size:26px;font-weight:700;color:#1e8449" id="field-rep-today">0</div>
           <div style="font-size:11px;color:var(--t4);font-weight:600">Today's Repairs</div>
         </div>
         <div style="background:#fff;border-radius:6px;border:1px solid var(--b1);padding:12px;text-align:center">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:#d35400" id="field-open-findings">0</div>
+          <div style="font-family:'Calibri',sans-serif;font-size:26px;font-weight:700;color:#d35400" id="field-open-findings">0</div>
           <div style="font-size:11px;color:var(--t4);font-weight:600">Open Findings</div>
         </div>
       </div>
@@ -1484,8 +1485,8 @@ body.offline .offline-bar{display:flex}
       </div>
       <div style="padding:12px 18px 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--b1)">
         <div style="display:flex;gap:8px;align-items:center">
-          <span style="font-family:Barlow,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#546e7a" id="tdb-tab-label">All OEMs</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t4)" id="tdb-count"></span>
+          <span style="font-family:Calibri,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#546e7a" id="tdb-tab-label">All OEMs</span>
+          <span style="font-family:'Calibri',sans-serif;font-size:11px;color:var(--t4)" id="tdb-count"></span>
         </div>
         <input class="form-control" id="tdb-search" placeholder="Search model, wind farm, state, blade type…" style="max-width:320px" oninput="renderTurbineDB()">
       </div>
@@ -1723,7 +1724,7 @@ body.offline .offline-bar{display:flex}
         </div>
       </div>
       <div style="background:var(--n1);border:1px solid var(--b1);border-radius:var(--r);padding:14px;margin-bottom:14px">
-        <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Physical Specifications</div>
+        <div style="font-family:'Calibri',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Physical Specifications</div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Areal Weight (g/m²)</label><input class="form-control" id="rf-weight" type="number" placeholder="e.g. 600" step="1"></div>
           <div class="form-group"><label class="form-label">Roll Width (mm)</label><input class="form-control" id="rf-width" type="number" placeholder="e.g. 1270" step="1"></div>
@@ -1738,7 +1739,7 @@ body.offline .offline-bar{display:flex}
         </div>
       </div>
       <div style="background:var(--n1);border:1px solid var(--b1);border-radius:var(--r);padding:14px;margin-bottom:14px">
-        <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Available Cut Sizes & Stock</div>
+        <div style="font-family:'Calibri',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Available Cut Sizes & Stock</div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Available Widths (mm) — comma sep.</label><input class="form-control" id="rf-avail-widths" placeholder="e.g. 300, 500, 600, 1000, 1270"></div>
           <div class="form-group"><label class="form-label">Available Lengths (m) — comma sep.</label><input class="form-control" id="rf-avail-lengths" placeholder="e.g. 1, 2, 5, 10, 50, 100"></div>
@@ -1751,7 +1752,7 @@ body.offline .offline-bar{display:flex}
         </div>
       </div>
       <div style="background:var(--n1);border:1px solid var(--b1);border-radius:var(--r);padding:14px;margin-bottom:14px">
-        <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Compatibility & Approvals</div>
+        <div style="font-family:'Calibri',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Compatibility & Approvals</div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Supplier</label><input class="form-control" id="rf-supplier" placeholder="e.g. Saertex, Toray, Owens Corning"></div>
           <div class="form-group"><label class="form-label">Compatible Resins</label><input class="form-control" id="rf-resins" placeholder="e.g. Epoxy, Polyester, Vinyl Ester"></div>
@@ -2234,12 +2235,12 @@ function renderSerialRegistry() {
   if(!rows.length){body.innerHTML='<div style="padding:40px;text-align:center;color:var(--t4)"><i class="ti ti-database" style="font-size:32px;display:block;margin-bottom:10px"></i>No turbines registered yet. Click Add WTG to start.</div>';return;}
   body.innerHTML=`<div style="overflow-x:auto"><table class="turb-reg-table"><thead><tr><th>Wind Farm</th><th>WTG ID</th><th>OEM / Model</th><th>Set No.</th><th>Blade A</th><th>Blade B</th><th>Blade C</th><th>Commissioned</th><th></th></tr></thead><tbody>${rows.map(r=>`<tr>
     <td style="font-weight:500">${r.windFarm||'—'}</td>
-    <td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#1b4f72">${r.wtgId||'—'}</span></td>
+    <td><span style="font-family:'Calibri',sans-serif;font-size:12px;color:#1b4f72">${r.wtgId||'—'}</span></td>
     <td style="font-size:12px;color:var(--t3)">${r.oem||''} ${r.model||''}</td>
-    <td><span style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.setNo||'—'}</span></td>
-    <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${r.bladeA||'—'}</td>
-    <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${r.bladeB||'—'}</td>
-    <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${r.bladeC||'—'}</td>
+    <td><span style="font-family:'Calibri',sans-serif;font-size:12px">${r.setNo||'—'}</span></td>
+    <td style="font-family:'Calibri',sans-serif;font-size:11px">${r.bladeA||'—'}</td>
+    <td style="font-family:'Calibri',sans-serif;font-size:11px">${r.bladeB||'—'}</td>
+    <td style="font-family:'Calibri',sans-serif;font-size:11px">${r.bladeC||'—'}</td>
     <td style="font-size:12px;color:var(--t4)">${r.commDate||'—'}</td>
     <td style="white-space:nowrap">
       <button class="btn btn-xs" onclick="editSerial('${r.id}')"><i class="ti ti-pencil"></i></button>
@@ -3111,7 +3112,7 @@ function renderRepairMaterialsList() {
     const m = materials.find(x=>x.id===rm.id);
     return m ? `<div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--b1)">
       <div style="flex:1;font-size:12px;font-weight:500">${m.name}</div>
-      <div style="color:var(--t4);font-size:11px;width:120px;font-family:'JetBrains Mono',monospace">${m.pn}</div>
+      <div style="color:var(--t4);font-size:11px;width:120px;font-family:'Calibri',sans-serif">${m.pn}</div>
       <div style="display:flex;align-items:center;gap:6px">
         <input type="number" value="${rm.qty}" step="0.1" style="width:65px;background:#ffffff;border:1px solid #c5cdd5;border-radius:var(--r);padding:5px 8px;color:var(--t1);font-size:12px" oninput="repairMaterials[${i}].qty=+this.value">
         <span style="font-size:11px;color:var(--t3)">${m.unit}</span>
@@ -3289,10 +3290,10 @@ function openMaterialDetail(id) {
       ${badge(m.qty===0?'Out of Stock':m.qty<=m.reorder?'Low Stock':'In Stock', m.qty===0?'badge-red':m.qty<=m.reorder?'badge-yellow':'badge-green')}
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px">
-      ${[['Part No.',m.pn||'—'],['Supplier',m.supplier||'—'],['Stock',`<span class="${stockClass(m)}">${m.qty} ${m.unit}${stockIcon(m)}</span>`],['Reorder Level',m.reorder+' '+m.unit],['Mix Ratio',m.mix||'N/A'],['Pot Life',m.pot||'N/A'],['Cure Time',m.cure||'N/A']].map(([k,v])=>`<div><div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px">${k}</div><div style="font-size:13px;font-weight:500">${v}</div></div>`).join('')}
+      ${[['Part No.',m.pn||'—'],['Supplier',m.supplier||'—'],['Stock',`<span class="${stockClass(m)}">${m.qty} ${m.unit}${stockIcon(m)}</span>`],['Reorder Level',m.reorder+' '+m.unit],['Mix Ratio',m.mix||'N/A'],['Pot Life',m.pot||'N/A'],['Cure Time',m.cure||'N/A']].map(([k,v])=>`<div><div style="font-family:Calibri,sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px">${k}</div><div style="font-size:13px;font-weight:500">${v}</div></div>`).join('')}
     </div>
     <hr class="div">
-    <div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Application Notes / Approvals</div>
+    <div style="font-family:Calibri,sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Application Notes / Approvals</div>
     <div style="font-size:13px;color:var(--t2);line-height:1.7">${m.notes||'No notes recorded.'}</div>
     <div style="display:flex;justify-content:flex-end;margin-top:16px">
       <button class="btn btn-primary btn-sm" onclick="closeModal('modal-detail');openEditMaterial('${m.id}')"><i class="ti ti-edit"></i>Edit Item</button>
@@ -3419,22 +3420,22 @@ function openDetailModal(id, type) {
 function inspDetailHTML(insp) {
   const items = [['Site',insp.site],['Turbine',insp.turbine],['OEM',insp.oem||'—'],['Blade',insp.blade],['Blade Model',insp.bladeModel||'—'],['Blade Length',(insp.bladeLen?insp.bladeLen+'m':'—')],['Date',insp.date],['Inspector',insp.inspector],['Cert',insp.cert],['Access',insp.access],['Wind Speed',(insp.wind?insp.wind+' m/s':'—')],['Humidity',(insp.humidity?insp.humidity+'%RH':'—')]];
   return `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
-    ${items.map(([k,v])=>`<div><div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px">${k}</div><div style="font-size:13px;font-weight:500">${v||'—'}</div></div>`).join('')}
+    ${items.map(([k,v])=>`<div><div style="font-family:Calibri,sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px">${k}</div><div style="font-size:13px;font-weight:500">${v||'—'}</div></div>`).join('')}
   </div>
-  ${insp.ndt&&insp.ndt.length?`<div style="margin-bottom:12px"><div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px">NDT Methods</div>${insp.ndt.map(n=>badge(n,'badge-gray')+' ').join('')}</div>`:''}
-  ${(insp.findings||[]).length?`<hr class="div"><div style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Findings (${insp.findings.length})</div>${insp.findings.map((f,i)=>`<div class="report-finding"><div class="rf-num">${i+1}</div><div class="rf-body"><div class="rf-title">${sevDot(f.severity)}${f.type||'Unspecified'} ${badge(SEV_MAP[f.severity]?.label||'','badge-gray')}</div><div class="rf-meta">${[f.zone&&'Zone: '+f.zone,f.location&&'Loc: '+f.location+' from root',f.dim&&'Dim: '+f.dim,f.rec&&'Action: '+f.rec].filter(Boolean).join(' · ')}</div>${f.desc?`<div style="font-size:12px;color:var(--t3);margin-top:4px;font-style:italic">${f.desc}</div>`:''}</div></div>`).join('')}`:''}
-  ${insp.photos&&insp.photos.length?`<hr class="div"><div style="font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;font-family:Rajdhani,sans-serif;font-weight:700;margin-bottom:8px">Photos (${insp.photos.length})</div><div class="photo-grid">${insp.photos.map(p=>`<img class="photo-thumb" src="${p}" alt="Evidence">`).join('')}</div>`:''}`;
+  ${insp.ndt&&insp.ndt.length?`<div style="margin-bottom:12px"><div style="font-family:Calibri,sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px">NDT Methods</div>${insp.ndt.map(n=>badge(n,'badge-gray')+' ').join('')}</div>`:''}
+  ${(insp.findings||[]).length?`<hr class="div"><div style="font-family:Calibri,sans-serif;font-size:10px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Findings (${insp.findings.length})</div>${insp.findings.map((f,i)=>`<div class="report-finding"><div class="rf-num">${i+1}</div><div class="rf-body"><div class="rf-title">${sevDot(f.severity)}${f.type||'Unspecified'} ${badge(SEV_MAP[f.severity]?.label||'','badge-gray')}</div><div class="rf-meta">${[f.zone&&'Zone: '+f.zone,f.location&&'Loc: '+f.location+' from root',f.dim&&'Dim: '+f.dim,f.rec&&'Action: '+f.rec].filter(Boolean).join(' · ')}</div>${f.desc?`<div style="font-size:12px;color:var(--t3);margin-top:4px;font-style:italic">${f.desc}</div>`:''}</div></div>`).join('')}`:''}
+  ${insp.photos&&insp.photos.length?`<hr class="div"><div style="font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:8px">Photos (${insp.photos.length})</div><div class="photo-grid">${insp.photos.map(p=>`<img class="photo-thumb" src="${p}" alt="Evidence">`).join('')}</div>`:''}`;
 }
 function repairDetailHTML(rep) {
   const p = PROCEDURES.find(x=>x.id===rep.procedure);
   return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-    ${[['Type',rep.type],['Classification',rep.classification],['Lead Tech',rep.tech],['Date',rep.date],['Est. Hours',rep.hrs||'—'],['Linked Inspection',rep.linkedInsp||'—'],['Cure Method',rep.cure||'—'],['Status',statusBadge(rep.status)]].map(([k,v])=>`<div><div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px">${k}</div><div style="font-size:13px;font-weight:500">${v}</div></div>`).join('')}
+    ${[['Type',rep.type],['Classification',rep.classification],['Lead Tech',rep.tech],['Date',rep.date],['Est. Hours',rep.hrs||'—'],['Linked Inspection',rep.linkedInsp||'—'],['Cure Method',rep.cure||'—'],['Status',statusBadge(rep.status)]].map(([k,v])=>`<div><div style="font-family:Calibri,sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px">${k}</div><div style="font-size:13px;font-weight:500">${v}</div></div>`).join('')}
   </div>
-  ${rep.scope?`<hr class="div"><div style="font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;font-family:Rajdhani,sans-serif;font-weight:700;margin-bottom:6px">Scope</div><div style="font-size:13px;color:var(--t2);line-height:1.7">${rep.scope}</div>`:''}
-  ${p?`<hr class="div"><div style="font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;font-family:Rajdhani,sans-serif;font-weight:700;margin-bottom:6px">Procedure: ${p.name}</div><div style="font-size:12px;color:var(--t3)">${p.desc}</div>`:''}
-  ${rep.materials&&rep.materials.length?`<hr class="div"><div style="font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;font-family:Rajdhani,sans-serif;font-weight:700;margin-bottom:8px">Materials Used</div><table class="data-table"><thead><tr><th>Material</th><th>Part No.</th><th>Qty</th><th>Supplier</th></tr></thead><tbody>${rep.materials.map(rm=>{const m=materials.find(x=>x.id===rm.id);return m?`<tr><td>${m.name}</td><td class="mono">${m.pn}</td><td>${rm.qty} ${m.unit}</td><td style="color:var(--t3)">${m.supplier}</td></tr>`:''}).join('')}</tbody></table>`:''}
-  ${rep.qcPassed&&rep.qcPassed.length?`<hr class="div"><div style="font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;font-family:Rajdhani,sans-serif;font-weight:700;margin-bottom:8px">QC Passed (${rep.qcPassed.length}/${QC_CHECKS.length})</div>${rep.qcPassed.map(qc=>`<div style="font-size:12px;color:var(--grn);padding:2px 0">✓ ${qc}</div>`).join('')}`:''}
-  ${rep.photos&&rep.photos.length?`<hr class="div"><div style="font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;font-family:Rajdhani,sans-serif;font-weight:700;margin-bottom:8px">Photos</div><div class="photo-grid">${rep.photos.map(p=>`<img class="photo-thumb" src="${p}" alt="Repair">`).join('')}</div>`:''}`;
+  ${rep.scope?`<hr class="div"><div style="font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:6px">Scope</div><div style="font-size:13px;color:var(--t2);line-height:1.7">${rep.scope}</div>`:''}
+  ${p?`<hr class="div"><div style="font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:6px">Procedure: ${p.name}</div><div style="font-size:12px;color:var(--t3)">${p.desc}</div>`:''}
+  ${rep.materials&&rep.materials.length?`<hr class="div"><div style="font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:8px">Materials Used</div><table class="data-table"><thead><tr><th>Material</th><th>Part No.</th><th>Qty</th><th>Supplier</th></tr></thead><tbody>${rep.materials.map(rm=>{const m=materials.find(x=>x.id===rm.id);return m?`<tr><td>${m.name}</td><td class="mono">${m.pn}</td><td>${rm.qty} ${m.unit}</td><td style="color:var(--t3)">${m.supplier}</td></tr>`:''}).join('')}</tbody></table>`:''}
+  ${rep.qcPassed&&rep.qcPassed.length?`<hr class="div"><div style="font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:8px">QC Passed (${rep.qcPassed.length}/${QC_CHECKS.length})</div>${rep.qcPassed.map(qc=>`<div style="font-size:12px;color:var(--grn);padding:2px 0">✓ ${qc}</div>`).join('')}`:''}
+  ${rep.photos&&rep.photos.length?`<hr class="div"><div style="font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:8px">Photos</div><div class="photo-grid">${rep.photos.map(p=>`<img class="photo-thumb" src="${p}" alt="Repair">`).join('')}</div>`:''}`;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -3487,15 +3488,15 @@ function buildReportHTML(insp,rep,client,ref,type,summary){
       </div>
       <table class="report-meta-table"><tr><td>Reference</td><td>${ref}</td></tr><tr><td>Client</td><td>${client}</td></tr><tr><td>Date</td><td>${new Date().toISOString().slice(0,10)}</td></tr><tr><td>Status</td><td style="color:#22c55e;font-weight:700">ISSUED</td></tr></table>
     </div>
-    ${insp?`<div class="report-sec">Asset & Inspection Details</div><table style="width:100%;border-collapse:collapse;font-size:12px"><tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Site</td><td>${insp.site}</td><td style="color:#7a8fa8;padding:3px 10px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Inspection Date</td><td>${insp.date}</td></tr><tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Turbine</td><td>${insp.turbine}</td><td style="color:#7a8fa8;padding:3px 10px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Inspector</td><td>${insp.inspector}</td></tr><tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">OEM</td><td>${insp.oem||'—'}</td><td style="color:#7a8fa8;padding:3px 10px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Access Method</td><td>${insp.access}</td></tr><tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Blade</td><td>${insp.blade}</td><td style="color:#7a8fa8;padding:3px 10px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Certification</td><td>${insp.cert}</td></tr>${insp.ndt&&insp.ndt.length?`<tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">NDT Methods</td><td colspan="3">${insp.ndt.join(', ')}</td></tr>`:''}</table>`:''}
+    ${insp?`<div class="report-sec">Asset & Inspection Details</div><table style="width:100%;border-collapse:collapse;font-size:12px"><tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Calibri,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Site</td><td>${insp.site}</td><td style="color:#7a8fa8;padding:3px 10px;font-family:Calibri,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Inspection Date</td><td>${insp.date}</td></tr><tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Calibri,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Turbine</td><td>${insp.turbine}</td><td style="color:#7a8fa8;padding:3px 10px;font-family:Calibri,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Inspector</td><td>${insp.inspector}</td></tr><tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Calibri,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">OEM</td><td>${insp.oem||'—'}</td><td style="color:#7a8fa8;padding:3px 10px;font-family:Calibri,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Access Method</td><td>${insp.access}</td></tr><tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Calibri,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Blade</td><td>${insp.blade}</td><td style="color:#7a8fa8;padding:3px 10px;font-family:Calibri,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Certification</td><td>${insp.cert}</td></tr>${insp.ndt&&insp.ndt.length?`<tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Calibri,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">NDT Methods</td><td colspan="3">${insp.ndt.join(', ')}</td></tr>`:''}</table>`:''}
     <div class="report-sec">Executive Summary</div>
     <p style="font-size:13px;color:#c8daf0;line-height:1.8;margin-bottom:10px">${summary}</p>
-    ${insp?`<div style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border:1px solid #2563eb50;border-radius:6px;background:#2a3f6f;margin-bottom:4px"><span style="font-size:10px;color:#7a8fa8;text-transform:uppercase;letter-spacing:.5px;font-family:Rajdhani,sans-serif;font-weight:700">Overall Risk Level:</span><span style="font-weight:700;color:${sevColors[maxSev]}">${sevLabels[maxSev]}</span></div>`:''}
+    ${insp?`<div style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border:1px solid #2563eb50;border-radius:6px;background:#2a3f6f;margin-bottom:4px"><span style="font-size:10px;color:#7a8fa8;text-transform:uppercase;letter-spacing:.5px;font-family:Calibri,sans-serif;font-weight:700">Overall Risk Level:</span><span style="font-weight:700;color:${sevColors[maxSev]}">${sevLabels[maxSev]}</span></div>`:''}
     ${insp&&(insp.findings||[]).length?`<div class="report-sec">Damage Findings (${insp.findings.length})</div>${insp.findings.map((f,i)=>`<div class="report-finding"><div class="rf-num">${i+1}</div><div class="rf-body"><div class="rf-title"><span style="width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px;background:${['','#22c55e','#f59e0b','#f97316','#ef4444','#ef4444'][f.severity]||'#888'}"></span>${f.type||'Unspecified'} <span style="background:#223050;color:#c8daf0;border:1px solid #1e4db744;border-radius:8px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:1px 7px;margin-left:6px">Severity ${f.severity}</span></div><div class="rf-meta">${[f.zone&&'Zone: '+f.zone,f.location&&'Loc: '+f.location,f.dim&&'Dim: '+f.dim,f.area&&'Area: '+f.area+' cm²',f.rec&&'Action: '+f.rec].filter(Boolean).join(' · ')}</div>${f.desc?`<div style="font-size:12px;color:#8ba4c8;margin-top:4px;font-style:italic;line-height:1.6">${f.desc}</div>`:''}</div></div>`).join('')}`:''}
-    ${rep?`<div class="report-sec">Repair Details — ${rep.id}</div><table style="width:100%;border-collapse:collapse;font-size:12px"><tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Repair Type</td><td>${rep.type}</td><td style="color:#7a8fa8;padding:3px 10px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Classification</td><td>${rep.classification}</td></tr><tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Lead Technician</td><td>${rep.tech}</td><td style="color:#7a8fa8;padding:3px 10px;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Procedure</td><td>${PROCEDURES.find(x=>x.id===rep.procedure)?.name||'—'}</td></tr></table>${rep.materials&&rep.materials.length?`<div class="report-sec" style="margin-top:14px">Materials Used</div><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th style="text-align:left;padding:5px 10px;color:#7a8fa8;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e4db730;font-family:Rajdhani,sans-serif">Material</th><th style="text-align:left;padding:5px 10px;color:#7a8fa8;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e4db730;font-family:Rajdhani,sans-serif">Part No.</th><th style="text-align:left;padding:5px 10px;color:#7a8fa8;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e4db730;font-family:Rajdhani,sans-serif">Qty Used</th><th style="text-align:left;padding:5px 10px;color:#7a8fa8;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e4db730;font-family:Rajdhani,sans-serif">Supplier</th></tr></thead><tbody>${rep.materials.map(rm=>{const m=materials.find(x=>x.id===rm.id);return m?`<tr><td style="padding:5px 10px;border-bottom:1px solid #1e4db730">${m.name}</td><td style="padding:5px 10px;border-bottom:1px solid #1e4db730;font-family:monospace;font-size:11px;color:#60a5fa">${m.pn}</td><td style="padding:5px 10px;border-bottom:1px solid #1e4db730">${rm.qty} ${m.unit}</td><td style="padding:5px 10px;border-bottom:1px solid #1e4db730;color:#c8daf0">${m.supplier}</td></tr>`:''}).join('')}</tbody></table>`:''}${rep.qcPassed&&rep.qcPassed.length?`<div class="report-sec" style="margin-top:14px">QC Sign-off (${rep.qcPassed.length}/${QC_CHECKS.length} checks passed)</div>${rep.qcPassed.map(qc=>`<div style="font-size:12px;color:#22c55e;padding:2px 0">✓ ${qc}</div>`).join('')}`:''}`:''}
+    ${rep?`<div class="report-sec">Repair Details — ${rep.id}</div><table style="width:100%;border-collapse:collapse;font-size:12px"><tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Calibri,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Repair Type</td><td>${rep.type}</td><td style="color:#7a8fa8;padding:3px 10px;font-family:Calibri,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Classification</td><td>${rep.classification}</td></tr><tr><td style="color:#7a8fa8;padding:3px 10px;font-family:Calibri,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Lead Technician</td><td>${rep.tech}</td><td style="color:#7a8fa8;padding:3px 10px;font-family:Calibri,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase">Procedure</td><td>${PROCEDURES.find(x=>x.id===rep.procedure)?.name||'—'}</td></tr></table>${rep.materials&&rep.materials.length?`<div class="report-sec" style="margin-top:14px">Materials Used</div><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th style="text-align:left;padding:5px 10px;color:#7a8fa8;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e4db730;font-family:Calibri,sans-serif">Material</th><th style="text-align:left;padding:5px 10px;color:#7a8fa8;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e4db730;font-family:Calibri,sans-serif">Part No.</th><th style="text-align:left;padding:5px 10px;color:#7a8fa8;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e4db730;font-family:Calibri,sans-serif">Qty Used</th><th style="text-align:left;padding:5px 10px;color:#7a8fa8;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e4db730;font-family:Calibri,sans-serif">Supplier</th></tr></thead><tbody>${rep.materials.map(rm=>{const m=materials.find(x=>x.id===rm.id);return m?`<tr><td style="padding:5px 10px;border-bottom:1px solid #1e4db730">${m.name}</td><td style="padding:5px 10px;border-bottom:1px solid #1e4db730;font-family:monospace;font-size:11px;color:#60a5fa">${m.pn}</td><td style="padding:5px 10px;border-bottom:1px solid #1e4db730">${rm.qty} ${m.unit}</td><td style="padding:5px 10px;border-bottom:1px solid #1e4db730;color:#c8daf0">${m.supplier}</td></tr>`:''}).join('')}</tbody></table>`:''}${rep.qcPassed&&rep.qcPassed.length?`<div class="report-sec" style="margin-top:14px">QC Sign-off (${rep.qcPassed.length}/${QC_CHECKS.length} checks passed)</div>${rep.qcPassed.map(qc=>`<div style="font-size:12px;color:#22c55e;padding:2px 0">✓ ${qc}</div>`).join('')}`:''}`:''}
     <div class="report-sec" style="margin-top:24px">Authorisation & Sign-off</div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding:10px 0;font-size:12px">
-      ${[['Inspector',insp?insp.inspector:'—'],['QA Approved',insp?.qaDate||new Date().toISOString().slice(0,10)],['Client',client]].map(([k,v])=>`<div><div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;color:#7a8fa8;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">${k}</div><div>${v}</div><div style="margin-top:22px;border-top:1px solid #2563eb50;padding-top:4px;color:#5a78a0;font-size:10px">Signature & Date</div></div>`).join('')}
+      ${[['Inspector',insp?insp.inspector:'—'],['QA Approved',insp?.qaDate||new Date().toISOString().slice(0,10)],['Client',client]].map(([k,v])=>`<div><div style="font-family:Calibri,sans-serif;font-size:9px;font-weight:700;color:#7a8fa8;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">${k}</div><div>${v}</div><div style="margin-top:22px;border-top:1px solid #2563eb50;padding-top:4px;color:#5a78a0;font-size:10px">Signature & Date</div></div>`).join('')}
     </div>
     <div style="margin-top:20px;padding-top:12px;border-top:1px solid #1e4db730;font-size:10px;color:#5a78a0;display:flex;justify-content:space-between">
       <span>ProTech Access — Blade Inspection & Repair Platform</span><span>${ref}</span><span>Generated ${new Date().toLocaleDateString()}</span>
@@ -3630,7 +3631,7 @@ function renderRfabTable() {
   if (!list.length) { document.getElementById('rfab-table-body').innerHTML = '<div style="padding:48px;text-align:center;color:var(--t4)"><i class="ti ti-layers-intersect" style="font-size:36px;display:block;margin-bottom:10px"></i><div style="font-size:14px;font-weight:600">No fabrics found</div></div>'; return; }
   document.getElementById('rfab-table-body').innerHTML = `
     <div style="display:grid;grid-template-columns:2.5fr 90px 90px 70px 70px 70px 80px 100px 90px 50px;align-items:center;padding:7px 14px;border-bottom:1px solid var(--b1);background:var(--n1);gap:8px">
-      ${['Material / Description','Weave / Build','Fibre','g/m²','Width mm','Thickness mm','Stock m²','Process','Supplier',''].map(h=>`<span style="font-family:'Rajdhani',sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px">${h}</span>`).join('')}
+      ${['Material / Description','Weave / Build','Fibre','g/m²','Width mm','Thickness mm','Stock m²','Process','Supplier',''].map(h=>`<span style="font-family:'Calibri',sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px">${h}</span>`).join('')}
     </div>
     ${list.map(r=>`<div style="display:grid;grid-template-columns:2.5fr 90px 90px 70px 70px 70px 80px 100px 90px 50px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--b1);gap:8px;cursor:pointer;transition:background .1s" onmouseenter="this.style.background='var(--n3)'" onmouseleave="this.style.background=''" onclick="openRfabDetail('${r.id}')">
       <div>
@@ -3643,9 +3644,9 @@ function renderRfabTable() {
       </div>
       <div style="font-size:11px;color:var(--t2)">${r.weave}</div>
       <div><span class="badge ${RFAB_TYPE_COLORS[r.fibre]||'badge-gray'}">${RFAB_TYPE_LABELS[r.fibre]||r.fibre}</span></div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--n8);font-weight:600">${r.weight}</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t2)">${r.width}</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t2)">${r.thickness}</div>
+      <div style="font-family:'Calibri',sans-serif;font-size:12px;color:var(--n8);font-weight:600">${r.weight}</div>
+      <div style="font-family:'Calibri',sans-serif;font-size:12px;color:var(--t2)">${r.width}</div>
+      <div style="font-family:'Calibri',sans-serif;font-size:12px;color:var(--t2)">${r.thickness}</div>
       <div class="${r.qty===0?'stock-out':r.qty<=r.reorder?'stock-low':'stock-ok'}" style="font-size:12px">${r.qty}${r.qty===0?' ✗':r.qty<=r.reorder?' ⚠':''}</div>
       <div style="font-size:11px;color:var(--t3)">${r.process.split(' ')[0]+(r.process.includes('All')?'/All':'')}</div>
       <div style="font-size:11px;color:var(--t3)">${r.supplier}</div>
@@ -3660,7 +3661,7 @@ function openRfabDetail(id) {
   if (!r) return;
   document.getElementById('modal-rfab-detail-title').textContent = r.name;
   document.getElementById('rfab-detail-edit-btn').onclick = () => { closeModal('modal-rfab-detail'); openEditRfab(id); };
-  const spec = (label, value, unit='') => value ? `<div><div style="font-family:'Rajdhani',sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px">${label}</div><div style="font-size:13px;font-weight:500">${value}${unit?' <span style="font-size:11px;color:var(--t4)">'+unit+'</span>':''}</div></div>` : '';
+  const spec = (label, value, unit='') => value ? `<div><div style="font-family:'Calibri',sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px">${label}</div><div style="font-size:13px;font-weight:500">${value}${unit?' <span style="font-size:11px;color:var(--t4)">'+unit+'</span>':''}</div></div>` : '';
   document.getElementById('modal-rfab-detail-body').innerHTML = `
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
       <span class="badge ${RFAB_TYPE_COLORS[r.fibre]||'badge-gray'}">${RFAB_TYPE_LABELS[r.fibre]||r.fibre}</span>
@@ -3668,7 +3669,7 @@ function openRfabDetail(id) {
       ${r.qty===0?'<span class="badge badge-red">Out of Stock</span>':r.qty<=r.reorder?'<span class="badge badge-yellow">Low Stock</span>':'<span class="badge badge-green">In Stock</span>'}
     </div>
     <div style="background:var(--n1);border:1px solid var(--b1);border-radius:var(--r);padding:14px;margin-bottom:14px">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Physical Specifications</div>
+      <div style="font-family:'Calibri',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Physical Specifications</div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
         ${spec('Areal Weight',r.weight,'g/m²')}
         ${spec('Roll Width',r.width,'mm')}
@@ -3681,7 +3682,7 @@ function openRfabDetail(id) {
       </div>
     </div>
     <div style="background:var(--n1);border:1px solid var(--b1);border-radius:var(--r);padding:14px;margin-bottom:14px">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Available Sizes & Stock</div>
+      <div style="font-family:'Calibri',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Available Sizes & Stock</div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
         ${spec('Available Widths',r.availWidths,'mm')}
         ${spec('Available Lengths',r.availLengths,'m')}
@@ -3692,7 +3693,7 @@ function openRfabDetail(id) {
       </div>
     </div>
     <div style="background:var(--n1);border:1px solid var(--b1);border-radius:var(--r);padding:14px;margin-bottom:14px">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Compatibility & Approvals</div>
+      <div style="font-family:'Calibri',sans-serif;font-size:11px;font-weight:700;color:var(--s1);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Compatibility & Approvals</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
         ${spec('Supplier',r.supplier)}
         ${spec('Fibre Orientation',r.orientation)}
@@ -3702,7 +3703,7 @@ function openRfabDetail(id) {
       </div>
     </div>
     <hr class="div">
-    <div style="font-family:'Rajdhani',sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Application Notes</div>
+    <div style="font-family:'Calibri',sans-serif;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Application Notes</div>
     <div style="font-size:13px;color:var(--t2);line-height:1.7">${r.notes||'No notes recorded.'}</div>`;
   openModal('modal-rfab-detail');
 }
@@ -4065,7 +4066,7 @@ function renderNordexMaterials() {
           const rowBg = isMissing ? 'background:#fffde7' : '';
           return `<tr style="${rowBg}">
             <td style="padding:2px 3px;border:1px solid var(--b1);vertical-align:middle">
-              <select style="background:#fff;border:none;width:60px;padding:5px 4px;font-size:12px;color:var(--t1);font-family:Barlow,sans-serif" onchange="nrMaterials[${i}].findingId=this.value">
+              <select style="background:#fff;border:none;width:60px;padding:5px 4px;font-size:12px;color:var(--t1);font-family:Calibri,sans-serif" onchange="nrMaterials[${i}].findingId=this.value">
                 <option value="" ${!m.findingId?'selected':''}>—</option>
                 ${nrFindings.map((_,fi)=>`<option value="${String(fi+1).padStart(2,'0')}" ${m.findingId===String(fi+1).padStart(2,'0')?'selected':''}>${String(fi+1).padStart(2,'0')}</option>`).join('')}
                 <option value="All" ${m.findingId==='All'?'selected':''}>All</option>
@@ -4095,7 +4096,7 @@ function renderNordexMaterials() {
                 value="${m.quantity||''}" placeholder="e.g. 2" type="number" step="0.1" min="0" oninput="nrMaterials[${i}].quantity=this.value">
             </td>
             <td style="padding:2px 3px;border:1px solid var(--b1)">
-              <select style="background:#fff;border:none;padding:5px 4px;font-size:12px;color:var(--t1);font-family:Barlow,sans-serif;width:60px" onchange="nrMaterials[${i}].unit=this.value">
+              <select style="background:#fff;border:none;padding:5px 4px;font-size:12px;color:var(--t1);font-family:Calibri,sans-serif;width:60px" onchange="nrMaterials[${i}].unit=this.value">
                 ${['kg','L','ml','m','m²','roll','kit','each','box','g','set'].map(u=>`<option ${(m.unit||'')===u?'selected':''}>${u}</option>`).join('')}
               </select>
             </td>
@@ -4581,7 +4582,7 @@ function renderTurbineDB() {
 
   document.getElementById('tdb-table').innerHTML = `
     <div style="display:grid;grid-template-columns:120px 200px 60px 70px 70px 70px 200px 1fr;align-items:center;padding:7px 14px;background:#f0f2f5;border-bottom:1px solid var(--b1);gap:8px">
-      ${['OEM','Model','MW','Rotor Ø','Blade L','Hub H','Blade Type/Model','Wind Farms (AU)'].map(h=>`<span style="font-family:Barlow,sans-serif;font-size:10px;font-weight:700;color:#546e7a;text-transform:uppercase;letter-spacing:.5px">${h}</span>`).join('')}
+      ${['OEM','Model','MW','Rotor Ø','Blade L','Hub H','Blade Type/Model','Wind Farms (AU)'].map(h=>`<span style="font-family:Calibri,sans-serif;font-size:10px;font-weight:700;color:#546e7a;text-transform:uppercase;letter-spacing:.5px">${h}</span>`).join('')}
     </div>
     ${list.map(t=>`
       <div style="display:grid;grid-template-columns:120px 200px 60px 70px 70px 70px 200px 1fr;align-items:start;padding:10px 14px;border-bottom:1px solid var(--b1);gap:8px;cursor:pointer;transition:background .1s"
@@ -4594,11 +4595,11 @@ function renderTurbineDB() {
           <div style="font-size:12px;font-weight:600;color:var(--t1)">${t.model}</div>
           <div style="font-size:10px;color:var(--t4);margin-top:2px">${t.state}</div>
         </div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:#1b4f72">${t.rated}</div>
+        <div style="font-family:'Calibri',sans-serif;font-size:12px;font-weight:600;color:#1b4f72">${t.rated}</div>
         <div style="font-size:12px;color:var(--t2)">${t.rotor}m</div>
         <div style="font-size:12px;font-weight:600;color:var(--t1)">${t.bladeLen}m</div>
         <div style="font-size:12px;color:var(--t2)">${t.hubHeight}m</div>
-        <div style="font-size:11px;color:#1b4f72;font-family:'JetBrains Mono',monospace">${t.bladeModel}</div>
+        <div style="font-size:11px;color:#1b4f72;font-family:'Calibri',sans-serif">${t.bladeModel}</div>
         <div>
           ${t.windFarms.slice(0,2).map(f=>`<div style="font-size:11px;color:var(--t2);margin-bottom:2px">• ${f}</div>`).join('')}
           ${t.windFarms.length>2?`<div style="font-size:10px;color:var(--t4)">+${t.windFarms.length-2} more…</div>`:''}
@@ -4852,7 +4853,7 @@ function renderDiarySavedList() {
           <div style="font-size:11px;color:var(--t4);margin-top:2px">${(e.techs||[]).filter(t=>t.name).map(t=>t.name.split(' ')[0]).join(', ')}</div>
         </div>
         <div style="text-align:right;flex-shrink:0">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#2471a3">${e.id}</div>
+          <div style="font-family:'Calibri',sans-serif;font-size:10px;color:#2471a3">${e.id}</div>
           <button class="btn btn-xs" style="margin-top:4px" onclick="event.stopPropagation();exportDiaryEntry('${e.id}')"><i class="ti ti-file-export"></i>.docx</button>
         </div>
       </div>
