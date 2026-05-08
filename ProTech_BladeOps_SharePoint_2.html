@@ -688,6 +688,8 @@ body.offline .offline-bar{display:flex}
       <button class="btn btn-warning" onclick="saveInspection('Repair Required')"><i class="ti ti-tool"></i>Save & Flag for Repair</button>
       <button class="btn btn-primary" onclick="saveInspection('QA Review')"><i class="ti ti-send"></i>Save & Submit for QA</button>
     </div>
+  <div class="doc-zone"><div class="doc-zone-title">Inspection Documents</div><div id="insp-docs"></div></div>
+  <script>docZoneForRecord("Inspections","insp-new","insp-docs")</script>
   </div>
 
   <!-- ══ REPAIRS LIST ══ -->
