@@ -125,6 +125,143 @@ function docZoneForRecord(section, recordId, containerId) {
   setTimeout(function() { initDocZone(containerId, section, recordId || 'new'); }, 300);
 }
 
+
+function addFinding() {
+  var c = document.getElementById('findings-container');
+  if (!c) return;
+  var idx = findings ? findings.length : 0;
+  var div = document.createElement('div');
+  div.className = 'finding-block';
+  div.id = 'finding-block-' + idx;
+  div.innerHTML = '<div class="finding-header"><span class="finding-num">Finding ' + (idx+1) + '</span>' +
+    '<button class="btn btn-xs btn-danger" onclick="removeFinding(' + idx + ')"><i class="ti ti-trash"></i>Remove</button></div>' +
+    '<div class="form-row">' +
+    '<div class="form-group"><label class="form-label">Location / Blade</label>' +
+    '<input class="form-control" id="f-loc-' + idx + '" placeholder="e.g. Blade 1 LE, 12m"></div>' +
+    '<div class="form-group"><label class="form-label">Severity</label>' +
+    '<select class="form-control" id="f-sev-' + idx + '">' +
+    '<option value="1">1 - Cosmetic</option><option value="2">2 - Minor</option>' +
+    '<option value="3">3 - Moderate</option><option value="4">4 - Serious</option>' +
+    '<option value="5">5 - Critical</option></select></div></div>' +
+    '<div class="form-row">' +
+    '<div class="form-group"><label class="form-label">Category</label>' +
+    '<select class="form-control" id="f-cat-' + idx + '">' +
+    '<option>LE Erosion</option><option>TE Damage</option><option>Delamination</option>' +
+    '<option>Lightning Strike</option><option>Crack</option><option>Surface Coating</option>' +
+    '<option>Structural</option><option>Other</option></select></div>' +
+    '<div class="form-group"><label class="form-label">Status</label>' +
+    '<select class="form-control" id="f-stat-' + idx + '">' +
+    '<option>Identified</option><option>Repair Scheduled</option><option>Repaired</option><option>Monitor</option></select></div></div>' +
+    '<div class="form-group"><label class="form-label">Description</label>' +
+    '<textarea class="form-control" id="f-desc-' + idx + '" rows="2" placeholder="Describe the finding..."></textarea></div>' +
+    '<div class="form-group"><label class="form-label">Recommendation</label>' +
+    '<textarea class="form-control" id="f-rec-' + idx + '" rows="2" placeholder="Recommended action..."></textarea></div>';
+  if (!window.findings) window.findings = [];
+  window.findings.push({loc:'',sev:'1',cat:'LE Erosion',stat:'Identified',desc:'',rec:''});
+  c.appendChild(div);
+}
+
+function removeFinding(idx) {
+  if (window.findings) window.findings.splice(idx, 1);
+  var el = document.getElementById('finding-block-' + idx);
+  if (el) el.remove();
+  renderFindings();
+}
+
+function collectFindings() {
+  var result = [];
+  var blocks = document.querySelectorAll('.finding-block');
+  blocks.forEach(function(b, i) {
+    result.push({
+      loc: (document.getElementById('f-loc-'+i)||{value:''}).value,
+      sev: (document.getElementById('f-sev-'+i)||{value:'1'}).value,
+      cat: (document.getElementById('f-cat-'+i)||{value:''}).value,
+      stat: (document.getElementById('f-stat-'+i)||{value:''}).value,
+      desc: (document.getElementById('f-desc-'+i)||{value:''}).value,
+      rec: (document.getElementById('f-rec-'+i)||{value:''}).value
+    });
+  });
+  return result;
+}
+
+function downloadSafetyChecklist() {
+  var jobNum = '';
+  var jEl = document.getElementById('nr-jobnum') || document.getElementById('rep-jobnum');
+  if (jEl) jobNum = jEl.value;
+  var userName = '';
+  if (window.msalInstance) {
+    var acc = window.msalInstance.getActiveAccount();
+    if (acc) userName = acc.name || acc.username;
+  }
+  var lines = [
+    'PROTECH ACCESS - SAFETY CHECKLIST',
+    '=====================================',
+    'Job Number: ' + (jobNum || 'N/A'),
+    'Date: ' + new Date().toLocaleDateString('en-AU'),
+    'Technician: ' + (userName || ''),
+    '',
+    'PRE-WORK SAFETY CHECKS',
+    '[ ] Site induction completed',
+    '[ ] PPE inspected and serviceable (helmet, harness, gloves, glasses)',
+    '[ ] Harness and fall arrest equipment inspected and within service date',
+    '[ ] Rescue plan briefed to all team members',
+    '[ ] Weather conditions assessed (wind speed < 12m/s, no lightning)',
+    '[ ] All tools inspected, tagged and tethered',
+    '[ ] Communication devices charged and tested',
+    '[ ] First aid kit location confirmed',
+    '[ ] Emergency contacts confirmed',
+    '[ ] SWMS/JSA read, understood and signed by all',
+    '',
+    'TURBINE ACCESS CHECKS',
+    '[ ] Turbine isolated and locked out (LOTO applied)',
+    '[ ] Rotor locked - lock confirmed',
+    '[ ] Nacelle access ladder inspected',
+    '[ ] Hub access confirmed safe',
+    '[ ] Blade root access platform secured',
+    '[ ] Adequate lighting confirmed',
+    '[ ] No unauthorised personnel in exclusion zone',
+    '',
+    'ROPE ACCESS CHECKS (if applicable)',
+    '[ ] Anchor points inspected and load rated',
+    '[ ] Ropes inspected - no cuts, abrasion or UV damage',
+    '[ ] Descenders and ascenders checked and functioning',
+    '[ ] Backup/redundant system in place',
+    '[ ] Drop zone established, cleared and barricaded',
+    '[ ] Spotter/standby person in position',
+    '',
+    'BLADE WORK SPECIFIC',
+    '[ ] Blade orientation confirmed safe for work',
+    '[ ] Sanding/grinding dust controls in place',
+    '[ ] Chemical safety data sheets reviewed (resins, hardeners)',
+    '[ ] Ventilation adequate for resin/coating work',
+    '[ ] Waste disposal containers in place',
+    '',
+    'POST-WORK SIGN-OFF',
+    '[ ] All tools and equipment accounted for',
+    '[ ] No debris, tools or materials left in blade/nacelle',
+    '[ ] Work area cleaned and restored',
+    '[ ] Turbine systems restored as required',
+    '[ ] Any incidents or near misses reported',
+    '[ ] Work order updated',
+    '',
+    'SIGNATURES',
+    'Team Lead:    _________________________ Date: ___________',
+    'Technician:   _________________________ Date: ___________',
+    'Technician:   _________________________ Date: ___________',
+    'Technician:   _________________________ Date: ___________',
+  ];
+  var text = lines.join('
+');
+  var blob = new Blob([text], {type: 'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ProTech-Safety-Checklist-' + new Date().toISOString().slice(0,10) + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  showToast('Safety checklist downloaded');
+}
+
 </script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -951,7 +1088,7 @@ body.offline .offline-bar{display:flex}
               <span style="font-size:14px;color:#1a1a2e">
                 <span style="color:#c0392b;font-weight:700">* </span>Safety checklist read and followed
               </span>
-              <a href="#" onclick="return false" style="margin-left:6px;font-size:12px;color:#1b4f72;text-decoration:none"><i class="ti ti-download" style="font-size:12px"></i> Download Safety Checklist</a>
+              <a href="#" onclick="downloadSafetyChecklist();return false;" style="margin-left:6px;font-size:12px;color:#1b4f72;text-decoration:underline;cursor:pointer"><i class="ti ti-download" style="font-size:12px"></i> Download Safety Checklist</a>
               <a href="#" onclick="return false" style="margin-left:6px;font-size:12px;color:#1b4f72;text-decoration:none"><i class="ti ti-download" style="font-size:12px"></i> Download Nomenclature</a>
             </label>
           </div>
