@@ -4,7 +4,128 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ProTech Access — Blade Ops Platform</title>
-<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.0/lib/msal-browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.0/lib/msal-browser.min.js">
+// === DOCUMENT UPLOAD SYSTEM ===
+var _spDriveId = null;
+
+async function getDocDrive() {
+  if (_spDriveId) return _spDriveId;
+  await acquireToken();
+  var r = await fetch('https://graph.microsoft.com/v1.0/sites/' + SP_CONFIG.siteId + '/drives', {headers:{'Authorization':'Bearer '+spAccessToken}});
+  var d = await r.json();
+  var drive = (d.value||[]).find(function(x){return x.name==='Documents';}) || (d.value||[])[0];
+  _spDriveId = drive ? drive.id : null;
+  return _spDriveId;
+}
+
+async function docUpload(file, section, refId) {
+  await acquireToken();
+  var driveId = await getDocDrive();
+  if (!driveId) throw new Error('No drive found');
+  var folder = 'ProTech-Docs/' + section + '/' + refId;
+  var url = 'https://graph.microsoft.com/v1.0/drives/' + driveId + '/root:/' + folder + '/' + file.name + ':/content';
+  var r = await fetch(url, {method:'PUT', headers:{'Authorization':'Bearer '+spAccessToken,'Content-Type':file.type||'application/octet-stream'}, body:file});
+  if (!r.ok) throw new Error('Upload failed ' + r.status);
+  return await r.json();
+}
+
+async function docList(section, refId) {
+  await acquireToken();
+  var driveId = await getDocDrive();
+  if (!driveId) return [];
+  var folder = 'ProTech-Docs/' + section + '/' + refId;
+  var r = await fetch('https://graph.microsoft.com/v1.0/drives/' + driveId + '/root:/' + folder + ':/children', {headers:{'Authorization':'Bearer '+spAccessToken}});
+  if (!r.ok) return [];
+  var d = await r.json();
+  return (d.value||[]).map(function(f){return {id:f.id,name:f.name,size:f.size,url:f.webUrl};});
+}
+
+async function docDelete(fileId) {
+  await acquireToken();
+  var driveId = await getDocDrive();
+  await fetch('https://graph.microsoft.com/v1.0/drives/' + driveId + '/items/' + fileId, {method:'DELETE',headers:{'Authorization':'Bearer '+spAccessToken}});
+}
+
+function docFmtSize(b) {
+  if (!b) return '';
+  if (b < 1024) return b + 'B';
+  if (b < 1048576) return Math.round(b/1024) + 'KB';
+  return (b/1048576).toFixed(1) + 'MB';
+}
+
+function docIcon(name) {
+  var ext = (name.split('.').pop()||'').toLowerCase();
+  var m = {pdf:'📄',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',png:'🖼',jpg:'🖼',jpeg:'🖼',gif:'🖼',mp4:'🎬',zip:'🗜'};
+  return m[ext] || '📎';
+}
+
+function initDocZone(containerId, section, refId) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = '<div class="doc-drop" id="dd-' + containerId + '" onclick="document.getElementById(\'fi-' + containerId + '\').click()" ondragover="event.preventDefault();this.classList.add(\'dov\')" ondragleave="this.classList.remove(\'dov\')" ondrop="docDropHandler(event,\''+section+'\',\''+refId+'\',\''+containerId+'\')">' +
+    '<p>📎 Drop files here or click to browse</p><small>Any file type — saves to SharePoint Documents</small></div>' +
+    '<input type="file" id="fi-' + containerId + '" multiple style="display:none" onchange="docSelectHandler(event,\''+section+'\',\''+refId+'\',\''+containerId+'\')">' +
+    '<div class="doc-list" id="dl-' + containerId + '"><div class="doc-spin">Loading...</div></div>';
+  docRefresh(section, refId, containerId);
+}
+
+async function docRefresh(section, refId, containerId) {
+  var el = document.getElementById('dl-' + containerId);
+  if (!el) return;
+  try {
+    var docs = await docList(section, refId);
+    if (!docs.length) { el.innerHTML = ''; return; }
+    el.innerHTML = docs.map(function(d) {
+      return '<div class="doc-row" id="dr-' + d.id + '">' +
+        '<a class="doc-link" href="' + d.url + '" target="_blank">' + docIcon(d.name) + ' ' + d.name + '</a>' +
+        '<span class="doc-sz">' + docFmtSize(d.size) + '</span>' +
+        '<button class="doc-del" onclick="docDel(\''+d.id+'\',\''+containerId+'\',\''+section+'\',\''+refId+'\')">✕</button>' +
+        '</div>';
+    }).join('');
+  } catch(e) { el.innerHTML = '<div class="doc-spin" style="color:#c0392b">Could not load files</div>'; }
+}
+
+async function docSelectHandler(e, section, refId, containerId) {
+  var files = Array.from(e.target.files);
+  await docUploadMany(files, section, refId, containerId);
+  e.target.value = '';
+}
+
+async function docDropHandler(e, section, refId, containerId) {
+  e.preventDefault();
+  var dd = document.getElementById('dd-' + containerId);
+  if (dd) dd.classList.remove('dov');
+  await docUploadMany(Array.from(e.dataTransfer.files), section, refId, containerId);
+}
+
+async function docUploadMany(files, section, refId, containerId) {
+  if (!files.length) return;
+  for (var i = 0; i < files.length; i++) {
+    var f = files[i];
+    try {
+      showToast('Uploading ' + f.name + '...');
+      await docUpload(f, section, refId);
+      showToast(f.name + ' uploaded ✓');
+    } catch(e) { showToast('Failed: ' + f.name); }
+  }
+  docRefresh(section, refId, containerId);
+}
+
+async function docDel(fileId, containerId, section, refId) {
+  if (!confirm('Delete this document?')) return;
+  try {
+    await docDelete(fileId);
+    var el = document.getElementById('dr-' + fileId);
+    if (el) el.remove();
+    showToast('Deleted');
+  } catch(e) { showToast('Delete failed'); }
+}
+
+function docZoneForRecord(section, recordId, containerId) {
+  setTimeout(function() { initDocZone(containerId, section, recordId || 'new'); }, 300);
+}
+
+</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -313,6 +434,21 @@ body.offline .offline-bar{display:flex}
 .chart-bar-wrap{background:#f0f2f5;border-radius:3px;height:8px;flex:1;overflow:hidden}
 .chart-bar{height:100%;border-radius:3px;background:#1b4f72;transition:width .4s}
 
+
+.doc-zone{margin-top:14px;padding-top:14px;border-top:1px solid #eef1f6}
+.doc-zone-title{font-size:11px;font-weight:700;color:#546e7a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.doc-drop{border:2px dashed #2471a3;border-radius:8px;padding:14px;text-align:center;cursor:pointer;background:#f8fbff;transition:all .2s}
+.doc-drop:hover,.doc-drop.dov{background:#d6eaf8;border-color:#1b4f72}
+.doc-drop p{font-size:12px;color:#2471a3;margin:0;pointer-events:none}
+.doc-drop small{font-size:10px;color:#95a5a6;pointer-events:none}
+.doc-list{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.doc-row{display:flex;align-items:center;justify-content:space-between;background:#f8f9fb;border:1px solid #e0e6ed;border-radius:5px;padding:7px 10px;font-size:12px}
+.doc-link{display:flex;align-items:center;gap:7px;color:#1b4f72;font-weight:600;text-decoration:none;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc-link:hover{text-decoration:underline}
+.doc-sz{color:#95a5a6;font-size:10px;white-space:nowrap;margin-right:8px}
+.doc-del{background:none;border:none;color:#c0392b;cursor:pointer;font-size:13px;padding:1px 5px;border-radius:3px;flex-shrink:0}
+.doc-del:hover{background:#fdebd0}
+.doc-spin{font-size:11px;color:#95a5a6;padding:4px}
 </style>
 </head>
 <body>
@@ -673,6 +809,8 @@ body.offline .offline-bar{display:flex}
       <button class="btn btn-primary" onclick="saveRepair()"><i class="ti ti-device-floppy"></i>Save Repair Job</button>
     </div>
   </div>
+  <div class="doc-zone"><div class="doc-zone-title">📎 Repair Documents</div><div id="repair-docs"></div></div>
+  <script>docZoneForRecord("Repairs","repair-new","repair-docs")</script>
 
   <!-- ══ PROCEDURES LIBRARY ══ -->
   <div class="view" id="view-procedures">
@@ -1494,6 +1632,8 @@ body.offline .offline-bar{display:flex}
               <button class="btn btn-sm" onclick="clearDiaryForm()"><i class="ti ti-refresh"></i>Clear</button>
               <button class="btn btn-sm btn-primary" onclick="generateDiaryDocx()"><i class="ti ti-file-export"></i>Export .docx</button>
               <button class="btn btn-sm btn-success" onclick="saveDiaryEntry()"><i class="ti ti-device-floppy"></i>Save Entry</button>
+  <div class="doc-zone"><div class="doc-zone-title">📎 Diary Attachments</div><div id="diary-docs"></div></div>
+  <script>docZoneForRecord("Diary","diary-new","diary-docs")</script>
             </div>
           </div>
           <div class="card-body">
@@ -1815,6 +1955,8 @@ body.offline .offline-bar{display:flex}
     <div class="modal-foot">
       <button class="btn" onclick="closeModal('modal-material')">Cancel</button>
       <button class="btn btn-primary" onclick="saveMaterial()"><i class="ti ti-device-floppy"></i>Save</button>
+  <div class="doc-zone"><div class="doc-zone-title">📎 Material Documents</div><div id="material-docs"></div></div>
+  <script>docZoneForRecord("Materials","material-new","material-docs")</script>
     </div>
   </div>
 </div>
