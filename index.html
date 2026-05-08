@@ -256,6 +256,7 @@ table.rt tr:hover td.ntd,table.rt tr:hover td.ctd{background:#f0f7ff}
         <div class="fg"><label>Site *</label><input id="qa-site" placeholder="e.g. Wambo-RA" list="qa-site-list"><datalist id="qa-site-list"></datalist></div>
         <div class="fg"><label>Type</label><select id="qa-type"><option>On-Swing</option><option>Mob</option><option>Demob</option><option>Leave</option><option>Course</option><option>Off-Swing</option></select></div>
       </div>
+      <div class="fg"><label>Client</label><select id="qa-client"><option>Vestas</option><option>Nordex</option><option>GE</option><option>Siemens Gamesa</option><option>Other</option></select></div>
       <div class="fgr">
         <div class="fg"><label>Start Date *</label><input type="date" id="qa-start"></div>
         <div class="fg"><label>End Date</label><input type="date" id="qa-end"></div>
@@ -527,6 +528,7 @@ function openQA(techName){
   document.getElementById('qa-type').value='On-Swing';
   document.getElementById('qa-start').value='';
   document.getElementById('qa-end').value='';
+  const qaCl=document.getElementById('qa-client');if(qaCl)qaCl.value=qaTech.client||'Vestas';
   renderQAList();
   document.getElementById('qa-overlay').classList.add('open');
   document.getElementById('qa-panel').classList.add('open');
@@ -563,11 +565,12 @@ async function qaAdd(){
   if(!site){toast('Enter a site name','err');return;}
   if(!start){toast('Enter a start date','err');return;}
   if(!qaTech)return;
-  const data={tech:qaTech.name,client:qaTech.client||'Vestas',site,type,start,end:end||start,notes:''};
+  const client=document.getElementById('qa-client').value||qaTech.client||'Vestas';
+  const data={tech:qaTech.name,client:client,site,type,start,end:end||start,notes:''};
   const na={...data,id:'q'+Date.now()};
   assigns.push(na);
   try{
-    const spF={Title:qaTech.name+'-'+site,TechName:qaTech.name,Client:data.client,Site:site,EntryType:type,StartDate:start,EndDate:end||start};
+    const spF={Title:qaTech.name+'-'+site,TechName:qaTech.name,Client:client,Site:site,EntryType:type,StartDate:start,EndDate:end||start};
     const s=await spCreate('RosterEntries',spF);
     na._spId=s._spId;na.id=s._spId;
     toast('Assignment added');
