@@ -4,7 +4,138 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ProTech Access — Operations Hub</title>
-<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.0/lib/msal-browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.0/lib/msal-browser.min.js">
+// === CELL DRAG RANGE SELECTION ===
+var _selTech=null,_selStart=null,_selEnd=null,_isDragging=false;
+
+function onCellMouseDown(e,techName,dateStr){
+  if(!isAdmin)return;
+  e.preventDefault();
+  _selTech=techName;_selStart=dateStr;_selEnd=dateStr;_isDragging=true;
+  highlightRange(techName,dateStr,dateStr);
+}
+function onCellMouseEnter(e,techName,dateStr){
+  if(!_isDragging||_selTech!==techName)return;
+  _selEnd=dateStr;
+  highlightRange(techName,_selStart,_selEnd);
+}
+function onCellMouseUp(e,techName,dateStr){
+  if(!_isDragging)return;
+  _isDragging=false;_selEnd=dateStr;
+  var s=_selStart<=_selEnd?_selStart:_selEnd;
+  var en=_selStart<=_selEnd?_selEnd:_selStart;
+  clearCellHL();
+  if(s===en){openCellModal(_selTech,s);}
+  else{openRangeModal(_selTech,s,en);}
+  _selTech=null;_selStart=null;_selEnd=null;
+}
+document.addEventListener('mouseup',function(){
+  if(_isDragging){
+    _isDragging=false;
+    if(_selTech&&_selStart&&_selEnd){
+      var s=_selStart<=_selEnd?_selStart:_selEnd;
+      var en=_selStart<=_selEnd?_selEnd:_selStart;
+      clearCellHL();
+      if(s===en){openCellModal(_selTech,s);}else{openRangeModal(_selTech,s,en);}
+    }
+    _selTech=null;_selStart=null;_selEnd=null;
+  }
+});
+function highlightRange(techName,startDate,endDate){
+  clearCellHL();
+  var s=startDate<=endDate?startDate:endDate;
+  var en=startDate<=endDate?endDate:startDate;
+  document.querySelectorAll('[data-tech][data-date]').forEach(function(td){
+    if(td.dataset.tech!==techName)return;
+    var d=td.dataset.date;
+    if(d>=s&&d<=en)td.classList.add(d===s?'cell-sel-start':'cell-selecting');
+  });
+}
+function clearCellHL(){
+  document.querySelectorAll('.cell-selecting,.cell-sel-start').forEach(function(el){
+    el.classList.remove('cell-selecting','cell-sel-start');
+  });
+}
+function openRangeModal(techName,startDate,endDate){
+  var sd=new Date(startDate+'T00:00:00'),ed=new Date(endDate+'T00:00:00');
+  var days=Math.round((ed-sd)/(1000*60*60*24))+1;
+  document.getElementById('range-info').textContent=techName+' | '+
+    sd.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' to '+
+    ed.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' ('+days+' days)';
+  document.getElementById('range-type').value='On-Swing';
+  document.getElementById('range-site').value='';
+  var m=document.getElementById('modal-range');
+  m.dataset.tech=techName;m.dataset.start=startDate;m.dataset.end=endDate;
+  m.classList.add('open');
+  setTimeout(function(){document.getElementById('range-site').focus();},150);
+}
+function cancelRange(){clearCellHL();closeModal('modal-range');}
+async function saveRange(){
+  var m=document.getElementById('modal-range');
+  var techName=m.dataset.tech,startDate=m.dataset.start,endDate=m.dataset.end;
+  var type=document.getElementById('range-type').value;
+  var site=document.getElementById('range-site').value.trim();
+  if(type&&type!=='Leave'&&type!=='Course'&&!site){toast('Enter a site name','err');return;}
+  var tech=techs.find(function(t){return t.name===techName;});
+  var overlap=assigns.filter(function(a){return a.tech===techName&&a.start<=endDate&&(!a.end||a.end>=startDate);});
+  for(var i=0;i<overlap.length;i++){
+    assigns=assigns.filter(function(a){return a.id!==overlap[i].id;});
+    try{await spDel('RosterEntries',overlap[i]._spId||overlap[i].id);}catch(ex){}
+  }
+  if(type){
+    var data={tech:techName,client:tech?tech.client:'Vestas',site:site||type,type:type,start:startDate,end:endDate,notes:''};
+    var na=Object.assign({},data,{id:'r'+Date.now()});assigns.push(na);
+    try{
+      var spF={Title:techName+'-'+site,TechName:techName,Client:data.client,Site:site||type,EntryType:type,StartDate:startDate,EndDate:endDate};
+      var s=await spCreate('RosterEntries',spF);na._spId=s._spId;na.id=s._spId;
+      toast('Saved');
+    }catch(ex){toast('Saved locally');}
+  }else{toast('Range cleared');}
+  closeModal('modal-range');populateFilters();renderRoster();calcStats();
+}
+
+// === ROSTER EXPORT / PRINT / SHARE ===
+function exportRosterCSV(){
+  var mf=parseInt(document.getElementById('r-month').value);
+  var cf=document.getElementById('r-client').value;
+  var days=getDays(mf);
+  var rows=[['Technician','Client'].concat(days.map(function(d){return d.toISOString().slice(0,10);}))];
+  techs.filter(function(t){return t.active!==false&&(!cf||t.client===cf);}).forEach(function(tech){
+    var row=[tech.name,tech.client];
+    days.forEach(function(d){
+      var ds=d.toISOString().slice(0,10);
+      var st=getStatus(tech.name,ds);
+      row.push(st?st.site+(st.type!=='On-Swing'?' ('+st.type+')':''):'');
+    });
+    rows.push(row);
+  });
+  var csv=rows.map(function(r){return r.map(function(c){return '"'+(c||'').replace(/"/g,'""')+'"';}).join(',');}).join('
+');
+  var blob=new Blob([csv],{type:'text/csv'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  var label=mf<0?'FullYear':['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mf];
+  a.download='ProTech-Roster-'+label+'-2026.csv';
+  a.click();
+  toast('CSV downloaded');
+}
+
+function printRoster(){
+  window.print();
+}
+
+function shareRoster(){
+  var mf=parseInt(document.getElementById('r-month').value);
+  var label=mf<0?'Full Year 2026':['January','February','March','April','May','June','July','August','September','October','November','December'][mf]+' 2026';
+  var url=window.location.href.split('?')[0]+'?view=roster&month='+mf;
+  if(navigator.share){
+    navigator.share({title:'ProTech Roster - '+label,url:window.location.href});
+  } else {
+    navigator.clipboard.writeText(window.location.href).then(function(){toast('Link copied to clipboard');});
+  }
+}
+
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Calibri,Arial,sans-serif;background:#eef1f6;color:#1a1a2e;min-height:100vh}
@@ -94,6 +225,16 @@ table.rt th.today-col{background:#f59e0b !important;color:#1a1a2e !important}
 #toast.err{background:#c0392b}
 .hidden{display:none!important}
 .range-start{outline:3px solid #f59e0b!important;outline-offset:-2px}.range-preview{background:#fff3cd!important}
+
+.cell-selecting{background:#dbeafe!important;outline:1px solid #2471a3!important}
+.cell-sel-start{background:#bfdbfe!important;outline:2px solid #1b4f72!important}
+td.day-cell{user-select:none;-webkit-user-select:none}
+@media print{
+  .topbar,.filter-bar,.legend,.section-hdr .btn,.section-hdr button,#admin-roster-btn{display:none!important}
+  .roster-wrap{overflow:visible!important}
+  body{background:#fff!important}
+  table.rt th{background:#1b4f72!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 </style>
 </head>
 <body>
@@ -176,6 +317,9 @@ table.rt th.today-col{background:#f59e0b !important;color:#1a1a2e !important}
           <div id="admin-roster-btn" class="hidden">
             <button class="btn btn-primary btn-sm" onclick="showView('admin')">⚙️ Manage Technicians</button>
           </div>
+          <button class="btn btn-sm" onclick="exportRosterCSV()">⬇ Export CSV</button>
+          <button class="btn btn-sm" onclick="printRoster()">🖨 Print</button>
+          <button class="btn btn-sm" onclick="shareRoster()">🔗 Share</button>
           <button class="btn btn-sm" onclick="showView('hub')">← Hub</button>
         </div>
       </div>
@@ -204,7 +348,7 @@ table.rt th.today-col{background:#f59e0b !important;color:#1a1a2e !important}
         <div class="leg-item"><span class="chip chip-course">COURSE</span> Training</div>
         <div class="leg-item"><span class="chip chip-off">—</span> Off swing</div>
         <div style="background:#fffde7;border:1px solid #f59e0b;padding:2px 7px;border-radius:3px;font-size:9px;color:#92400e;font-weight:700">TODAY</div>
-        <span id="admin-hint" class="hidden" style="color:#1b4f72;font-style:italic">💡 Drag a name onto any day. Click to edit one day. Shift+click two cells on the same row to assign a whole range.</span>
+        <span id="admin-hint" class="hidden" style="color:#1b4f72;font-style:italic">💡 Drag a name onto a day cell to assign. Click and drag across multiple days on a row to assign a range.</span>
       </div>
       <div class="roster-wrap">
         <table class="rt"><thead id="r-head"></thead><tbody id="r-body"></tbody></table>
@@ -561,7 +705,7 @@ function renderRoster(){
       row+=`<td class="${isToday?'today-col':wk?'wkend-col':''}"
         ondragover="onDragOver(event)"
         ondragleave="onDragLeave(event)"
-        ondrop="onDrop(event,'${dn}','${dateStr}')" onclick="onCellClick(event,'${dn}','${dateStr}')" data-tech="${dn}" data-date="${dateStr}">${chipHtml(st,tech.name,dateStr,isAdmin)}</td>`;
+        ondrop="onDrop(event,'${dn}','${dateStr}')" onmousedown="onCellMouseDown(event,'${dn}','${dateStr}')" onmouseenter="onCellMouseEnter(event,'${dn}','${dateStr}')" onmouseup="onCellMouseUp(event,'${dn}','${dateStr}')" data-tech="${dn}" data-date="${dateStr}" style="cursor:cell">${chipHtml(st,tech.name,dateStr,isAdmin)}</td>`;
     });
     row+='</tr>';
     tbody+=row;
