@@ -4,7 +4,59 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>ProTech Access — Operations Hub</title>
-<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.0/lib/msal-browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.0/lib/msal-browser.min.js">
+// === SWING CALCULATOR ===
+function calcSwing() {
+  var pattern = document.getElementById('qa-swing').value;
+  var customWrap = document.getElementById('qa-custom-wrap');
+  var resultEl = document.getElementById('swing-result');
+
+  if (!pattern) {
+    customWrap.style.display = 'none';
+    resultEl.style.display = 'none';
+    return;
+  }
+
+  if (pattern === 'custom') {
+    customWrap.style.display = 'block';
+    pattern = (document.getElementById('qa-custom-on').value || '4') + ':0';
+  } else {
+    customWrap.style.display = 'none';
+  }
+
+  var parts = pattern.split(':');
+  var weeksOn = parseInt(parts[0]) || 4;
+
+  var startVal = document.getElementById('qa-start').value;
+  if (!startVal) {
+    resultEl.style.display = 'block';
+    resultEl.innerHTML = '<strong>' + weeksOn + ' weeks on</strong> &nbsp;— enter a start date to calculate end date';
+    return;
+  }
+
+  var start = new Date(startVal + 'T00:00:00');
+  var end = new Date(start);
+  end.setDate(end.getDate() + (weeksOn * 7) - 1);
+
+  var endStr = end.toISOString().slice(0, 10);
+  document.getElementById('qa-end').value = endStr;
+
+  var opts = {day:'numeric', month:'short', year:'numeric'};
+  resultEl.style.display = 'block';
+  resultEl.innerHTML =
+    '<strong>' + weeksOn + ' weeks on-swing</strong><br>' +
+    start.toLocaleDateString('en-AU', opts) + ' &rarr; ' + end.toLocaleDateString('en-AU', opts) +
+    ' <span style="color:#7f8c8d;font-size:11px">(' + (weeksOn * 7) + ' days)</span>';
+}
+
+// Recalculate when start date changes if a pattern is selected
+document.addEventListener('change', function(e) {
+  if (e.target.id === 'qa-start' && document.getElementById('qa-swing') && document.getElementById('qa-swing').value) {
+    calcSwing();
+  }
+});
+
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Calibri,Arial,sans-serif;background:#eef1f6;color:#1a1a2e;min-height:100vh}
@@ -116,6 +168,11 @@ table.rt tr:hover td.ntd,table.rt tr:hover td.ctd{background:#f0f7ff}
 #toast.err{background:#c0392b}
 .hidden{display:none!important}
 @media print{.tb,.fbar,.lgnd,.shdr .bgrp,#admin-roster-btn,.qap,.qao{display:none!important}.rwrap{overflow:visible!important;box-shadow:none!important}body{background:#fff!important}.hbody{padding:8px!important}table.rt th{background:#1b4f72!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+
+.swing-calc{background:#f0f7ff;border:1px solid #d6eaf8;border-radius:7px;padding:12px;margin-bottom:12px}
+.swing-calc-title{font-size:10px;font-weight:700;color:#1b4f72;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.swing-result{font-size:12px;color:#1b4f72;margin-top:8px;padding:6px 10px;background:#fff;border-radius:5px;border:1px solid #d6eaf8;display:none}
+.swing-result strong{font-weight:700}
 </style>
 </head>
 <body>
@@ -256,7 +313,27 @@ table.rt tr:hover td.ntd,table.rt tr:hover td.ctd{background:#f0f7ff}
         <div class="fg"><label>Site *</label><input id="qa-site" placeholder="e.g. Wambo-RA" list="qa-site-list"><datalist id="qa-site-list"></datalist></div>
         <div class="fg"><label>Type</label><select id="qa-type"><option>On-Swing</option><option>Mob</option><option>Demob</option><option>Leave</option><option>Course</option><option>Off-Swing</option></select></div>
       </div>
-      <div class="fg"><label>Client</label><select id="qa-client"><option>Vestas</option><option>Nordex</option><option>GE</option><option>Siemens Gamesa</option><option>Other</option></select></div>
+      <div class="swing-calc">
+        <div class="swing-calc-title">⚡ Swing Calculator</div>
+        <div class="fgr">
+          <div class="fg">
+            <label>Pattern</label>
+            <select id="qa-swing" onchange="calcSwing()">
+              <option value="">— Manual dates —</option>
+              <option value="3:1">3:1 &nbsp;(3 weeks on / 1 off)</option>
+              <option value="4:2">4:2 &nbsp;(4 weeks on / 2 off)</option>
+              <option value="6:2">6:2 &nbsp;(6 weeks on / 2 off)</option>
+              <option value="8:2">8:2 &nbsp;(8 weeks on / 2 off)</option>
+              <option value="custom">Custom...</option>
+            </select>
+          </div>
+          <div class="fg" id="qa-custom-wrap" style="display:none">
+            <label>Weeks On</label>
+            <input type="number" id="qa-custom-on" min="1" max="52" value="4" onchange="calcSwing()" style="width:100%">
+          </div>
+        </div>
+        <div id="swing-result" class="swing-result"></div>
+      </div>
       <div class="fgr">
         <div class="fg"><label>Start Date *</label><input type="date" id="qa-start"></div>
         <div class="fg"><label>End Date</label><input type="date" id="qa-end"></div>
@@ -528,7 +605,9 @@ function openQA(techName){
   document.getElementById('qa-type').value='On-Swing';
   document.getElementById('qa-start').value='';
   document.getElementById('qa-end').value='';
-  const qaCl=document.getElementById('qa-client');if(qaCl)qaCl.value=qaTech.client||'Vestas';
+  var qaSw=document.getElementById('qa-swing');if(qaSw){qaSw.value='';}
+  var qaSR=document.getElementById('swing-result');if(qaSR){qaSR.style.display='none';}
+  var qaCW=document.getElementById('qa-custom-wrap');if(qaCW){qaCW.style.display='none';}
   renderQAList();
   document.getElementById('qa-overlay').classList.add('open');
   document.getElementById('qa-panel').classList.add('open');
@@ -565,12 +644,11 @@ async function qaAdd(){
   if(!site){toast('Enter a site name','err');return;}
   if(!start){toast('Enter a start date','err');return;}
   if(!qaTech)return;
-  const client=document.getElementById('qa-client').value||qaTech.client||'Vestas';
-  const data={tech:qaTech.name,client:client,site,type,start,end:end||start,notes:''};
+  const data={tech:qaTech.name,client:qaTech.client||'Vestas',site,type,start,end:end||start,notes:''};
   const na={...data,id:'q'+Date.now()};
   assigns.push(na);
   try{
-    const spF={Title:qaTech.name+'-'+site,TechName:qaTech.name,Client:client,Site:site,EntryType:type,StartDate:start,EndDate:end||start};
+    const spF={Title:qaTech.name+'-'+site,TechName:qaTech.name,Client:data.client,Site:site,EntryType:type,StartDate:start,EndDate:end||start};
     const s=await spCreate('RosterEntries',spF);
     na._spId=s._spId;na.id=s._spId;
     toast('Assignment added');
