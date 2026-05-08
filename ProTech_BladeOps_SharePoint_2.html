@@ -320,7 +320,7 @@ body.offline .offline-bar{display:flex}
 <!-- ════ LOGIN SCREEN ════ -->
 <div id="login-screen" style="display:flex;position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#1b4f72 0%,#0a1628 100%);align-items:center;justify-content:center;flex-direction:column;gap:24px">
   <div style="text-align:center">
-    <div style="font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;color:#fff;letter-spacing:2px"><img src="https://raw.githubusercontent.com/FishyPTA/BladeTech-Ops/main/ProTech_Logo_Concepts_3.png" style="height:38px;width:auto;max-width:200px;object-fit:contain;display:block" alt="ProTech Access"></div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;color:#fff;letter-spacing:2px">PROTECH ACCESS</div>
     <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:500;color:#a9cce3;letter-spacing:4px;text-transform:uppercase;margin-top:4px">Blade Operations Platform</div>
   </div>
   <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:32px 40px;text-align:center;min-width:320px">
@@ -2847,6 +2847,9 @@ function renderAll() {
   renderReportsTable();
   populateSelectDropdowns();
   updateBadges();
+  // Populate wind farm datalist for diary
+  const dl = document.getElementById('dd-wf-list');
+  if(dl) dl.innerHTML = WIND_FARMS_AU.map(f=>`<option value="${f.name}, ${f.state}">`).join('');
   renderProcLib();
   renderRfabStats();
   renderRfabTable();
