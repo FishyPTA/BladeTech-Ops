@@ -2846,9 +2846,6 @@ function renderAll() {
   renderMaterialStats();
   renderReportsTable();
   populateSelectDropdowns();
-  // Pre-populate wind farm datalist
-  const dl = document.getElementById('dd-wf-list');
-  if(dl && dl.innerHTML === '') dl.innerHTML = WIND_FARMS_AU.map(f=>`<option value="${f.name}, ${f.state}">`).join('');
   updateBadges();
   renderProcLib();
   renderRfabStats();
@@ -4230,12 +4227,7 @@ async function buildAndDownloadDocx(data) {
         const s = document.createElement('script');
         s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
         s.onload = res;
-        s.onerror = () => {
-          const s2 = document.createElement('script');
-          s2.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
-          s2.onload = res; s2.onerror = rej;
-          document.head.appendChild(s2);
-        };
+        s.onerror = () => { const s2 = document.createElement('script'); s2.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js'; s2.onload = res; s2.onerror = rej; document.head.appendChild(s2); };
         document.head.appendChild(s);
       });
     }
