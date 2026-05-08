@@ -290,7 +290,7 @@ table.rt tr:hover td.ntd,table.rt tr:hover td.ctd{background:#f0f7ff}
         </div>
       </div>
       <div style="background:#fff;border-radius:10px;border:1px solid #e0e6ed;overflow:hidden">
-        <table class="atable"><thead><tr><th>Name</th><th>Client</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+        <table class="atable"><thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody id="atechs-body"></tbody></table>
       </div>
     </div>
@@ -353,7 +353,7 @@ table.rt tr:hover td.ntd,table.rt tr:hover td.ctd{background:#f0f7ff}
     <h2 id="tech-modal-title">Add Technician</h2>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="fgm"><label>Full Name *</label><input id="t-name" placeholder="John Smith"></div>
-      <div class="fgm"><label>Client *</label><select id="t-client"><option>Vestas</option><option>Nordex</option><option>GE</option><option>Siemens Gamesa</option><option>Other</option></select></div>
+      
       <div class="fgm"><label>Role</label><input id="t-role" placeholder="Blade Technician"></div>
       <div class="fgm"><label>Phone</label><input id="t-phone"></div>
       <div class="fgm"><label>Email</label><input id="t-email" type="email"></div>
@@ -445,27 +445,27 @@ function loadLocal(){loadLocalTechs();loadLocalAssigns();}
 
 function loadLocalTechs(){
   techs=[
-    {id:1,name:'Otis Lynch',client:'Vestas',role:'Blade Technician',active:true},
-    {id:2,name:'Vanessa Webb',client:'Vestas',role:'Blade Technician',active:true},
-    {id:3,name:'Rob Forrest',client:'Vestas',role:'Blade Technician',active:true},
-    {id:4,name:'Matt Stanley',client:'Vestas',role:'Blade Technician',active:true},
-    {id:5,name:'Diego Nunes',client:'Vestas',role:'Blade Technician',active:true},
-    {id:6,name:'John Dodds',client:'Vestas',role:'Blade Technician',active:true},
-    {id:7,name:'James Grierson',client:'Vestas',role:'Blade Technician',active:true},
-    {id:8,name:'Chiara Corazza',client:'Vestas',role:'Blade Technician',active:true},
-    {id:9,name:'Blair Munro',client:'Vestas',role:'Blade Technician',active:true},
-    {id:10,name:'Kane Christmas',client:'Vestas',role:'Blade Technician',active:true},
-    {id:11,name:'Jordan Goodfellow',client:'Vestas',role:'Blade Technician',active:true},
-    {id:12,name:'Nina Gil',client:'Vestas',role:'Blade Technician',active:true},
-    {id:13,name:'Tom Crang',client:'Vestas',role:'Blade Technician',active:true},
-    {id:14,name:'Chaz Petzer',client:'Vestas',role:'Blade Technician',active:true},
-    {id:15,name:'Kurt Young',client:'Vestas',role:'Blade Technician',active:true},
-    {id:16,name:'Luke Robertson',client:'Vestas',role:'Blade Technician',active:true},
-    {id:17,name:'Tim Noad',client:'Vestas',role:'Blade Technician',active:true},
-    {id:18,name:'Shane Garland',client:'Vestas',role:'Blade Technician',active:true},
-    {id:19,name:'Markus Forsthuber',client:'Vestas',role:'Blade Technician',active:true},
-    {id:20,name:'Nathan Jones',client:'Vestas',role:'Blade Technician',active:true},
-    {id:21,name:'Alejandro Ocampo',client:'Vestas',role:'Blade Technician',active:true},
+    {id:1,name:'Otis Lynch',role:'Blade Technician',active:true},
+    {id:2,name:'Vanessa Webb',role:'Blade Technician',active:true},
+    {id:3,name:'Rob Forrest',role:'Blade Technician',active:true},
+    {id:4,name:'Matt Stanley',role:'Blade Technician',active:true},
+    {id:5,name:'Diego Nunes',role:'Blade Technician',active:true},
+    {id:6,name:'John Dodds',role:'Blade Technician',active:true},
+    {id:7,name:'James Grierson',role:'Blade Technician',active:true},
+    {id:8,name:'Chiara Corazza',role:'Blade Technician',active:true},
+    {id:9,name:'Blair Munro',role:'Blade Technician',active:true},
+    {id:10,name:'Kane Christmas',role:'Blade Technician',active:true},
+    {id:11,name:'Jordan Goodfellow',role:'Blade Technician',active:true},
+    {id:12,name:'Nina Gil',role:'Blade Technician',active:true},
+    {id:13,name:'Tom Crang',role:'Blade Technician',active:true},
+    {id:14,name:'Chaz Petzer',role:'Blade Technician',active:true},
+    {id:15,name:'Kurt Young',role:'Blade Technician',active:true},
+    {id:16,name:'Luke Robertson',role:'Blade Technician',active:true},
+    {id:17,name:'Tim Noad',role:'Blade Technician',active:true},
+    {id:18,name:'Shane Garland',role:'Blade Technician',active:true},
+    {id:19,name:'Markus Forsthuber',role:'Blade Technician',active:true},
+    {id:20,name:'Nathan Jones',role:'Blade Technician',active:true},
+    {id:21,name:'Alejandro Ocampo',role:'Blade Technician',active:true},
   ];
 }
 
@@ -517,7 +517,7 @@ function getDays(mf){
 }
 
 function populateFilters(){
-  const clients=new Set(techs.map(t=>t.client));
+  const clients=new Set(['Vestas','Nordex','GE','Siemens Gamesa','Other']);
   const sites=new Set(assigns.map(a=>a.site).filter(Boolean));
   const cs=document.getElementById('r-client');
   if(cs){cs.innerHTML='<option value="">All Clients</option>'+[...clients].sort().map(c=>'<option>'+c+'</option>').join('');}
@@ -537,7 +537,7 @@ function renderRoster(){
 
   let rows=techs.filter(t=>t.active!==false);
   if(q)rows=rows.filter(t=>t.name.toLowerCase().includes(q));
-  if(cf)rows=rows.filter(t=>t.client===cf);
+  if(cf)rows=rows.filter(t=>assigns.some(a=>a.tech===t.name&&a.client===cf));
   if(sf)rows=rows.filter(t=>assigns.some(a=>a.tech===t.name&&a.site===sf));
 
   // Month header row
@@ -600,7 +600,7 @@ function openQA(techName){
   qaTech=techs.find(t=>t.name===techName);
   if(!qaTech)return;
   document.getElementById('qa-name').textContent=qaTech.name;
-  document.getElementById('qa-client').textContent=qaTech.client;
+  document.getElementById('qa-client').textContent='';
   document.getElementById('qa-site').value='';
   document.getElementById('qa-type').value='On-Swing';
   document.getElementById('qa-start').value='';
@@ -707,7 +707,7 @@ function copyLink(){
 function renderAdminTechs(){
   document.getElementById('atechs-body').innerHTML=techs.map(t=>'<tr>'+
     '<td style="font-weight:600">'+t.name+'</td>'+
-    '<td>'+t.client+'</td>'+
+    +
     '<td style="color:#7f8c8d">'+(t.role||'—')+'</td>'+
     '<td><span style="background:'+(t.active!==false?'#d5f5e3':'#fadbd8')+';color:'+(t.active!==false?'#1e6e3c':'#922b21')+';padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">'+(t.active!==false?'Active':'Inactive')+'</span></td>'+
     '<td><div style="display:flex;gap:6px">'+
@@ -742,7 +742,7 @@ function editTech(t){
 async function saveTech(){
   const name=document.getElementById('t-name').value.trim();
   if(!name){toast('Name required','err');return;}
-  const data={name,client:document.getElementById('t-client').value,role:document.getElementById('t-role').value,phone:document.getElementById('t-phone').value,email:document.getElementById('t-email').value,certs:document.getElementById('t-certs').value,active:document.getElementById('t-status').value==='1'};
+  const data={name,client:'',role:document.getElementById('t-role').value,phone:document.getElementById('t-phone').value,email:document.getElementById('t-email').value,certs:document.getElementById('t-certs').value,active:document.getElementById('t-status').value==='1'};
   const spF={Title:name,FullName:name,Client:data.client,Role:data.role,Phone:data.phone,Email:data.email,Certifications:data.certs,IsActive:data.active};
   if(editTechId){
     const idx=techs.findIndex(t=>(t._spId||t.id)==editTechId);
