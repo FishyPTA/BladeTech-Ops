@@ -2847,9 +2847,7 @@ function renderAll() {
   renderReportsTable();
   populateSelectDropdowns();
   updateBadges();
-  // Populate wind farm datalist for diary
-  const dl = document.getElementById('dd-wf-list');
-  if(dl) dl.innerHTML = WIND_FARMS_AU.map(f=>`<option value="${f.name}, ${f.state}">`).join('');
+  const dl=document.getElementById('dd-wf-list'); if(dl) dl.innerHTML=WIND_FARMS_AU.map(f=>`<option value="${f.name}, ${f.state}">`).join('');
   renderProcLib();
   renderRfabStats();
   renderRfabTable();
