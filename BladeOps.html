@@ -1,0 +1,2869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ProTech Access — BladeOps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.1/lib/msal-browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.min.js"></script>
+<style>
+/* ===== RESET & BASE ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* ProTech brand */
+  --navy:    #0f1f35;
+  --navy2:   #162540;
+  --navy3:   #1d3050;
+  --navy4:   #253d63;
+  --orange:  #e8520a;
+  --orange2: #f06030;
+  --blue:    #2563eb;
+  --blue2:   #3b7cf4;
+
+  /* Content */
+  --bg:      #f0f2f6;
+  --surface: #ffffff;
+  --surface2:#f7f8fa;
+  --border:  #e2e6ef;
+  --border2: #cdd3e0;
+
+  /* Text */
+  --tx1: #0d1520;
+  --tx2: #3a4a5c;
+  --tx3: #6b7a8d;
+  --tx4: #a0acba;
+
+  /* Status */
+  --green:  #16a34a;
+  --green2: #dcfce7;
+  --red:    #dc2626;
+  --red2:   #fee2e2;
+  --amber:  #d97706;
+  --amber2: #fef3c7;
+  --purple: #7c3aed;
+  --purple2:#ede9fe;
+  --cyan:   #0891b2;
+  --cyan2:  #cffafe;
+
+  /* Sidebar */
+  --sb-bg:      var(--navy2);
+  --sb-border:  rgba(255,255,255,.07);
+  --sb-tx:      #c8d8ee;
+  --sb-tx2:     #7a9ab8;
+  --sb-active:  rgba(37,99,235,.2);
+  --sb-hover:   rgba(255,255,255,.06);
+
+  /* Misc */
+  --radius:   10px;
+  --radius-sm:6px;
+  --shadow:   0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.12);
+  --font:     'DM Sans', system-ui, sans-serif;
+  --mono:     'DM Mono', monospace;
+  --sidebar-w:230px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--tx1);font-size:14px;line-height:1.5}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,select,textarea{font-family:inherit;outline:none}
+a{color:var(--blue);text-decoration:none}
+
+/* ===== LAYOUT ===== */
+#app{display:flex;height:100vh;overflow:hidden}
+#sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--sb-bg);display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(255,255,255,.04)}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#topbar{height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px;flex-shrink:0;box-shadow:0 1px 0 var(--border)}
+#content{flex:1;overflow-y:auto;padding:24px}
+
+/* ===== SIDEBAR ===== */
+.sb-logo{padding:18px 16px;border-bottom:1px solid var(--sb-border);display:flex;align-items:center;gap:11px;flex-shrink:0}
+.sb-logo img{height:32px}
+.sb-logo-text strong{display:block;font-size:12px;font-weight:700;color:#fff;letter-spacing:.02em}
+.sb-logo-text span{display:block;font-size:10px;color:var(--sb-tx2);letter-spacing:.06em;text-transform:uppercase;margin-top:1px}
+.sb-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 0}
+.sb-scroll::-webkit-scrollbar{width:0}
+.nav-section{padding:14px 16px 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--sb-tx2);opacity:.6}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 12px;margin:1px 8px;border-radius:8px;cursor:pointer;color:var(--sb-tx);font-size:13px;font-weight:400;transition:background .12s,color .12s;position:relative;white-space:nowrap}
+.nav-item:hover{background:var(--sb-hover);color:#fff}
+.nav-item.active{background:var(--sb-active);color:#7ab8ff;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--orange);border-radius:0 3px 3px 0}
+.nav-item i{font-size:15px;width:18px;text-align:center;flex-shrink:0;opacity:.75}
+.nav-item.active i{opacity:1}
+.nav-divider{height:1px;background:var(--sb-border);margin:6px 16px}
+.nav-badge{margin-left:auto;background:var(--orange);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;min-width:18px;text-align:center;flex-shrink:0}
+.nav-badge.warn{background:var(--amber)}
+.nav-badge.red{background:var(--red)}
+.nav-badge.hide{display:none}
+.sb-bottom{padding:12px;border-top:1px solid var(--sb-border);flex-shrink:0}
+.user-chip{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.05);cursor:pointer;transition:background .12s}
+.user-chip:hover{background:rgba(255,255,255,.09)}
+.user-av{width:32px;height:32px;border-radius:8px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;flex-shrink:0;position:relative}
+.user-dot{position:absolute;bottom:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:var(--green);border:2px solid var(--navy2)}
+.user-info{flex:1;min-width:0}
+.user-info strong{display:block;font-size:12px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-info span{font-size:10px;color:var(--sb-tx2)}
+
+/* ===== TOPBAR ===== */
+#page-title{font-size:16px;font-weight:700;flex:1;color:var(--tx1);letter-spacing:-.01em}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.mode-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.mode-btn{padding:5px 14px;font-size:12px;font-weight:600;background:transparent;color:var(--tx3);transition:all .12s}
+.mode-btn.active{background:var(--navy2);color:#fff}
+.sp-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid var(--border);color:var(--tx3);background:var(--surface2)}
+.sp-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.sp-dot.offline{background:var(--red)}
+.sp-dot.loading{background:var(--amber);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ===== BUTTONS ===== */
+.btn{padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:7px;transition:all .12s;letter-spacing:.01em;flex-shrink:0}
+.btn-primary{background:var(--orange);color:#fff;box-shadow:0 1px 4px rgba(232,82,10,.25)}
+.btn-primary:hover{background:var(--orange2);box-shadow:0 2px 8px rgba(232,82,10,.35)}
+.btn-secondary{background:var(--surface);color:var(--tx2);border:1px solid var(--border);box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+.btn-ghost{background:transparent;color:var(--tx3);padding:6px 10px}
+.btn-ghost:hover{background:var(--surface2);color:var(--tx1)}
+.btn-danger{background:var(--red2);color:var(--red);border:1px solid rgba(220,38,38,.2)}
+.btn-danger:hover{background:#fecaca}
+.btn-green{background:var(--green2);color:var(--green);border:1px solid rgba(22,163,74,.2)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+.btn-icon{padding:7px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);color:var(--tx3)}
+.btn-icon:hover{border-color:var(--blue);color:var(--blue)}
+
+/* ===== CARDS & SURFACES ===== */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:14px;font-weight:700;color:var(--tx1);letter-spacing:-.01em}
+.section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+
+/* ===== STAT CARDS ===== */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;position:relative;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .12s}
+.stat-card:hover{box-shadow:var(--shadow-lg)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent,var(--orange))}
+.stat-val{font-size:30px;font-weight:800;color:var(--tx1);letter-spacing:-.03em;line-height:1}
+.stat-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);margin-top:6px}
+.stat-sub{font-size:11px;color:var(--tx4);margin-top:3px}
+
+/* ===== FORMS ===== */
+.form-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.field{display:flex;flex-direction:column;gap:4px}
+label{font-size:12px;font-weight:600;color:var(--tx2)}
+label.req::after{content:' *';color:var(--orange)}
+input,select,textarea{font-size:13px;color:var(--tx1);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;width:100%;transition:all .12s}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1);background:var(--surface)}
+input[readonly],input[disabled]{background:var(--bg);color:var(--tx3);cursor:default}
+.form-row{display:grid;gap:12px;margin-bottom:12px}
+.cols-2{grid-template-columns:1fr 1fr}
+.cols-3{grid-template-columns:1fr 1fr 1fr}
+.cols-4{grid-template-columns:1fr 1fr 1fr 1fr}
+@media(max-width:700px){.cols-2,.cols-3,.cols-4{grid-template-columns:1fr}}
+
+/* ===== TABLES ===== */
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);padding:10px 14px;border-bottom:2px solid var(--border);background:var(--surface2)}
+.data-table td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tbody tr:hover td{background:rgba(37,99,235,.025)}
+.data-table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+
+/* ===== BADGES ===== */
+.badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+.badge-green{background:var(--green2);color:var(--green)}
+.badge-red{background:var(--red2);color:var(--red)}
+.badge-amber{background:var(--amber2);color:var(--amber)}
+.badge-blue{background:#dbeafe;color:var(--blue)}
+.badge-purple{background:var(--purple2);color:var(--purple)}
+.badge-grey{background:var(--surface2);color:var(--tx3);border:1px solid var(--border)}
+.cat-badge{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.cat-1{background:rgba(22,163,74,.12);color:var(--green);border:1px solid rgba(22,163,74,.25)}
+.cat-2{background:#dbeafe;color:var(--blue);border:1px solid rgba(37,99,235,.25)}
+.cat-3{background:var(--amber2);color:var(--amber);border:1px solid rgba(217,119,6,.25)}
+.cat-4{background:var(--red2);color:var(--red);border:1px solid rgba(220,38,38,.25)}
+.cat-5{background:#fca5a5;color:#7f1d1d;border:1px solid rgba(220,38,38,.4)}
+
+/* ===== OEM PILLS ===== */
+.oem-pill{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;letter-spacing:.03em;color:#fff;display:inline-block}
+.oem-vestas{background:#005f33}
+.oem-nordex{background:#003082}
+.oem-siemens,.oem-sg{background:#5a0075}
+.oem-ge{background:#0033a0}
+.oem-goldwind{background:#b91c1c}
+.oem-enercon{background:#065f46}
+.oem-acciona{background:#c2410c}
+.oem-other{background:#374151}
+
+/* ===== ALERTS ===== */
+.alert{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:12px}
+.alert-success{background:var(--green2);border:1px solid rgba(22,163,74,.25);color:var(--green)}
+.alert-warn{background:var(--amber2);border:1px solid rgba(217,119,6,.25);color:var(--amber)}
+.alert-error{background:var(--red2);border:1px solid rgba(220,38,38,.25);color:var(--red)}
+.alert-info{background:#dbeafe;border:1px solid rgba(37,99,235,.25);color:var(--blue)}
+
+/* ===== TABS ===== */
+.tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:16px;gap:0}
+.tab{padding:9px 18px;font-size:13px;font-weight:500;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .12s}
+.tab:hover{color:var(--tx2);background:var(--surface2)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:700}
+
+/* ===== FILTER BAR ===== */
+.filter-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.search-wrap{position:relative;flex:1;min-width:200px}
+.search-wrap input{padding-left:34px}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--tx4);font-size:14px;pointer-events:none}
+
+/* ===== EMPTY STATE ===== */
+.empty-state{text-align:center;padding:48px 24px;color:var(--tx3)}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:.5}
+.empty-state p{font-size:14px}
+.empty-state .hint{font-size:12px;color:var(--tx4);margin-top:6px}
+
+/* ===== UPLOAD WIDGET ===== */
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;transition:all .15s;background:var(--surface2)}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--blue);background:rgba(37,99,235,.03)}
+.upload-zone input[type=file]{display:none}
+.attached-file{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;margin-top:6px;font-size:12px}
+.attached-file-name{flex:1;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.attached-file-size{color:var(--tx4)}
+
+/* ===== LOADING ===== */
+.skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200%;animation:shimmer 1.5s infinite;border-radius:4px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== TOAST ===== */
+#toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);pointer-events:all;animation:slideIn .2s ease;max-width:340px;display:flex;align-items:center;gap:8px}
+.toast-success{background:#1a1a2e;color:#fff}
+.toast-error{background:var(--red);color:#fff}
+.toast-info{background:var(--navy2);color:#fff}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== LOGIN ===== */
+#login-screen{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:1000;background-image:radial-gradient(ellipse at 20% 50%,rgba(37,99,235,.12),transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(232,82,10,.08),transparent 50%)}
+.login-card{background:rgba(255,255,255,.97);border-radius:16px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 24px 80px rgba(0,0,0,.4);text-align:center}
+.login-card img{height:48px;margin-bottom:24px}
+.login-card h2{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-.02em;margin-bottom:6px}
+.login-card p{color:var(--tx2);font-size:13px;margin-bottom:28px;line-height:1.6}
+.btn-ms{width:100%;padding:13px;background:var(--navy);color:#fff;border-radius:8px;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .15s}
+.btn-ms:hover{background:var(--navy3);transform:translateY(-1px);box-shadow:0 4px 16px rgba(15,31,53,.3)}
+.btn-demo{margin-top:10px;width:100%;padding:10px;background:transparent;color:var(--tx3);font-size:13px;border:1px solid var(--border);border-radius:8px;transition:all .12s}
+.btn-demo:hover{border-color:var(--tx2);color:var(--tx2)}
+#login-error{color:var(--red);font-size:12px;margin-top:10px;display:none}
+
+/* ===== ROTOR DIAGRAM ===== */
+.rotor-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.blade-btn{flex:1;padding:8px;border-radius:6px;border:2px solid var(--border);background:var(--surface2);cursor:pointer;font-weight:700;font-size:13px;color:var(--tx2);transition:all .12s;text-align:center}
+.blade-btn.active{font-weight:700}
+
+/* ===== REPORT CARDS ===== */
+.report-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow)}
+.report-card:hover{border-color:var(--blue);box-shadow:var(--shadow-lg);transform:translateY(-1px)}
+.report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+
+/* ===== MISC ===== */
+.divider{height:1px;background:var(--border);margin:16px 0}
+.text-muted{color:var(--tx3)}
+.text-sm{font-size:12px}
+.font-mono{font-family:var(--mono)}
+.truncate{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.flex{display:flex}
+.flex-1{flex:1}
+.items-center{align-items:center}
+.gap-8{gap:8px}
+.gap-12{gap:12px}
+.mb-4{margin-bottom:4px}
+.mb-8{margin-bottom:8px}
+.mb-12{margin-bottom:12px}
+.mb-16{margin-bottom:16px}
+.mt-12{margin-top:12px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <img src="https://raw.githubusercontent.com/FishyPTA/BladeTech-Ops/main/ProTech_Logo_Concepts_3.png" alt="ProTech Access">
+    <h2>BladeOps Platform</h2>
+    <p>Wind turbine blade operations management for ProTech Access field and office teams.</p>
+    <button class="btn-ms" onclick="signIn()">
+      <svg width="18" height="18" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+      Sign in with Microsoft
+    </button>
+    <button class="btn-demo" onclick="demoMode()">Continue in Demo Mode</button>
+    <div id="login-error"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sb-logo">
+      <img src="https://raw.githubusercontent.com/FishyPTA/BladeTech-Ops/main/ProTech_Logo_Concepts_3.png" alt="">
+      <div class="sb-logo-text">
+        <strong>ProTech Access</strong>
+        <span>BladeOps</span>
+      </div>
+    </div>
+    <div class="sb-scroll">
+      <div class="nav-section">Operations</div>
+      <div class="nav-item active" data-view="dashboard"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
+      <div class="nav-item" data-view="field-ops"><i class="ti ti-hard-hat"></i>Field Ops</div>
+      <div class="nav-divider"></div>
+      <div class="nav-section">Inspection</div>
+      <div class="nav-item" data-view="inspections"><i class="ti ti-clipboard-list"></i>All Inspections<span class="nav-badge hide" id="nb-insp">0</span></div>
+      <div class="nav-item" data-view="new-inspection"><i class="ti ti-plus"></i>New Inspection</div>
+      <div class="nav-divider"></div>
+      <div class="nav-section">Repair</div>
+      <div class="nav-item" data-view="repairs"><i class="ti ti-tool"></i>Repair Jobs<span class="nav-badge hide" id="nb-rep">0</span></div>
+      <div class="nav-item" data-view="new-repair"><i class="ti ti-plus"></i>New Repair Job</div>
+      <div class="nav-item" data-view="procedures"><i class="ti ti-books"></i>Repair Procedures</div>
+      <div class="nav-divider"></div>
+      <div class="nav-section">Reports & Docs</div>
+      <div class="nav-item" data-view="reports"><i class="ti ti-file-description"></i>Report Templates</div>
+      <div class="nav-item" data-view="documents"><i class="ti ti-folder"></i>Documents</div>
+      <div class="nav-divider"></div>
+      <div class="nav-section">Reference</div>
+      <div class="nav-item" data-view="materials"><i class="ti ti-package"></i>Material Library<span class="nav-badge warn hide" id="nb-mat">!</span></div>
+      <div class="nav-item" data-view="reinforcements"><i class="ti ti-layers-intersect"></i>Reinforcements<span class="nav-badge hide" id="nb-rfab">0</span></div>
+      <div class="nav-item" data-view="aus-turbines"><i class="ti ti-windmill"></i>Australian Turbines</div>
+      <div class="nav-item" data-view="registry"><i class="ti ti-database"></i>Serial Registry</div>
+      <div class="nav-item" data-view="team"><i class="ti ti-users"></i>Team</div>
+      <div class="nav-divider"></div>
+      <div class="nav-section">Workflow</div>
+      <div class="nav-item" data-view="qa"><i class="ti ti-git-branch"></i>QA Pipeline<span class="nav-badge red hide" id="nb-qa">0</span></div>
+      <div class="nav-item" data-view="diary"><i class="ti ti-notebook"></i>Daily Diary</div>
+    </div>
+    <div class="sb-bottom">
+      <div class="user-chip" onclick="showProfile()">
+        <div class="user-av"><span id="user-av-text">?</span><div class="user-dot"></div></div>
+        <div class="user-info"><strong id="user-name-sb">Loading…</strong><span id="user-role-sb">Field Technician</span></div>
+        <i class="ti ti-dots-vertical" style="color:var(--sb-tx2);font-size:14px;margin-left:auto"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div id="main">
+    <div id="topbar">
+      <div id="page-title">Dashboard</div>
+      <div class="topbar-actions">
+        <div class="sp-pill"><div class="sp-dot loading" id="sp-dot"></div><span id="sp-status">Connecting…</span></div>
+        <div class="mode-toggle">
+          <button class="mode-btn active" onclick="setMode('office',this)" id="btn-office">Office</button>
+          <button class="mode-btn" onclick="setMode('field',this)" id="btn-field">Field</button>
+        </div>
+      </div>
+    </div>
+    <div id="content"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<script>
+'use strict';
+// ===== CONFIG =====
+const SP_CONFIG = {
+  clientId: '6afdf782-311f-44d1-8162-380c4b596ab9',
+  tenantId: 'bef16a9c-98ed-40cf-9dc4-09ba72ee589b',
+  siteUrl:  'https://netorg10902910.sharepoint.com/sites/FieldApp',
+  siteId:   null
+};
+const GRAPH_SCOPES = ['Sites.ReadWrite.All','Files.ReadWrite.All','User.Read'];
+const LISTS = { INSP:'PT_Inspections', REP:'PT_Repairs', MAT:'PT_Materials', FAB:'PT_Fabrics', REG:'PT_Registry', DIARY:'PT_Diary', TEAM:'PT_Team', FARMS:'PT_WindFarms' };
+
+// ===== STATE =====
+let msalInstance = null, spToken = null, currentUser = null, isDemo = false;
+let appMode = 'office';
+let appData = {
+  inspections: [], repairs: [], materials: [], fabrics: [],
+  registry: [], diary: [], team: [], farms: [], loaded: {}
+};
+let attachedFiles = {};
+
+// ===== MSAL AUTH =====
+const msalConfig = {
+  auth: {
+    clientId: SP_CONFIG.clientId,
+    authority: `https://login.microsoftonline.com/${SP_CONFIG.tenantId}`,
+    redirectUri: window.location.href.split('?')[0].split('#')[0],
+    navigateToLoginRequestUrl: true,
+  },
+  cache: { cacheLocation: 'localStorage', storeAuthStateInCookie: true }
+};
+
+async function initAuth() {
+  try {
+    msalInstance = new msal.PublicClientApplication(msalConfig);
+    await msalInstance.initialize();
+    const result = await msalInstance.handleRedirectPromise();
+    if (result) {
+      currentUser = result.account;
+      spToken = result.accessToken;
+      msalInstance.setActiveAccount(currentUser);
+      await bootApp();
+    } else {
+      const accounts = msalInstance.getAllAccounts();
+      if (accounts.length > 0) {
+        msalInstance.setActiveAccount(accounts[0]);
+        currentUser = accounts[0];
+        await bootApp();
+      } else {
+        document.getElementById('login-screen').style.display = 'flex';
+      }
+    }
+  } catch(e) {
+    console.error('Auth init error:', e);
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+}
+
+async function signIn() {
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  try {
+    await msalInstance.loginRedirect({ scopes: GRAPH_SCOPES });
+  } catch(e) {
+    errEl.textContent = 'Sign-in failed: ' + (e.message || e.errorCode);
+    errEl.style.display = 'block';
+  }
+}
+
+async function acquireToken() {
+  if (!currentUser) throw new Error('Not signed in');
+  try {
+    const r = await msalInstance.acquireTokenSilent({ scopes: GRAPH_SCOPES, account: currentUser });
+    spToken = r.accessToken;
+  } catch {
+    await msalInstance.acquireTokenRedirect({ scopes: GRAPH_SCOPES });
+  }
+}
+
+function demoMode() {
+  isDemo = true;
+  currentUser = { name: 'Demo User', username: 'demo@protechaccess.com.au' };
+  seedDemoData();
+  bootApp();
+}
+
+// ===== GRAPH API =====
+async function graphGet(url) {
+  await acquireToken();
+  const r = await fetch('https://graph.microsoft.com/v1.0' + url, {
+    headers: { Authorization: 'Bearer ' + spToken, Accept: 'application/json' }
+  });
+  if (!r.ok) throw new Error('GET ' + url + ' → ' + r.status);
+  return r.json();
+}
+
+async function graphPost(url, body) {
+  await acquireToken();
+  const r = await fetch('https://graph.microsoft.com/v1.0' + url, {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + spToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'POST failed ' + r.status);
+  }
+  return r.json();
+}
+
+async function graphPatch(url, body) {
+  await acquireToken();
+  const r = await fetch('https://graph.microsoft.com/v1.0' + url, {
+    method: 'PATCH',
+    headers: { Authorization: 'Bearer ' + spToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error('PATCH failed ' + r.status);
+  return r.json();
+}
+
+async function graphDelete(url) {
+  await acquireToken();
+  const r = await fetch('https://graph.microsoft.com/v1.0' + url, {
+    method: 'DELETE', headers: { Authorization: 'Bearer ' + spToken }
+  });
+  if (!r.ok) throw new Error('DELETE failed ' + r.status);
+}
+
+// ===== SHAREPOINT DATA =====
+async function getSiteId() {
+  if (SP_CONFIG.siteId) return SP_CONFIG.siteId;
+  const data = await graphGet('/sites/netorg10902910.sharepoint.com:/sites/FieldApp:');
+  SP_CONFIG.siteId = data.id;
+  return data.id;
+}
+
+async function spGetItems(listKey, filter = '') {
+  const siteId = await getSiteId();
+  const listName = LISTS[listKey];
+  const url = `/sites/${siteId}/lists/${listName}/items?expand=fields&$top=999${filter ? '&$filter=' + filter : ''}`;
+  const data = await graphGet(url);
+  return (data.value || []).map(i => ({ ...i.fields, _spId: i.id }));
+}
+
+async function spCreateItem(listKey, fields) {
+  const siteId = await getSiteId();
+  const data = await graphPost(`/sites/${siteId}/lists/${LISTS[listKey]}/items`, { fields });
+  return { ...data.fields, _spId: data.id };
+}
+
+async function spUpdateItem(listKey, spId, fields) {
+  const siteId = await getSiteId();
+  return graphPatch(`/sites/${siteId}/lists/${LISTS[listKey]}/items/${spId}/fields`, fields);
+}
+
+async function spDeleteItem(listKey, spId) {
+  const siteId = await getSiteId();
+  return graphDelete(`/sites/${siteId}/lists/${LISTS[listKey]}/items/${spId}`);
+}
+
+async function spGetDocuments(path = '') {
+  const siteId = await getSiteId();
+  const url = path
+    ? `/sites/${siteId}/drive/root:/${path}:/children`
+    : `/sites/${siteId}/drive/root/children`;
+  const data = await graphGet(url);
+  return data.value || [];
+}
+
+// ===== DATA LOADING =====
+async function loadData(key) {
+  if (appData.loaded[key] || isDemo) return;
+  const map = { inspections:'INSP', repairs:'REP', materials:'MAT', fabrics:'FAB', registry:'REG', diary:'DIARY', team:'TEAM', farms:'FARMS' };
+  const listKey = map[key];
+  if (!listKey) return;
+  const items = await spGetItems(listKey);
+  appData[key] = items;
+  appData.loaded[key] = true;
+  updateBadges();
+}
+
+async function loadAllCritical() {
+  // Load data needed for dashboard and autocompletes
+  await Promise.all([
+    loadData('farms'),
+    loadData('team'),
+    loadData('materials'),
+  ]);
+}
+
+// ===== BOOT =====
+async function bootApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+
+  // Set user info
+  const name = currentUser?.name || currentUser?.username || 'User';
+  const initials = name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+  document.getElementById('user-av-text').textContent = initials;
+  document.getElementById('user-name-sb').textContent = name;
+
+  // Wire navigation
+  document.querySelectorAll('.nav-item[data-view]').forEach(el => {
+    el.addEventListener('click', () => showView(el.dataset.view));
+  });
+
+  // Load critical data then show dashboard
+  if (!isDemo) {
+    setSPStatus('loading', 'Loading…');
+    try {
+      await loadAllCritical();
+      setSPStatus('online', 'SharePoint');
+    } catch(e) {
+      setSPStatus('offline', 'Offline');
+      toast('Could not connect to SharePoint — working offline', 'error');
+    }
+  } else {
+    setSPStatus('offline', 'Demo Mode');
+  }
+
+  showView('dashboard');
+  updateBadges();
+}
+
+function setSPStatus(state, text) {
+  const dot = document.getElementById('sp-dot');
+  const label = document.getElementById('sp-status');
+  dot.className = 'sp-dot ' + (state === 'online' ? '' : state === 'loading' ? 'loading' : 'offline');
+  label.textContent = text;
+}
+
+// ===== NAVIGATION =====
+const VIEW_TITLES = {
+  'dashboard':'Dashboard', 'field-ops':'Field Ops',
+  'inspections':'All Inspections', 'new-inspection':'New Inspection',
+  'repairs':'Repair Jobs', 'new-repair':'New Repair Job', 'procedures':'Repair Procedures',
+  'reports':'Report Templates', 'documents':'Documents',
+  'materials':'Material Library', 'reinforcements':'Reinforcement Fabrics',
+  'aus-turbines':'Australian Wind Turbines', 'registry':'Serial Registry', 'team':'Team',
+  'qa':'QA Pipeline', 'diary':'Daily Diary',
+};
+
+const VIEW_RENDERERS = {};
+
+function showView(name) {
+  document.querySelectorAll('.nav-item[data-view]').forEach(el => {
+    el.classList.toggle('active', el.dataset.view === name);
+  });
+  document.getElementById('page-title').textContent = VIEW_TITLES[name] || name;
+  const content = document.getElementById('content');
+  content.innerHTML = '';
+  if (VIEW_RENDERERS[name]) {
+    VIEW_RENDERERS[name](content);
+  } else {
+    content.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="ti ti-hammer" style="font-size:40px"></i></div><p>Coming soon</p></div>`;
+  }
+}
+
+function setMode(mode, btn) {
+  appMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showView(document.querySelector('.nav-item.active')?.dataset.view || 'dashboard');
+}
+
+// ===== BADGES =====
+function updateBadges() {
+  const set = (id, val, hide0 = true) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = val;
+    el.classList.toggle('hide', hide0 && !val);
+  };
+  set('nb-insp', appData.inspections.length, false);
+  set('nb-rep', appData.repairs.length, false);
+  set('nb-qa', appData.inspections.filter(i => i.Status === 'QA Review').length);
+  const lowMat = appData.materials.filter(m => (m.StockQty||0) <= (m.ReorderLevel||0)).length;
+  const matBadge = document.getElementById('nb-mat');
+  if (matBadge) { matBadge.textContent = lowMat || '!'; matBadge.classList.toggle('hide', !lowMat); }
+  set('nb-rfab', appData.fabrics.length, false);
+}
+
+// ===== HELPERS =====
+function gv(id) { return document.getElementById(id)?.value || ''; }
+function sv(id, val) { const el = document.getElementById(id); if (el) el.value = val || ''; }
+function today() { return new Date().toISOString().split('T')[0]; }
+function fmtDate(d) { if (!d) return '—'; try { return new Date(d).toLocaleDateString('en-AU'); } catch { return d; } }
+function statusColor(s) {
+  const m = { 'Approved':'green','Closed':'green','QA Review':'amber','Repair Required':'red','Field Capture':'blue','In Progress':'amber','QA Review':'amber' };
+  return m[s] || 'grey';
+}
+function oemClass(oem) {
+  if (!oem) return 'other';
+  const o = oem.toLowerCase();
+  if (o.includes('vestas')) return 'vestas';
+  if (o.includes('nordex')) return 'nordex';
+  if (o.includes('siemens') || o.includes('sg ')) return 'sg';
+  if (o.includes('ge ') || o.includes('vernova')) return 'ge';
+  if (o.includes('goldwind')) return 'goldwind';
+  if (o.includes('enercon')) return 'enercon';
+  if (o.includes('acciona')) return 'acciona';
+  return 'other';
+}
+function getFarms() { return [...new Set(appData.farms.map(f => f.WindFarm).filter(Boolean))].sort(); }
+function getFarmData(name) { return appData.farms.find(f => f.WindFarm === name); }
+
+// ===== TOAST =====
+function toast(msg, type = 'success', duration = 3000) {
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<i class="ti ti-${type==='success'?'check':'alert-circle'}"></i> ${msg}`;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), duration);
+}
+
+// ===== UPLOAD WIDGET =====
+function renderUploadWidget(key, label = 'Attachments') {
+  if (!attachedFiles[key]) attachedFiles[key] = [];
+  const files = attachedFiles[key];
+  return `<div class="form-section">
+  <div class="section-title"><i class="ti ti-paperclip"></i>${label}</div>
+  <div class="upload-zone" id="uz-${key}" onclick="document.getElementById('uf-${key}').click()"
+    ondragover="event.preventDefault();this.classList.add('drag-over')"
+    ondragleave="this.classList.remove('drag-over')"
+    ondrop="event.preventDefault();this.classList.remove('drag-over');handleFileDrop('${key}',event.dataTransfer.files)">
+    <input type="file" id="uf-${key}" multiple onchange="handleFileSelect('${key}',this.files)">
+    <i class="ti ti-cloud-upload" style="font-size:24px;color:var(--tx4);display:block;margin-bottom:6px"></i>
+    <div style="font-size:13px;color:var(--tx2)">Click to attach or drag & drop</div>
+    <div style="font-size:11px;color:var(--tx4);margin-top:3px">PDF, images, Word docs — any type</div>
+  </div>
+  <div id="af-${key}">
+    ${files.map((f,i) => `<div class="attached-file">
+      <i class="ti ti-${fileIcon(f.name)}" style="font-size:16px;color:var(--tx3)"></i>
+      <span class="attached-file-name">${f.name}</span>
+      <span class="attached-file-size">${fmtSize(f.size)}</span>
+      ${f.dataUrl ? `<a href="${f.dataUrl}" download="${f.name}" style="color:var(--blue);font-size:11px">↓</a>` : ''}
+      <button class="btn-ghost btn-xs" onclick="removeFile('${key}',${i})"><i class="ti ti-x"></i></button>
+    </div>`).join('')}
+  </div>
+</div>`;
+}
+
+function fileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  if (ext === 'pdf') return 'file-type-pdf';
+  if (ext === 'docx' || ext === 'doc') return 'file-type-doc';
+  if (ext === 'xlsx' || ext === 'xls') return 'file-type-xls';
+  if (['jpg','jpeg','png','webp','gif'].includes(ext)) return 'photo';
+  return 'file';
+}
+function fmtSize(b) {
+  if (b > 1048576) return (b/1048576).toFixed(1)+' MB';
+  if (b > 1024) return (b/1024).toFixed(0)+' KB';
+  return b+' B';
+}
+function handleFileSelect(key, files) { processFiles(key, Array.from(files)); }
+function handleFileDrop(key, files) { processFiles(key, Array.from(files)); }
+function processFiles(key, files) {
+  if (!attachedFiles[key]) attachedFiles[key] = [];
+  let pending = files.length;
+  files.forEach(f => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      attachedFiles[key].push({ name: f.name, size: f.size, type: f.type, dataUrl: e.target.result });
+      if (--pending === 0) refreshAttachments(key);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+function removeFile(key, i) { attachedFiles[key].splice(i,1); refreshAttachments(key); }
+function refreshAttachments(key) {
+  const el = document.getElementById('af-'+key);
+  if (!el) return;
+  const files = attachedFiles[key] || [];
+  el.innerHTML = files.map((f,i) => `<div class="attached-file">
+    <i class="ti ti-${fileIcon(f.name)}" style="font-size:16px;color:var(--tx3)"></i>
+    <span class="attached-file-name">${f.name}</span>
+    <span class="attached-file-size">${fmtSize(f.size)}</span>
+    ${f.dataUrl ? `<a href="${f.dataUrl}" download="${f.name}" style="color:var(--blue);font-size:11px">↓</a>` : ''}
+    <button class="btn-ghost btn-xs" onclick="removeFile('${key}',${i})"><i class="ti ti-x"></i></button>
+  </div>`).join('');
+}
+
+
+// ===== DASHBOARD =====
+let dashFarm = '', dashWTG = '', dashBlade = null;
+
+VIEW_RENDERERS['dashboard'] = function(el) {
+  const insp = appData.inspections;
+  const reps = appData.repairs;
+  const pending = insp.filter(i => i.Status === 'QA Review').length;
+  const critical = insp.filter(i => {
+    try { return (JSON.parse(i.FindingsJSON||'[]')).some(f => f.sev >= 4); } catch { return false; }
+  }).length;
+  const lowMat = appData.materials.filter(m => (m.StockQty||0) <= (m.ReorderLevel||0)).length;
+  const farms = getFarms();
+
+  el.innerHTML = `
+<div class="stat-grid">
+  <div class="stat-card" style="--accent:var(--blue);cursor:pointer" onclick="showView('inspections')">
+    <div class="stat-val">${insp.length}</div>
+    <div class="stat-lbl">Total Inspections</div>
+    <div class="stat-sub">All time</div>
+  </div>
+  <div class="stat-card" style="--accent:var(--green);cursor:pointer" onclick="showView('repairs')">
+    <div class="stat-val">${reps.length}</div>
+    <div class="stat-lbl">Repair Jobs</div>
+    <div class="stat-sub">All time</div>
+  </div>
+  <div class="stat-card" style="--accent:var(--amber);cursor:pointer" onclick="showView('qa')">
+    <div class="stat-val" style="color:${pending?'var(--amber)':'var(--tx1)'}">${pending}</div>
+    <div class="stat-lbl">Pending QA</div>
+    <div class="stat-sub">Awaiting review</div>
+  </div>
+  <div class="stat-card" style="--accent:var(--red)">
+    <div class="stat-val" style="color:${critical?'var(--red)':'var(--tx1)'}">${critical}</div>
+    <div class="stat-lbl">Critical Findings</div>
+    <div class="stat-sub">Category 4–5</div>
+  </div>
+  <div class="stat-card" style="--accent:var(--orange);cursor:pointer" onclick="showView('materials')">
+    <div class="stat-val" style="color:${lowMat?'var(--orange)':'var(--tx1)'}">${lowMat}</div>
+    <div class="stat-lbl">Low Stock Items</div>
+    <div class="stat-sub">Below reorder</div>
+  </div>
+</div>
+
+<div class="grid-2" style="gap:16px">
+  <!-- Turbine Status -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><i class="ti ti-windmill" style="color:var(--blue)"></i> Turbine Status</div>
+    </div>
+    <div class="form-row cols-2" style="margin-bottom:12px">
+      <div class="field">
+        <label>Wind Farm</label>
+        <select id="dash-farm" onchange="dashSelectFarm(this.value)">
+          <option value="">— Select farm —</option>
+          ${farms.map(f => `<option ${f===dashFarm?'selected':''}>${f}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>Turbine</label>
+        <select id="dash-wtg" onchange="dashSelectWTG(this.value)">
+          <option value="">— Select farm first —</option>
+        </select>
+      </div>
+    </div>
+    <div id="dash-rotor">${renderRotorPanel()}</div>
+  </div>
+
+  <!-- Recent Inspections -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><i class="ti ti-clipboard-list" style="color:var(--blue)"></i> Recent Inspections</div>
+      <button class="btn btn-secondary btn-sm" onclick="showView('inspections')">View All</button>
+    </div>
+    ${insp.length ? `<table class="data-table">
+      <thead><tr><th>Site</th><th>Turbine</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>${insp.slice(-5).reverse().map(i => `<tr>
+        <td>${i.WindFarm||'—'}</td>
+        <td>${i.WTGID||'—'}</td>
+        <td>${fmtDate(i.InspectionDate||i.DateStart)}</td>
+        <td><span class="badge badge-${statusColor(i.Status)}">${i.Status||'Draft'}</span></td>
+      </tr>`).join('')}</tbody>
+    </table>` : `<div class="empty-state" style="padding:24px">
+      <div class="empty-icon"><i class="ti ti-clipboard-list"></i></div>
+      <p>No inspections yet</p>
+      <div class="hint">Create your first inspection to get started</div>
+      <button class="btn btn-primary btn-sm mt-12" onclick="showView('new-inspection')">+ New Inspection</button>
+    </div>`}
+  </div>
+</div>
+
+<div style="margin-top:16px" class="card">
+  <div class="card-hd">
+    <div class="card-title"><i class="ti ti-tool" style="color:var(--blue)"></i> Active Repair Jobs</div>
+    <button class="btn btn-primary btn-sm" onclick="showView('new-repair')">+ New Repair</button>
+  </div>
+  ${reps.filter(r=>r.Status !== 'Closed').length ? `<table class="data-table">
+    <thead><tr><th>Site</th><th>Turbine</th><th>Type</th><th>Lead Tech</th><th>Status</th></tr></thead>
+    <tbody>${reps.filter(r=>r.Status!=='Closed').slice(-5).map(r=>`<tr>
+      <td>${r.WindFarm||'—'}</td><td>${r.WTGID||'—'}</td>
+      <td>${r.RepairType||'—'}</td><td>${r.LeadTechnician||'—'}</td>
+      <td><span class="badge badge-${statusColor(r.Status)}">${r.Status||'Draft'}</span></td>
+    </tr>`).join('')}</tbody>
+  </table>` : `<div class="empty-state" style="padding:24px">
+    <div class="empty-icon"><i class="ti ti-tool"></i></div>
+    <p>No active repair jobs</p>
+  </div>`}
+</div>`;
+
+  // Re-populate WTG dropdown if farm already selected
+  if (dashFarm) dashSelectFarm(dashFarm, true);
+};
+
+function renderRotorPanel() {
+  const farm = appData.registry.find(r => r.WindFarm === dashFarm && r.WTGID === dashWTG);
+  if (!dashFarm || !dashWTG || !farm) {
+    return `<div style="text-align:center;padding:20px;color:var(--tx4);font-size:13px">
+      <i class="ti ti-windmill" style="font-size:32px;display:block;margin-bottom:8px"></i>
+      Select a wind farm and turbine above
+    </div>`;
+  }
+
+  const insp = appData.inspections.filter(i => i.WindFarm === dashFarm && i.WTGID === dashWTG);
+
+  function bladeColor(b) {
+    const bInsp = insp.filter(i => (i.BladePosition||'').startsWith('Blade '+b));
+    if (!bInsp.length) return 'var(--green)';
+    const maxCat = Math.max(...bInsp.flatMap(i => {
+      try { return JSON.parse(i.FindingsJSON||'[]').map(f => f.sev||0); } catch { return [0]; }
+    }));
+    if (maxCat >= 4) return 'var(--red)';
+    if (maxCat === 3) return 'var(--amber)';
+    if (maxCat >= 1) return 'var(--blue)';
+    return 'var(--green)';
+  }
+
+  const bA = bladeColor('A'), bB = bladeColor('B'), bC = bladeColor('C');
+
+  return `<div style="display:flex;gap:16px;align-items:flex-start">
+    <div style="flex-shrink:0">
+      <svg viewBox="0 0 220 220" width="180" height="180">
+        <circle cx="110" cy="110" r="16" fill="#2d3748" stroke="#4a5568" stroke-width="2"/>
+        <circle cx="110" cy="110" r="8" fill="#1a202c" stroke="#718096" stroke-width="1.5"/>
+        <circle cx="110" cy="110" r="3" fill="#a0aec0"/>
+        <g transform="translate(110,110) rotate(-90)" onclick="dashClickBlade('A')" style="cursor:pointer">
+          <path d="M-7,0 C-9,-18 -7,-45 -4,-70 C-2,-82 -1,-90 0,-96 C1,-90 2,-82 4,-70 C7,-45 9,-18 7,0 Z"
+            fill="${bA}" opacity="${dashBlade==='A'?1:.8}" stroke="${dashBlade==='A'?'white':'rgba(255,255,255,.2)'}" stroke-width="${dashBlade==='A'?1.5:.5}"/>
+          <text x="0" y="-65" text-anchor="middle" font-size="12" font-weight="800" fill="white">A</text>
+        </g>
+        <g transform="translate(110,110) rotate(30)" onclick="dashClickBlade('B')" style="cursor:pointer">
+          <path d="M-7,0 C-9,-18 -7,-45 -4,-70 C-2,-82 -1,-90 0,-96 C1,-90 2,-82 4,-70 C7,-45 9,-18 7,0 Z"
+            fill="${bB}" opacity="${dashBlade==='B'?1:.8}" stroke="${dashBlade==='B'?'white':'rgba(255,255,255,.2)'}" stroke-width="${dashBlade==='B'?1.5:.5}"/>
+          <text x="0" y="-65" text-anchor="middle" font-size="12" font-weight="800" fill="white">B</text>
+        </g>
+        <g transform="translate(110,110) rotate(150)" onclick="dashClickBlade('C')" style="cursor:pointer">
+          <path d="M-7,0 C-9,-18 -7,-45 -4,-70 C-2,-82 -1,-90 0,-96 C1,-90 2,-82 4,-70 C7,-45 9,-18 7,0 Z"
+            fill="${bC}" opacity="${dashBlade==='C'?1:.8}" stroke="${dashBlade==='C'?'white':'rgba(255,255,255,.2)'}" stroke-width="${dashBlade==='C'?1.5:.5}"/>
+          <text x="0" y="-65" text-anchor="middle" font-size="12" font-weight="800" fill="white">C</text>
+        </g>
+      </svg>
+      <div style="font-size:11px;color:var(--tx4);text-align:center">Click blade to view</div>
+    </div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:14px;font-weight:700;margin-bottom:3px">${farm.OEM||''} ${farm.TurbineModel||farm.BladeType||''}</div>
+      <div style="font-size:12px;color:var(--tx3);margin-bottom:12px">${farm.BladeType||''} · ${farm.BladeLength||'?'}m · Hub ${farm.HubHeight||farm.hub||'?'}m</div>
+      <div style="display:flex;gap:6px;margin-bottom:12px">
+        ${['A','B','C'].map(b => `<button class="blade-btn ${dashBlade===b?'active':''}" onclick="dashClickBlade('${b}')"
+          style="${dashBlade===b?'border-color:'+bladeColor(b)+';color:'+bladeColor(b)+';background:'+bladeColor(b)+'18':''}"
+          >Blade ${b}</button>`).join('')}
+      </div>
+      ${dashBlade ? renderBladeDetail(dashBlade, farm, insp, bladeColor(dashBlade)) : `
+      <div style="text-align:center;padding:12px;border:1px dashed var(--border);border-radius:8px;color:var(--tx4);font-size:12px">
+        Click a blade above to view details
+      </div>`}
+      <div style="margin-top:10px;font-size:11px;color:var(--tx4)">${insp.length} inspection${insp.length!==1?'s':''} on record</div>
+    </div>
+  </div>`;
+}
+
+function renderBladeDetail(b, farm, insp, color) {
+  const serial = farm[`Blade${b}Serial`] || farm.blades?.[b] || 'Not recorded';
+  const bInsp = insp.filter(i => (i.BladePosition||'').startsWith('Blade '+b));
+  let findings = [];
+  bInsp.forEach(i => {
+    try { findings.push(...JSON.parse(i.FindingsJSON||'[]')); } catch {}
+  });
+
+  return `<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ${color};border-radius:8px;padding:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-weight:700;color:${color}">Blade ${b}</div>
+      <button class="btn btn-primary btn-xs" onclick="newInspPreFill('${b}')">+ New Inspection</button>
+    </div>
+    <div style="font-size:12px;margin-bottom:8px"><strong>Serial:</strong> ${serial}</div>
+    ${findings.length ? `
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);margin-bottom:6px">Findings</div>
+    ${findings.slice(0,4).map(f=>`<div style="display:flex;gap:8px;padding:5px 0;border-top:1px solid var(--border)">
+      <div class="cat-badge cat-${f.sev||1}">${f.sev||1}</div>
+      <div style="font-size:12px"><div style="font-weight:600">${f.loc||f.side||'—'}</div><div style="color:var(--tx3)">${(f.desc||'').substring(0,60)}${(f.desc||'').length>60?'…':''}</div></div>
+    </div>`).join('')}
+    ${findings.length > 4 ? `<div style="font-size:11px;color:var(--tx4);margin-top:4px">+${findings.length-4} more</div>` : ''}
+    ` : `<div style="font-size:12px;color:var(--green)"><i class="ti ti-check"></i> No findings recorded</div>`}
+  </div>`;
+}
+
+function dashSelectFarm(farm, keepWTG = false) {
+  dashFarm = farm;
+  if (!keepWTG) { dashWTG = ''; dashBlade = null; }
+  const wtgs = appData.registry.filter(r => r.WindFarm === farm);
+  const sel = document.getElementById('dash-wtg');
+  if (!sel) return;
+  sel.innerHTML = wtgs.length
+    ? `<option value="">— Select turbine —</option>${wtgs.map(w=>`<option value="${w.WTGID}" ${w.WTGID===dashWTG?'selected':''}>${w.WTGID}</option>`).join('')}`
+    : `<option value="">No turbines registered</option>`;
+  if (keepWTG && dashWTG) refreshRotor();
+}
+
+function dashSelectWTG(wtgId) {
+  dashWTG = wtgId; dashBlade = null;
+  refreshRotor();
+}
+
+function dashClickBlade(b) {
+  dashBlade = dashBlade === b ? null : b;
+  refreshRotor();
+}
+
+function refreshRotor() {
+  const el = document.getElementById('dash-rotor');
+  if (el) el.innerHTML = renderRotorPanel();
+}
+
+function newInspPreFill(blade) {
+  showView('new-inspection');
+  setTimeout(() => {
+    sv('ni-farm', dashFarm);
+    niSelectFarm(dashFarm, () => {
+      sv('ni-wtg', dashWTG);
+      sv('ni-blade', 'Blade '+blade+' ('+({A:'0°',B:'120°',C:'240°'}[blade])+')');
+    });
+  }, 100);
+}
+
+
+// ===== INSPECTIONS =====
+let inspFilter = { q:'', status:'', oem:'' };
+
+VIEW_RENDERERS['inspections'] = async function(el) {
+  el.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px"><div class="spinner"></div></div>`;
+  await loadData('inspections');
+  renderInspTable(el);
+};
+
+function renderInspTable(el) {
+  const filtered = appData.inspections.filter(i => {
+    if (inspFilter.q && ![i.WindFarm,i.WTGID,i.Inspector,i.OEM].some(v=>(v||'').toLowerCase().includes(inspFilter.q.toLowerCase()))) return false;
+    if (inspFilter.status && i.Status !== inspFilter.status) return false;
+    if (inspFilter.oem && i.OEM !== inspFilter.oem) return false;
+    return true;
+  });
+
+  el.innerHTML = `
+<div class="filter-bar">
+  <div class="search-wrap"><i class="ti ti-search search-icon"></i>
+    <input placeholder="Search inspections…" value="${inspFilter.q}" oninput="inspFilter.q=this.value;renderInspTable(document.getElementById('content'))">
+  </div>
+  <select style="width:auto" onchange="inspFilter.status=this.value;renderInspTable(document.getElementById('content'))">
+    <option value="">All Statuses</option>
+    ${['Field Capture','QA Review','Repair Required','Approved','Closed'].map(s=>`<option ${inspFilter.status===s?'selected':''}>${s}</option>`).join('')}
+  </select>
+  <button class="btn btn-primary btn-sm" onclick="showView('new-inspection')"><i class="ti ti-plus"></i>New Inspection</button>
+</div>
+<div class="data-table-wrap">
+  <table class="data-table">
+    <thead><tr><th>Date</th><th>Wind Farm</th><th>Turbine</th><th>OEM</th><th>Blade</th><th>Findings</th><th>Inspector</th><th>Status</th><th></th></tr></thead>
+    <tbody>${filtered.length ? filtered.slice().reverse().map(i => {
+      let findCount = 0;
+      try { findCount = JSON.parse(i.FindingsJSON||'[]').length; } catch {}
+      return `<tr>
+        <td class="text-sm">${fmtDate(i.InspectionDate||i.DateStart)}</td>
+        <td>${i.WindFarm||'—'}</td>
+        <td class="font-mono text-sm">${i.WTGID||'—'}</td>
+        <td><span class="oem-pill oem-${oemClass(i.OEM)}">${i.OEM||'—'}</span></td>
+        <td class="text-sm">${i.BladePosition||'—'}</td>
+        <td style="font-weight:${findCount?700:400};color:${findCount?'var(--orange)':'var(--tx3)'}">${findCount||'—'}</td>
+        <td class="text-sm">${i.Inspector||'—'}</td>
+        <td><span class="badge badge-${statusColor(i.Status)}">${i.Status||'Draft'}</span></td>
+        <td><button class="btn-icon btn-sm" onclick="viewInspection('${i._spId}')"><i class="ti ti-eye"></i></button></td>
+      </tr>`;
+    }).join('') : `<tr><td colspan="9" class="empty-state">No inspections found</td></tr>`}</tbody>
+  </table>
+</div>`;
+}
+
+function viewInspection(spId) {
+  const insp = appData.inspections.find(i => i._spId === spId);
+  if (!insp) return;
+  toast('View inspection — coming soon', 'info');
+}
+
+// ===== NEW INSPECTION =====
+let niFindings = [];
+
+VIEW_RENDERERS['new-inspection'] = function(el) {
+  niFindings = [];
+  const farms = getFarms();
+  const uploadKey = 'insp-' + Date.now().toString(36);
+
+  el.innerHTML = `
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-building-factory-2"></i>WTG & Site Data</div>
+  <div id="ni-autofill-banner" class="alert alert-success" style="display:none"><i class="ti ti-check"></i><span id="ni-autofill-msg"></span></div>
+  <div class="form-row cols-2">
+    <div class="field"><label class="req">Wind Farm</label>
+      <select id="ni-farm" onchange="niSelectFarm(this.value)">
+        <option value="">— Select wind farm —</option>
+        ${farms.map(f=>`<option>${f}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field"><label class="req">Turbine / WTG ID</label>
+      <select id="ni-wtg" onchange="niSelectWTG(this.value)">
+        <option value="">— Select farm first —</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-row cols-4">
+    <div class="field"><label>OEM</label><input id="ni-oem" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>Model</label><input id="ni-model" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>Blade Type</label><input id="ni-btype" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>Hub Height (m)</label><input id="ni-hub" style="background:rgba(37,99,235,.04)"></div>
+  </div>
+  <div class="form-row cols-4">
+    <div class="field"><label class="req">Blade Position</label>
+      <select id="ni-blade" onchange="niSelectBlade(this.value)">
+        <option value="">Select…</option>
+        <option>Blade A (0°)</option><option>Blade B (120°)</option><option>Blade C (240°)</option>
+      </select>
+    </div>
+    <div class="field"><label>Blade Serial</label><input id="ni-blade-serial" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>State</label><input id="ni-state" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>City</label><input id="ni-city" style="background:rgba(37,99,235,.04)"></div>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-search"></i>Inspection Details</div>
+  <div class="form-row cols-4">
+    <div class="field"><label class="req">Start Date</label><input type="date" id="ni-date" value="${today()}"></div>
+    <div class="field"><label>End Date</label><input type="date" id="ni-date-end" value="${today()}"></div>
+    <div class="field"><label class="req">Service Company</label><input id="ni-company" value="ProTech Access Pty Ltd"></div>
+    <div class="field"><label class="req">Technician(s)</label><input id="ni-techs" placeholder="Names, comma separated"></div>
+  </div>
+  <div class="form-row cols-4">
+    <div class="field"><label>Access Method</label>
+      <select id="ni-access">
+        <option>Rope Access (Abseiling)</option><option>Drone / UAV (Visual)</option>
+        <option>Drone / UAV (Thermal)</option><option>Hydraulic Platform</option>
+        <option>Internal Inspection</option><option>Rope + Drone Combo</option>
+      </select>
+    </div>
+    <div class="field"><label>Wind Speed (m/s)</label><input type="number" step=".1" id="ni-wind"></div>
+    <div class="field"><label>Temperature (°C)</label><input type="number" id="ni-temp"></div>
+    <div class="field"><label>Humidity (%RH)</label><input type="number" id="ni-rh"></div>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-title" style="justify-content:space-between">
+    <span><i class="ti ti-map-pin"></i>Findings</span>
+    <button class="btn btn-secondary btn-sm" onclick="addNiFinding()"><i class="ti ti-plus"></i>Add Finding</button>
+  </div>
+  <div style="font-size:12px;color:var(--tx3);margin-bottom:10px">Record each finding with category, DF from/to (m), PD%, side/edge and description.</div>
+  <div id="ni-findings-list">
+    <div class="empty-state" style="padding:20px"><p>No findings added yet</p></div>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-note"></i>General Notes</div>
+  <textarea id="ni-notes" rows="3" placeholder="General observations, environmental conditions, access notes…"></textarea>
+</div>
+
+${renderUploadWidget(uploadKey, 'Field Evidence / Photos')}
+
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+  <button class="btn btn-secondary" onclick="niFindings=[];showView('inspections')">Cancel</button>
+  <div style="flex:1"></div>
+  <button class="btn btn-secondary" onclick="saveInspection('Repair Required')">Save & Flag for Repair</button>
+  <button class="btn btn-primary" onclick="saveInspection('QA Review')"><i class="ti ti-send"></i>Submit for QA</button>
+</div>`;
+};
+
+function niSelectFarm(farm, cb) {
+  const wtgs = appData.registry.filter(r => r.WindFarm === farm);
+  const farmData = getFarmData(farm);
+  const sel = document.getElementById('ni-wtg');
+  if (!sel) return;
+  sel.innerHTML = wtgs.length
+    ? `<option value="">— Select turbine —</option>${wtgs.map(w=>`<option value="${w.WTGID}">${w.WTGID}</option>`).join('')}`
+    : `<option value="">No turbines — select manually</option>`;
+  if (farmData) {
+    sv('ni-oem', farmData.OEM); sv('ni-btype', farmData.BladeType);
+    sv('ni-state', farmData.State); sv('ni-city', farmData.City);
+  }
+  if (cb) cb();
+}
+
+function niSelectWTG(wtgId) {
+  const farm = gv('ni-farm');
+  const rec = appData.registry.find(r => r.WindFarm === farm && r.WTGID === wtgId);
+  const farmData = getFarmData(farm);
+  if (rec || farmData) {
+    const data = rec || farmData;
+    sv('ni-oem', data.OEM); sv('ni-model', data.TurbineModel||data.model);
+    sv('ni-btype', data.BladeType||data.bladeType); sv('ni-hub', data.HubHeight||data.hub);
+    sv('ni-state', data.State||data.state); sv('ni-city', data.City||data.city);
+    const banner = document.getElementById('ni-autofill-banner');
+    const msg = document.getElementById('ni-autofill-msg');
+    if (banner && msg) { msg.textContent = ` Auto-filled: ${farm} / ${wtgId}`; banner.style.display='flex'; }
+  }
+}
+
+function niSelectBlade(blade) {
+  const farm = gv('ni-farm'), wtg = gv('ni-wtg');
+  const rec = appData.registry.find(r => r.WindFarm === farm && r.WTGID === wtg);
+  if (rec) {
+    const b = blade.includes('A') ? 'BladeASerial' : blade.includes('B') ? 'BladeBSerial' : 'BladeCSerial';
+    sv('ni-blade-serial', rec[b] || '');
+  }
+}
+
+function addNiFinding() {
+  niFindings.push({ sev:2, dfFrom:'', dfTo:'', pdFrom:'', pdTo:'', side:'LE', amount:'', desc:'', comments:'' });
+  refreshNiFindings();
+}
+
+function refreshNiFindings() {
+  const el = document.getElementById('ni-findings-list');
+  if (!el) return;
+  if (!niFindings.length) { el.innerHTML = `<div class="empty-state" style="padding:20px"><p>No findings added yet</p></div>`; return; }
+  el.innerHTML = niFindings.map((f,i) => `
+  <div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ${catColor(f.sev)};border-radius:8px;padding:14px;margin-bottom:10px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      <div class="cat-badge cat-${f.sev}">${f.sev}</div>
+      <strong>Finding ${String(i+1).padStart(2,'0')}</strong>
+      <select onchange="niFindings[${i}].sev=+this.value;refreshNiFindings()" style="width:auto;font-size:12px">
+        ${[1,2,3,4,5].map(n=>`<option value="${n}" ${f.sev===n?'selected':''}>Cat ${n} — ${['Very Low','Low','Medium','High','Very High'][n-1]}</option>`).join('')}
+      </select>
+      <button class="btn-ghost btn-xs" style="margin-left:auto;color:var(--red)" onclick="niFindings.splice(${i},1);refreshNiFindings()"><i class="ti ti-x"></i> Remove</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:10px">
+      <div class="field"><label style="font-size:10px">DF from (m)</label><input type="number" step=".1" placeholder="0.0" value="${f.dfFrom}" oninput="niFindings[${i}].dfFrom=this.value" style="font-size:12px;padding:5px 8px"></div>
+      <div class="field"><label style="font-size:10px">DF to (m)</label><input type="number" step=".1" placeholder="0.0" value="${f.dfTo}" oninput="niFindings[${i}].dfTo=this.value" style="font-size:12px;padding:5px 8px"></div>
+      <div class="field"><label style="font-size:10px">PD from (%)</label><input type="number" min="0" max="100" placeholder="0" value="${f.pdFrom}" oninput="niFindings[${i}].pdFrom=this.value" style="font-size:12px;padding:5px 8px"></div>
+      <div class="field"><label style="font-size:10px">PD to (%)</label><input type="number" min="0" max="100" placeholder="100" value="${f.pdTo}" oninput="niFindings[${i}].pdTo=this.value" style="font-size:12px;padding:5px 8px"></div>
+      <div class="field"><label style="font-size:10px">Side / Edge</label>
+        <select onchange="niFindings[${i}].side=this.value" style="font-size:12px;padding:5px 8px">
+          ${['LE','TE','PS','SS','LE+PS','LE+SS','TE+PS','TE+SS','Inside','Outside'].map(s=>`<option ${f.side===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label style="font-size:10px">Amount/Size</label><input placeholder="300×80mm" value="${f.amount}" oninput="niFindings[${i}].amount=this.value" style="font-size:12px;padding:5px 8px"></div>
+    </div>
+    <div class="field mb-8"><label style="font-size:11px">Description</label>
+      <textarea rows="2" placeholder="Describe the finding…" oninput="niFindings[${i}].desc=this.value" style="font-size:13px">${f.desc}</textarea>
+    </div>
+  </div>`).join('');
+}
+
+function catColor(n) {
+  return ['','var(--green)','var(--blue)','var(--amber)','var(--red)','#7f1d1d'][n] || 'var(--tx3)';
+}
+
+async function saveInspection(status) {
+  const farm = gv('ni-farm'), wtg = gv('ni-wtg');
+  if (!farm) { toast('Please select a wind farm', 'error'); return; }
+  const fields = {
+    WindFarm: farm, WTGID: wtg, OEM: gv('ni-oem'), TurbineModel: gv('ni-model'),
+    BladePosition: gv('ni-blade'), BladeSerial: gv('ni-blade-serial'),
+    BladeType: gv('ni-btype'), InspectionDate: gv('ni-date'),
+    Inspector: gv('ni-techs'), AccessMethod: gv('ni-access'),
+    WindSpeed: +gv('ni-wind')||null, Temperature: +gv('ni-temp')||null, Humidity: +gv('ni-rh')||null,
+    Status: status, FindingsJSON: JSON.stringify(niFindings), Notes: gv('ni-notes'),
+    ServiceCompany: gv('ni-company'),
+  };
+  try {
+    if (isDemo) {
+      appData.inspections.push({ ...fields, _spId: 'demo-' + Date.now() });
+    } else {
+      const created = await spCreateItem('INSP', fields);
+      appData.inspections.push(created);
+    }
+    niFindings = [];
+    updateBadges();
+    toast('Inspection saved successfully');
+    showView('inspections');
+  } catch(e) {
+    toast('Save failed: ' + e.message, 'error');
+  }
+}
+
+
+// ===== REPAIRS =====
+VIEW_RENDERERS['repairs'] = async function(el) {
+  el.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px"><div class="spinner"></div></div>`;
+  await loadData('repairs');
+  const reps = appData.repairs;
+  el.innerHTML = `
+<div class="filter-bar">
+  <div class="search-wrap"><i class="ti ti-search search-icon"></i>
+    <input placeholder="Search repairs…">
+  </div>
+  <button class="btn btn-primary btn-sm" onclick="showView('new-repair')"><i class="ti ti-plus"></i>New Repair Job</button>
+</div>
+<div class="data-table-wrap">
+  <table class="data-table">
+    <thead><tr><th>Site</th><th>Turbine</th><th>Type</th><th>Category</th><th>Lead Tech</th><th>Start Date</th><th>Status</th><th></th></tr></thead>
+    <tbody>${reps.length ? reps.slice().reverse().map(r=>`<tr>
+      <td>${r.WindFarm||'—'}</td>
+      <td class="font-mono text-sm">${r.WTGID||'—'}</td>
+      <td class="text-sm">${r.RepairType||'—'}</td>
+      <td><div class="cat-badge cat-${r.Category||1}" style="margin:0 auto">${r.Category||'?'}</div></td>
+      <td class="text-sm">${r.LeadTechnician||'—'}</td>
+      <td class="text-sm">${fmtDate(r.PlannedStart)}</td>
+      <td><span class="badge badge-${statusColor(r.Status)}">${r.Status||'Draft'}</span></td>
+      <td><button class="btn-icon btn-sm"><i class="ti ti-eye"></i></button></td>
+    </tr>`).join('') : `<tr><td colspan="8" class="empty-state">No repair jobs yet</td></tr>`}</tbody>
+  </table>
+</div>`;
+};
+
+VIEW_RENDERERS['new-repair'] = function(el) {
+  const farms = getFarms();
+  const uploadKey = 'rep-' + Date.now().toString(36);
+  el.innerHTML = `
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-tool"></i>Repair Job Details</div>
+  <div class="form-row cols-2">
+    <div class="field"><label>Linked Inspection</label>
+      <select id="nr-insp"><option value="">Select inspection…</option>
+        ${(appData.inspections||[]).map(i=>`<option value="${i._spId||''}">${i.WindFarm||''} — ${i.WTGID||''} (${fmtDate(i.InspectionDate||i.DateStart)})</option>`).join('')}
+      </select>
+    </div>
+    <div class="field"><label>Lead Technician</label>
+      <select id="nr-tech"><option value="">Select…</option>
+        ${(appData.team||[]).map(t=>`<option>${t.FullName||t.name||''}</option>`).join('')}
+      </select>
+    </div>
+  </div>
+  <div class="form-row cols-2">
+    <div class="field"><label>Wind Farm</label>
+      <select id="nr-farm" onchange="nrSelectFarm(this.value)">
+        <option value="">— Select —</option>
+        ${farms.map(f=>`<option>${f}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field"><label>Turbine ID</label>
+      <select id="nr-wtg"><option value="">— Select farm first —</option></select>
+    </div>
+  </div>
+  <div class="form-row cols-2">
+    <div class="field"><label>Repair Type</label>
+      <select id="nr-type">
+        <option>Cosmetic / Coating</option><option>Leading Edge Erosion Repair</option>
+        <option>Surface Laminate Repair</option><option>Structural Laminate Repair</option>
+        <option>Delamination Injection</option><option>Crack Arrest & Fill</option>
+        <option>Trailing Edge Repair</option><option>Root Region Repair</option>
+        <option>Lightning Strike Repair</option><option>Full Panel Replacement</option>
+      </select>
+    </div>
+    <div class="field"><label>Category</label>
+      <select id="nr-cat">
+        <option value="1">Category 1 — Very Low / Cosmetic</option>
+        <option value="2">Category 2 — Low / Minor</option>
+        <option value="3">Category 3 — Medium / Structural</option>
+        <option value="4">Category 4 — High / Major Structural</option>
+        <option value="5">Category 5 — Very High / Critical</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-row cols-2">
+    <div class="field"><label>Planned Start Date</label><input type="date" id="nr-start"></div>
+    <div class="field"><label>Est. Duration (hrs)</label><input type="number" id="nr-dur"></div>
+  </div>
+  <div class="field mb-12"><label>Repair Scope</label><textarea id="nr-scope" rows="3" placeholder="Describe the scope of work…"></textarea></div>
+</div>
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-thermometer"></i>Environmental & Cure Conditions</div>
+  <div class="alert alert-warn"><i class="ti ti-alert-triangle"></i>Verify: ambient temp ≥ 5°C, RH &lt; 70%, surface dry and clean before applying resin.</div>
+  <div class="form-row cols-3">
+    <div class="field"><label>Ambient Temp (°C)</label><input type="number" id="nr-temp"></div>
+    <div class="field"><label>Humidity (%RH)</label><input type="number" id="nr-rh"></div>
+    <div class="field"><label>Cure Method</label>
+      <select id="nr-cure"><option>Ambient Cure</option><option>Heat Blanket Assisted</option><option>UV Cure</option></select>
+    </div>
+  </div>
+</div>
+${renderUploadWidget(uploadKey, 'Repair Documents & Photos')}
+<div style="display:flex;gap:10px;margin-top:4px">
+  <button class="btn btn-secondary" onclick="showView('repairs')">Cancel</button>
+  <div style="flex:1"></div>
+  <button class="btn btn-primary" onclick="saveRepair()"><i class="ti ti-device-floppy"></i>Save Repair Job</button>
+</div>`;
+};
+
+function nrSelectFarm(farm) {
+  const wtgs = appData.registry.filter(r => r.WindFarm === farm);
+  const sel = document.getElementById('nr-wtg');
+  if (!sel) return;
+  sel.innerHTML = wtgs.length
+    ? `<option value="">— Select —</option>${wtgs.map(w=>`<option>${w.WTGID}</option>`).join('')}`
+    : `<option value="">No turbines registered</option>`;
+}
+
+async function saveRepair() {
+  const farm = gv('nr-farm');
+  if (!farm) { toast('Please select a wind farm', 'error'); return; }
+  const fields = {
+    WindFarm: farm, WTGID: gv('nr-wtg'), LinkedInspectionID: gv('nr-insp'),
+    RepairType: gv('nr-type'), Category: gv('nr-cat'), LeadTechnician: gv('nr-tech'),
+    PlannedStart: gv('nr-start'), EstDuration: +gv('nr-dur')||null,
+    Scope: gv('nr-scope'), CureMethod: gv('nr-cure'),
+    AmbientTemp: +gv('nr-temp')||null, Humidity: +gv('nr-rh')||null,
+    Status: 'Field Capture',
+  };
+  try {
+    if (isDemo) {
+      appData.repairs.push({ ...fields, _spId: 'demo-' + Date.now() });
+    } else {
+      const created = await spCreateItem('REP', fields);
+      appData.repairs.push(created);
+    }
+    updateBadges();
+    toast('Repair job saved');
+    showView('repairs');
+  } catch(e) {
+    toast('Save failed: ' + e.message, 'error');
+  }
+}
+
+// ===== QA PIPELINE =====
+VIEW_RENDERERS['qa'] = async function(el) {
+  await loadData('inspections');
+  const pending = appData.inspections.filter(i => i.Status === 'QA Review');
+  el.innerHTML = `
+<div style="font-size:13px;color:var(--tx2);margin-bottom:16px">${pending.length} inspection${pending.length!==1?'s':''} awaiting QA review.</div>
+${pending.length ? pending.map(i => {
+  let finds = [];
+  try { finds = JSON.parse(i.FindingsJSON||'[]'); } catch {}
+  return `<div class="card mb-12">
+    <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">${i.WindFarm||'—'} · ${i.WTGID||'—'} · ${i.BladePosition||'—'}</div>
+        <div class="text-sm text-muted">OEM: ${i.OEM||'—'} | Inspector: ${i.Inspector||'—'} | Date: ${fmtDate(i.InspectionDate)}</div>
+        <div class="text-sm text-muted mt-8">${finds.length} finding${finds.length!==1?'s':''} ${finds.length ? '| Max Cat: '+Math.max(...finds.map(f=>f.sev||0)) : ''}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="btn btn-green btn-sm" onclick="qaAction('${i._spId}','Approved')"><i class="ti ti-check"></i>Approve</button>
+        <button class="btn btn-danger btn-sm" onclick="qaAction('${i._spId}','Repair Required')"><i class="ti ti-x"></i>Reject</button>
+      </div>
+    </div>
+  </div>`;
+}).join('') : `<div class="empty-state"><div class="empty-icon"><i class="ti ti-check"></i></div><p>No inspections awaiting review</p></div>`}`;
+};
+
+async function qaAction(spId, status) {
+  const i = appData.inspections.find(x => x._spId === spId);
+  if (!i) return;
+  try {
+    if (!isDemo) await spUpdateItem('INSP', spId, { Status: status });
+    i.Status = status;
+    updateBadges();
+    toast(`Inspection ${status}`);
+    showView('qa');
+  } catch(e) {
+    toast('Update failed: ' + e.message, 'error');
+  }
+}
+
+// ===== REPAIR PROCEDURES =====
+const PROCEDURES = [
+  { id:'LEE', title:'Leading Edge Erosion Repair', cat:'LE Erosion', time:'4–8h',
+    steps:['Inspect full LE span — mark Cat and extent','Surface prepare: dry sand to sound substrate (80→120 grit)','Degrease with acetone, final wipe with IPA','Apply filler compound (3M D4-DB+ or W4700) — tool to profile','Cure per manufacturer data sheet','Sand to blade contour (120→240 grit)','Apply primer — 1 coat, 40–60µm DFT','Apply topcoat RAL7035 — min 2 coats, 80µm total DFT','Apply LEP tape or coating over repaired zone + 100mm each side','Inspect DFT and visual before sign-off'] },
+  { id:'DI', title:'Delamination Injection Repair', cat:'Structural', time:'6–12h',
+    steps:['Tap test to define void boundary — mark with chalk','Drill injection ports 50–75mm spacing on void perimeter (4–6mm bit)','Clean ports with IPA','Mix resin system per data sheet — record batch and expiry','Inject resin at lowest port — continue until adjacent port runs clear','Seal each filled port with putty','Vacuum bag or clamp to 0.8–1 bar for cure duration','Post-cure per data sheet','Grind flush — sand 80→240','Inspect tap test to confirm consolidation'] },
+  { id:'SLR', title:'Surface Laminate Repair', cat:'Structural', time:'8–16h',
+    steps:['Grind to sound laminate — taper 1:50 scarfed chamfer','Degrease and final wipe IPA','Cut dry fibre packs to scarf dimensions — label each layer','Mix infusion resin — record batch, expiry, pot life start','Lay up dry fibres in correct orientation sequence','Apply peel ply, infusion mesh, vacuum bag — check integrity','Infuse resin — monitor fill and cure','Post-cure per OEM RI requirement','Remove bag, peel ply — tap test void check','Grind, sand, prime, topcoat, LEP if in LE zone'] },
+  { id:'TE', title:'Trailing Edge Repair', cat:'TE', time:'4–10h',
+    steps:['Clean TE — remove loose bond line material','Grind bond faces to clean laminate both sides','Degrease and wipe dry','Mix adhesive (Sikadur 330 or DP490) — record batch','Apply adhesive to both bond faces','Clamp with spring clamps or tape — maintain bond gap <3mm','Cure minimum 24h ambient or per data sheet','Remove clamps — inspect bond line','Grind flush','Coat repair zone with topcoat system'] },
+  { id:'LEP', title:'LEP Tape Application', cat:'LE Protection', time:'2–4h',
+    steps:['Clean LE surface — degrease fully with acetone then IPA','Sand lightly with 240 grit if required for adhesion','Remove tape liner — handle with clean gloves only','Apply from tip towards root — maintain tension, no creases','Overlap joints 20mm minimum','Squeegee firmly — remove all air bubbles','Inspect edge adhesion — re-press any lifting edges','Apply end caps at root termination'] },
+  { id:'LPS', title:'Lightning Protection System Repair', cat:'LPS', time:'4–8h',
+    steps:['Document pre-work LPS resistance measurements per NALL03_IR or OEM equivalent','Identify damaged receptor, bonding, or cable','Replace damaged component with OEM-approved part','Torque bolts to OEM specification','Perform post-work resistance measurements','All values must be <50mΩ per measurement point','Document measurements in inspection report','Obtain OEM sign-off if structural damage involved'] },
+];
+
+VIEW_RENDERERS['procedures'] = function(el) {
+  el.innerHTML = `
+<div class="report-grid">
+  ${PROCEDURES.map(p => `
+  <div class="report-card" onclick="showProcedure('${p.id}')">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <span class="badge badge-blue">${p.cat}</span>
+      <span class="text-sm text-muted"><i class="ti ti-clock"></i> ${p.time}</span>
+    </div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:6px">${p.title}</div>
+    <div class="text-sm text-muted">${p.steps.length} steps</div>
+    <div style="margin-top:12px;color:var(--blue);font-size:12px;font-weight:600">View Procedure →</div>
+  </div>`).join('')}
+</div>`;
+};
+
+function showProcedure(id) {
+  const p = PROCEDURES.find(x => x.id === id);
+  if (!p) return;
+  const el = document.getElementById('content');
+  el.innerHTML = `
+<div style="margin-bottom:16px">
+  <button class="btn btn-secondary btn-sm" onclick="showView('procedures')"><i class="ti ti-arrow-left"></i>Back</button>
+</div>
+<div class="card">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <span class="badge badge-blue">${p.cat}</span>
+    <h2 style="font-size:18px;font-weight:800;flex:1">${p.title}</h2>
+    <span class="text-sm text-muted"><i class="ti ti-clock"></i> ${p.time}</span>
+  </div>
+  <ol style="padding-left:20px">
+    ${p.steps.map((s,i) => `<li style="padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.6">
+      <span style="font-weight:600;color:var(--blue);margin-right:8px">${i+1}.</span>${s}
+    </li>`).join('')}
+  </ol>
+</div>`;
+}
+
+
+// ===== MATERIALS =====
+let matFilter = { q:'', cat:'All' };
+const MAT_CATS = ['All','Resin / Hardener','Structural Adhesive','Filler / Putty','Coating / Primer','LEP System','Core Material','Consumable','NDT Equipment','Tool / Equipment','PPE / Safety'];
+const CAT_COLORS = {'Resin / Hardener':'#7c3aed','Structural Adhesive':'#dc2626','Filler / Putty':'#d97706','Coating / Primer':'#16a34a','LEP System':'#0891b2','Core Material':'#2563eb','Consumable':'#6b7280','NDT Equipment':'#1e40af','Tool / Equipment':'#374151','PPE / Safety':'#b45309'};
+
+VIEW_RENDERERS['materials'] = async function(el) {
+  el.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px"><div class="spinner"></div></div>`;
+  await loadData('materials');
+  renderMaterialsView(el);
+};
+
+function renderMaterialsView(el) {
+  const mats = appData.materials;
+  const inStock = mats.filter(m => (m.StockQty||0) > (m.ReorderLevel||0)).length;
+  const lowStock = mats.filter(m => (m.StockQty||0) <= (m.ReorderLevel||0) && (m.StockQty||0) > 0).length;
+  const outStock = mats.filter(m => (m.StockQty||0) === 0).length;
+  const suppliers = new Set(mats.map(m => m.Supplier).filter(Boolean)).size;
+
+  const filtered = mats.filter(m => {
+    if (matFilter.cat !== 'All' && m.Category !== matFilter.cat) return false;
+    if (matFilter.q) {
+      const q = matFilter.q.toLowerCase();
+      if (![m.MaterialName,m.PartNo,m.Supplier].some(v=>(v||'').toLowerCase().includes(q))) return false;
+    }
+    return true;
+  });
+
+  el.innerHTML = `
+<div class="stat-grid" style="grid-template-columns:repeat(6,1fr)">
+  <div class="stat-card"><div class="stat-val">${mats.length}</div><div class="stat-lbl">Total Items</div><div class="stat-sub">In library</div></div>
+  <div class="stat-card" style="--accent:var(--green)"><div class="stat-val">${inStock}</div><div class="stat-lbl">In Stock</div><div class="stat-sub">Above reorder</div></div>
+  <div class="stat-card" style="--accent:var(--amber)"><div class="stat-val">${lowStock}</div><div class="stat-lbl">Low Stock</div><div class="stat-sub">At or below reorder</div></div>
+  <div class="stat-card" style="--accent:var(--red)"><div class="stat-val">${outStock}</div><div class="stat-lbl">Out of Stock</div><div class="stat-sub">Qty = 0</div></div>
+  <div class="stat-card" style="--accent:var(--blue)"><div class="stat-val">${suppliers}</div><div class="stat-lbl">Suppliers</div><div class="stat-sub">Unique vendors</div></div>
+  <div class="stat-card" style="--accent:var(--purple)"><div class="stat-val">${MAT_CATS.length-1}</div><div class="stat-lbl">Categories</div><div class="stat-sub">Material types</div></div>
+</div>
+
+<div class="tabs" style="flex-wrap:wrap">
+  ${MAT_CATS.map(c => `<div class="tab ${matFilter.cat===c?'active':''}" onclick="matFilter.cat='${c}';renderMaterialsView(document.getElementById('content'))">${c}</div>`).join('')}
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+  <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3)">${matFilter.cat==='All'?'ALL MATERIALS':matFilter.cat} · ${filtered.length} item${filtered.length!==1?'s':''}</div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <div class="search-wrap" style="width:260px"><i class="ti ti-search search-icon"></i>
+      <input placeholder="Search name, part no., supplier…" value="${matFilter.q}" oninput="matFilter.q=this.value;renderMaterialsView(document.getElementById('content'))">
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="openMatModal()"><i class="ti ti-plus"></i>Add item</button>
+  </div>
+</div>
+
+<div class="data-table-wrap">
+  <table class="data-table">
+    <thead><tr><th>Material / Description</th><th>Part No.</th><th>Supplier</th><th>Category</th><th>Stock</th><th>Reorder</th><th>Mix Ratio</th><th style="width:40px"></th></tr></thead>
+    <tbody>${filtered.length ? filtered.map(m => {
+      const low = (m.StockQty||0) <= (m.ReorderLevel||0);
+      const out = (m.StockQty||0) === 0;
+      const color = CAT_COLORS[m.Category] || '#6b7280';
+      return `<tr>
+        <td style="max-width:360px">
+          <div style="font-weight:600">${m.MaterialName||'—'}</div>
+          ${m.AppNotes ? `<div class="text-sm text-muted truncate" style="max-width:340px">${(m.AppNotes||'').substring(0,100)}${(m.AppNotes||'').length>100?'…':''}</div>` : ''}
+          ${m.PotLife||m.CureTime ? `<div style="font-size:10px;color:var(--tx4)">${m.PotLife?'Pot: '+m.PotLife:''}${m.PotLife&&m.CureTime?' · ':''}${m.CureTime?'Cure: '+m.CureTime:''}</div>` : ''}
+        </td>
+        <td class="font-mono text-sm">${m.PartNo||'—'}</td>
+        <td class="text-sm">${m.Supplier||'—'}</td>
+        <td><span style="background:${color};color:#fff;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700">${(m.Category||'—').toUpperCase()}</span></td>
+        <td style="font-weight:700;color:${out?'var(--red)':low?'var(--amber)':'var(--tx1)'}">${m.StockQty||0} <span style="font-size:11px;font-weight:400;color:var(--tx4)">${m.Unit||''}</span></td>
+        <td class="text-sm text-muted">${m.ReorderLevel||0}</td>
+        <td class="text-sm">${m.MixRatio||'—'}</td>
+        <td><button class="btn-icon btn-xs" onclick="editMat('${m._spId}')"><i class="ti ti-edit"></i></button></td>
+      </tr>`;
+    }).join('') : `<tr><td colspan="8" class="empty-state">No materials found</td></tr>`}</tbody>
+  </table>
+</div>`;
+}
+
+function openMatModal(spId) {
+  const m = spId ? appData.materials.find(x => x._spId === spId) : null;
+  toast('Material editor coming soon — edit items directly in SharePoint PT_Materials list', 'info', 4000);
+}
+function editMat(spId) { openMatModal(spId); }
+
+// ===== REINFORCEMENTS =====
+VIEW_RENDERERS['reinforcements'] = async function(el) {
+  el.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px"><div class="spinner"></div></div>`;
+  await loadData('fabrics');
+  const fabs = appData.fabrics;
+  el.innerHTML = `
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+  <div style="font-size:13px;color:var(--tx2)">${fabs.length} fabrics in library</div>
+  <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i>Add Fabric</button>
+</div>
+<div class="data-table-wrap">
+  <table class="data-table">
+    <thead><tr><th>Fabric</th><th>Part Code</th><th>Fibre Type</th><th>Construction</th><th>Orientation</th><th>Areal Weight</th><th>Roll Width</th><th>Stock</th><th>Supplier</th><th>OEM Approvals</th></tr></thead>
+    <tbody>${fabs.length ? fabs.map(f=>`<tr>
+      <td><div style="font-weight:600">${f.FabricName||'—'}</div>${f.AppNotes?`<div class="text-sm text-muted">${(f.AppNotes||'').substring(0,60)}…</div>`:''}</td>
+      <td class="font-mono text-sm">${f.PartCode||'—'}</td>
+      <td><span class="badge badge-blue">${f.FibreType||'—'}</span></td>
+      <td class="text-sm">${f.Construction||'—'}</td>
+      <td class="text-sm">${f.Orientation||'—'}</td>
+      <td class="text-sm">${f.ArealWeight||'—'}${f.ArealWeight?'g/m²':''}</td>
+      <td class="text-sm">${f.RollWidth||'—'}${f.RollWidth?'mm':''}</td>
+      <td style="font-weight:700">${f.StockQty||0} <span class="text-sm text-muted">m</span></td>
+      <td class="text-sm">${f.Supplier||'—'}</td>
+      <td class="text-sm">${f.OEMApprovals||'—'}</td>
+    </tr>`).join('') : `<tr><td colspan="10" class="empty-state">No fabrics in library</td></tr>`}</tbody>
+  </table>
+</div>`;
+};
+
+// ===== AUSTRALIAN TURBINES =====
+const AUS_DB = [
+  {oem:'Acciona',model:'AW-3000/116',mw:3.0,rotor:116,blade:56.5,hub:100,bladeType:'Acciona B56.5',states:['VIC'],farms:[{name:'Mount Gellibrand WF',state:'VIC',n:34,mw:132},{name:'Waubra Wind Farm',state:'VIC',n:128,mw:192}]},
+  {oem:'Acciona',model:'AW-1500/77',mw:1.5,rotor:77,blade:37.5,hub:61,bladeType:'AW77 Blade',states:['SA'],farms:[{name:'Hallett Wind Farm',state:'SA',n:45,mw:95},{name:'North Brown Hill WF',state:'SA',n:35,mw:132}]},
+  {oem:'Acciona',model:'AW-1500/82',mw:1.5,rotor:82,blade:40.3,hub:70,bladeType:'AW82 Blade',states:['SA'],farms:[{name:'Clements Gap WF',state:'SA',n:22,mw:57},{name:'Palmer Wind Farm',state:'SA',n:28,mw:63}]},
+  {oem:'Enercon',model:'E-70',mw:2.0,rotor:70,blade:35,hub:64,bladeType:'E-70 Rotor Blade',states:['VIC'],farms:[{name:'Hepburn Community WF',state:'VIC',n:2,mw:4}]},
+  {oem:'Enercon',model:'E-82 E2',mw:2.0,rotor:82,blade:40.3,hub:108,bladeType:'E-82 Rotor Blade',states:['SA'],farms:[{name:'Mount Millar Wind Farm',state:'SA',n:35,mw:70}]},
+  {oem:'GE Vernova',model:'GE 6.0-164',mw:6.0,rotor:164,blade:80.1,hub:157,bladeType:'GE LM 80.1 P',states:['NSW'],farms:[{name:'Uungula Wind Farm',state:'NSW',n:69,mw:414}]},
+  {oem:'GE Vernova',model:'GE 4.x-158',mw:4.8,rotor:158,blade:77.2,hub:130,bladeType:'LM 77.3 P',states:['SA'],farms:[{name:'Goyder South Stage 1A',state:'SA',n:36,mw:209},{name:'Goyder South Stage 1B',state:'SA',n:35,mw:203}]},
+  {oem:'GE Vernova',model:'GE 3.x-130',mw:3.2,rotor:130,blade:63.3,hub:110,bladeType:'LM 61.5 P',states:['SA','VIC'],farms:[{name:'Willogoleche WF',state:'SA',n:40,mw:119},{name:'Murra Warra II',state:'VIC',n:43,mw:209}]},
+  {oem:'GE Vernova',model:'Cypress 5.3-158',mw:5.3,rotor:158,blade:77,hub:110,bladeType:'GE 77m Blade',states:['VIC'],farms:[{name:'Murra Warra Wind Farm',state:'VIC',n:80,mw:226}]},
+  {oem:'GE Vernova',model:'GE 2.x-107',mw:2.75,rotor:107,blade:52.1,hub:84,bladeType:'LM 50.8 P',states:['VIC','QLD'],farms:[{name:'Ararat Wind Farm',state:'VIC',n:75,mw:242},{name:'Coopers Gap WF',state:'QLD',n:123,mw:453}]},
+  {oem:'GE Vernova',model:'GE 2.0-110',mw:2.0,rotor:110,blade:53.5,hub:85,bladeType:'LM 53.5 P',states:['VIC'],farms:[{name:'Stockyard Hill WF (old)',state:'VIC',n:0,mw:0}]},
+  {oem:'GE Vernova',model:'GE 1.6-100',mw:1.6,rotor:100,blade:48.7,hub:85,bladeType:'LM 48.7 P',states:['NSW'],farms:[{name:'Gullen Range Wind Farm',state:'NSW',n:73,mw:166}]},
+  {oem:'Goldwind',model:'GW 2.5-121',mw:2.5,rotor:121,blade:59.5,hub:90,bladeType:'GW-B59.5',states:['VIC','NSW'],farms:[{name:'Stockyard Hill Wind Farm',state:'VIC',n:149,mw:530},{name:'Sapphire Wind Farm',state:'NSW',n:75,mw:270}]},
+  {oem:'Nordex',model:'N163/5.X',mw:5.7,rotor:163,blade:80,hub:120,bladeType:'NDB 80',states:['SA','VIC'],farms:[{name:'Goyder South WF',state:'SA',n:108,mw:412},{name:'Murra Warra I',state:'VIC',n:80,mw:226}]},
+  {oem:'Nordex',model:'N149/4000',mw:4.0,rotor:149,blade:73.5,hub:105,bladeType:'NDB 73.5',states:['SA'],farms:[{name:'Robertstown Wind Farm',state:'SA',n:54,mw:216}]},
+  {oem:'Nordex',model:'N131/3000',mw:3.0,rotor:131,blade:64.5,hub:99,bladeType:'NDB 64.5',states:['NSW','QLD'],farms:[{name:'Boco Rock Wind Farm',state:'NSW',n:67,mw:113},{name:'Crudine Ridge WF',state:'NSW',n:37,mw:135}]},
+  {oem:'Nordex',model:'N117/2400',mw:2.4,rotor:117,blade:57.5,hub:91,bladeType:'NDB 57.5',states:['QLD'],farms:[{name:'Haughton WF',state:'QLD',n:26,mw:57}]},
+  {oem:'Siemens Gamesa',model:'SG 3.4-130',mw:3.4,rotor:130,blade:63.5,hub:100,bladeType:'IntegralBlade B63',states:['TAS'],farms:[{name:'Cattle Hill Wind Farm',state:'TAS',n:48,mw:148},{name:'Granville Harbour WF',state:'TAS',n:33,mw:112}]},
+  {oem:'Siemens Gamesa',model:'SG 3.4-132',mw:3.4,rotor:132,blade:64,hub:110,bladeType:'IntegralBlade B64',states:['NSW','VIC'],farms:[{name:'Hillgrove Wind Farm',state:'NSW',n:44,mw:150},{name:'Lal Lal Wind Farm',state:'VIC',n:66,mw:228}]},
+  {oem:'Siemens Gamesa',model:'SWT-3.0-108',mw:3.0,rotor:108,blade:52.5,hub:80,bladeType:'B52.5 / SWT-3.0',states:['SA','TAS'],farms:[{name:'Hornsdale Wind Farm',state:'SA',n:99,mw:315},{name:'Musselroe Wind Farm',state:'TAS',n:56,mw:168}]},
+  {oem:'Siemens Gamesa',model:'SWT-2.3-93',mw:2.3,rotor:93,blade:45,hub:80,bladeType:'B45 / SWT-2.3',states:['SA','VIC'],farms:[{name:'Snowtown Stage 2',state:'SA',n:90,mw:270},{name:'Mt Mercer Wind Farm',state:'VIC',n:64,mw:131}]},
+  {oem:'Vestas',model:'V150-4.5MW',mw:4.5,rotor:150,blade:73.7,hub:105,bladeType:'V150 Blade',states:['QLD','NSW'],farms:[{name:'MacIntyre Wind Farm',state:'QLD',n:180,mw:923},{name:'Clarke Creek WF',state:'QLD',n:70,mw:287},{name:'Maidenwell WF',state:'QLD',n:48,mw:192},{name:'Kaban Green Power Hub',state:'QLD',n:43,mw:157},{name:'Rye Park Wind Farm',state:'NSW',n:80,mw:396}]},
+  {oem:'Vestas',model:'V150-4.2MW',mw:4.2,rotor:150,blade:73.7,hub:105,bladeType:'V150 Blade',states:['VIC'],farms:[{name:'Dundonnell Wind Farm',state:'VIC',n:80,mw:336}]},
+  {oem:'Vestas',model:'V136-3.45MW',mw:3.45,rotor:136,blade:66.7,hub:112,bladeType:'V136 Blade',states:['QLD','WA','VIC','TAS'],farms:[{name:'Coopers Gap WF',state:'QLD',n:123,mw:453},{name:'Warradarge WF',state:'WA',n:51,mw:231},{name:'Badgingarra WF',state:'WA',n:43,mw:130},{name:'Granville Harbour WF',state:'TAS',n:33,mw:112}]},
+  {oem:'Vestas',model:'V126-3.45MW',mw:3.45,rotor:126,blade:61.7,hub:87,bladeType:'V126 Blade',states:['NSW','VIC','QLD'],farms:[{name:'Bodangora WF',state:'NSW',n:33,mw:113},{name:'White Rock WF',state:'NSW',n:55,mw:175},{name:'Crudine Ridge WF',state:'NSW',n:37,mw:135},{name:'Mt Emerald WF',state:'QLD',n:53,mw:180}]},
+  {oem:'Vestas',model:'V117-3.3MW',mw:3.3,rotor:117,blade:57,hub:91,bladeType:'V117 Blade',states:['NSW'],farms:[{name:'Silverton Wind Farm',state:'NSW',n:58,mw:200}]},
+  {oem:'Vestas',model:'V112-3.0MW',mw:3.0,rotor:112,blade:54.6,hub:94,bladeType:'V112 Blade',states:['VIC'],farms:[{name:'Macarthur Wind Farm',state:'VIC',n:140,mw:420}]},
+  {oem:'Vestas',model:'V90-3.0MW',mw:3.0,rotor:90,blade:44,hub:80,bladeType:'LM 43.8P',states:['TAS','WA'],farms:[{name:'Woolnorth Wind Farm',state:'TAS',n:62,mw:140},{name:'Musselroe Wind Farm',state:'TAS',n:56,mw:168}]},
+  {oem:'Vestas',model:'V90-2.0MW',mw:2.0,rotor:90,blade:44,hub:80,bladeType:'LM 43.8P',states:['VIC','NSW','SA','WA'],farms:[{name:'Waubra Wind Farm',state:'VIC',n:128,mw:192},{name:'Capital Wind Farm',state:'NSW',n:48,mw:141},{name:'Waterloo Wind Farm',state:'SA',n:37,mw:111},{name:'Collgar Wind Farm',state:'WA',n:111,mw:222}]},
+  {oem:'Vestas',model:'V90-1.8MW',mw:1.8,rotor:90,blade:44,hub:80,bladeType:'LM 43.8P',states:['SA','WA'],farms:[{name:'Snowtown Stage 1',state:'SA',n:47,mw:99},{name:'Mumbida Wind Farm',state:'WA',n:22,mw:55}]},
+  {oem:'Vestas',model:'V82-1.65MW',mw:1.65,rotor:82,blade:40,hub:70,bladeType:'V82 Blade',states:['SA'],farms:[{name:'Cathedral Rocks WF',state:'SA',n:33,mw:66}]},
+  {oem:'Vestas',model:'V80-2.0MW',mw:2.0,rotor:80,blade:38.8,hub:60,bladeType:'LM 38.8P',states:['WA'],farms:[{name:'Emu Downs Wind Farm',state:'WA',n:48,mw:80}]},
+  {oem:'Vestas',model:'V66-1.75MW',mw:1.75,rotor:66,blade:33,hub:67,bladeType:'V66 Blade',states:['SA','TAS','WA'],farms:[{name:'Lake Bonney WF',state:'SA',n:46,mw:81},{name:'Canunda Wind Farm',state:'SA',n:23,mw:46},{name:'Bluff Point WF',state:'TAS',n:10,mw:18},{name:'Albany Wind Farm',state:'WA',n:12,mw:21}]},
+  {oem:'Vestas',model:'V47-660kW',mw:0.66,rotor:47,blade:23,hub:40,bladeType:'V47 Blade',states:['WA'],farms:[{name:'Alinta Wind Farm',state:'WA',n:8,mw:6}]},
+  {oem:'Vestas',model:'V44-600kW',mw:0.6,rotor:44,blade:21.2,hub:40,bladeType:'V44 Blade',states:['NSW','QLD'],farms:[{name:'Crookwell Wind Farm',state:'NSW',n:8,mw:5},{name:'Windy Hill WF',state:'QLD',n:20,mw:12}]},
+];
+
+let ausFilter = { oem:'All OEMs', q:'' };
+
+VIEW_RENDERERS['aus-turbines'] = function(el) {
+  const oems = ['All OEMs', ...new Set(AUS_DB.map(t=>t.oem))].sort((a,b)=>a==='All OEMs'?-1:a.localeCompare(b));
+  const filtered = AUS_DB.filter(t => {
+    if (ausFilter.oem !== 'All OEMs' && t.oem !== ausFilter.oem) return false;
+    if (ausFilter.q) {
+      const q = ausFilter.q.toLowerCase();
+      if (![t.model,t.oem,t.bladeType,...t.farms.map(f=>f.name)].some(v=>(v||'').toLowerCase().includes(q))) return false;
+    }
+    return true;
+  });
+
+  const totalFarms = new Set(AUS_DB.flatMap(t=>t.farms.filter(f=>f.n>0).map(f=>f.name))).size;
+  const totalCap = Math.round(AUS_DB.reduce((s,t)=>s+t.farms.reduce((a,f)=>a+(f.mw||0),0),0)/1000*10)/10;
+
+  el.innerHTML = `
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-val">${AUS_DB.length}</div><div class="stat-lbl">Turbine Models</div><div class="stat-sub">In database</div></div>
+  <div class="stat-card" style="--accent:var(--green)"><div class="stat-val">${totalFarms}</div><div class="stat-lbl">Wind Farms</div><div class="stat-sub">Australian sites</div></div>
+  <div class="stat-card" style="--accent:var(--amber)"><div class="stat-val">${new Set(AUS_DB.map(t=>t.oem)).size}</div><div class="stat-lbl">OEMs</div><div class="stat-sub">Manufacturers</div></div>
+  <div class="stat-card" style="--accent:var(--blue)"><div class="stat-val">${totalCap}</div><div class="stat-lbl">Total GW</div><div class="stat-sub">Documented capacity</div></div>
+  <div class="stat-card" style="--accent:var(--purple)"><div class="stat-val">6</div><div class="stat-lbl">States</div><div class="stat-sub">Jurisdictions</div></div>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px">
+  <div class="tabs" style="margin-bottom:0;border-bottom:none;flex-wrap:wrap">
+    ${oems.map(o=>`<div class="tab ${ausFilter.oem===o?'active':''}" onclick="ausFilter.oem='${o}';showView('aus-turbines')">${o}</div>`).join('')}
+  </div>
+  <div class="search-wrap" style="width:280px"><i class="ti ti-search search-icon"></i>
+    <input placeholder="Search model, farm, blade type…" value="${ausFilter.q}" oninput="ausFilter.q=this.value;showView('aus-turbines')">
+  </div>
+</div>
+<div style="font-size:12px;color:var(--tx3);margin-bottom:10px">${ausFilter.oem==='All OEMs'?'ALL OEMS':ausFilter.oem.toUpperCase()} · ${filtered.length} model${filtered.length!==1?'s':''}</div>
+<div class="data-table-wrap">
+  <table class="data-table">
+    <thead><tr><th>OEM</th><th>Model</th><th style="text-align:right">MW</th><th style="text-align:right">Rotor Ø</th><th style="text-align:right">Blade L</th><th style="text-align:right">Hub H</th><th>Blade Type</th><th>Australian Wind Farms</th></tr></thead>
+    <tbody>${filtered.map(t => {
+      const farms = t.farms.filter(f=>f.n>0);
+      const totalMW = farms.reduce((s,f)=>s+(f.mw||0),0);
+      return `<tr>
+        <td><span class="oem-pill oem-${oemClass(t.oem)}">${t.oem}</span><div style="font-size:10px;color:var(--tx4);margin-top:2px">${t.states.join('/')}</div></td>
+        <td style="font-weight:700">${t.model}</td>
+        <td style="text-align:right;font-weight:800;color:var(--orange)">${t.mw}</td>
+        <td style="text-align:right">${t.rotor}m</td>
+        <td style="text-align:right;font-weight:700">${t.blade}m</td>
+        <td style="text-align:right">${t.hub}m</td>
+        <td style="font-size:12px;color:var(--blue)">${t.bladeType}</td>
+        <td style="font-size:12px;max-width:300px">
+          ${farms.slice(0,3).map(f=>`<div style="padding:2px 0;border-bottom:1px solid var(--border)">• ${f.name} (${f.state}) — ${f.n} turbines, ${f.mw} MW</div>`).join('')}
+          ${farms.length>3?`<div style="color:var(--tx4);font-size:11px;padding-top:2px">+${farms.length-3} more</div>`:''}
+          ${totalMW?`<div style="font-size:11px;color:var(--tx4);margin-top:2px;font-weight:600">${totalMW.toLocaleString()} MW total AU</div>`:''}
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>
+</div>`;
+};
+
+
+// ===== SERIAL REGISTRY =====
+VIEW_RENDERERS['registry'] = async function(el) {
+  el.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px"><div class="spinner"></div></div>`;
+  await loadData('registry');
+  const regs = appData.registry;
+  let regQ = '';
+  function render() {
+    const filtered = regs.filter(r => !regQ || [r.WindFarm,r.WTGID,r.OEM,r.TurbineModel].some(v=>(v||'').toLowerCase().includes(regQ.toLowerCase())));
+    el.innerHTML = `
+<div class="filter-bar">
+  <div class="search-wrap"><i class="ti ti-search search-icon"></i>
+    <input placeholder="Search registry…" oninput="regQ_=this.value">
+  </div>
+  <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i>Add Turbine</button>
+</div>
+<div style="font-size:12px;color:var(--tx3);margin-bottom:10px">${filtered.length} turbines</div>
+<div class="data-table-wrap">
+  <table class="data-table">
+    <thead><tr><th>Wind Farm</th><th>WTG ID</th><th>OEM</th><th>Model</th><th>Blade Type</th><th>Blade L</th><th>Blade A Serial</th><th>Blade B Serial</th><th>Blade C Serial</th><th>State</th></tr></thead>
+    <tbody>${filtered.length ? filtered.slice(0,200).map(r=>`<tr>
+      <td>${r.WindFarm||'—'}</td>
+      <td class="font-mono text-sm">${r.WTGID||'—'}</td>
+      <td><span class="oem-pill oem-${oemClass(r.OEM)}">${r.OEM||'—'}</span></td>
+      <td class="text-sm">${r.TurbineModel||'—'}</td>
+      <td class="text-sm">${r.BladeType||'—'}</td>
+      <td class="text-sm">${r.BladeLength||'—'}${r.BladeLength?'m':''}</td>
+      <td class="font-mono text-sm">${r.BladeASerial||'—'}</td>
+      <td class="font-mono text-sm">${r.BladeBSerial||'—'}</td>
+      <td class="font-mono text-sm">${r.BladeCSerial||'—'}</td>
+      <td><span class="badge badge-grey">${r.State||'—'}</span></td>
+    </tr>`).join('') : `<tr><td colspan="10" class="empty-state">No turbines registered. Add turbines from the wind farm database or manually.</td></tr>`}</tbody>
+  </table>
+  ${filtered.length > 200 ? `<div style="padding:10px 14px;font-size:12px;color:var(--tx3)">Showing 200 of ${filtered.length} results — use search to filter</div>` : ''}
+</div>`;
+  }
+  render();
+};
+
+// ===== TEAM =====
+VIEW_RENDERERS['team'] = async function(el) {
+  await loadData('team');
+  const team = appData.team;
+  let teamTab = 'cards';
+  function render() {
+    const today_date = new Date();
+    function certStatus(certs) {
+      if (!certs) return 'grey';
+      try {
+        const arr = typeof certs === 'string' ? JSON.parse(certs) : certs;
+        const exp = arr.filter(c => new Date(c.expiry) < today_date);
+        const warn = arr.filter(c => {
+          const d = new Date(c.expiry);
+          return d >= today_date && (d - today_date) < 90*86400000;
+        });
+        if (exp.length) return 'red';
+        if (warn.length) return 'amber';
+        return 'green';
+      } catch { return 'grey'; }
+    }
+    el.innerHTML = `
+<div class="tabs">
+  <div class="tab ${teamTab==='cards'?'active':''}" onclick="teamTab='cards';renderTeam()">Team Cards</div>
+  <div class="tab ${teamTab==='certs'?'active':''}" onclick="teamTab='certs';renderTeam()">Certifications</div>
+</div>
+${teamTab === 'cards' ? `<div class="grid-3" style="gap:16px">
+  ${team.map(t => {
+    const name = t.FullName || t.name || '';
+    const initials = name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+    const cs = certStatus(t.CertsJSON||t.certs);
+    let certs = [];
+    try { certs = typeof (t.CertsJSON||t.certs)==='string' ? JSON.parse(t.CertsJSON||t.certs) : (t.CertsJSON||t.certs||[]); } catch {}
+    return `<div class="card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="width:44px;height:44px;border-radius:10px;background:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff">${initials}</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700">${name}</div>
+          <div class="text-sm text-muted">${t.Role||t.role||'—'}</div>
+        </div>
+        <div class="user-dot" style="width:10px;height:10px;background:${t.Availability==='mobilised'?'var(--amber)':t.Availability==='unavailable'?'var(--red)':'var(--green)'};border:none;position:static"></div>
+      </div>
+      <div class="text-sm mb-8"><i class="ti ti-mail" style="color:var(--tx4)"></i> ${t.Email||t.email||'—'}</div>
+      <div class="text-sm mb-12"><i class="ti ti-phone" style="color:var(--tx4)"></i> ${t.Phone||t.phone||'—'}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+        ${certs.slice(0,4).map(c => {
+          const exp = new Date(c.expiry);
+          const isExp = exp < today_date;
+          const isWarn = !isExp && (exp - today_date) < 90*86400000;
+          return `<span class="badge badge-${isExp?'red':isWarn?'amber':'green'}" style="font-size:10px">${c.name}${c.expiry?' exp '+fmtDate(c.expiry):''}</span>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('')}
+</div>` : `<div class="data-table-wrap">
+  <table class="data-table">
+    <thead><tr><th>Technician</th><th>Certification</th><th>Expiry</th><th>Status</th></tr></thead>
+    <tbody>${team.flatMap(t => {
+      let certs = [];
+      try { certs = typeof (t.CertsJSON||t.certs)==='string' ? JSON.parse(t.CertsJSON||t.certs) : (t.CertsJSON||t.certs||[]); } catch {}
+      return certs.map(c => {
+        const exp = new Date(c.expiry);
+        const isExp = exp < today_date;
+        const isWarn = !isExp && (exp - today_date) < 90*86400000;
+        return `<tr>
+          <td>${t.FullName||t.name||'—'}</td>
+          <td>${c.name||'—'}</td>
+          <td>${fmtDate(c.expiry)}</td>
+          <td><span class="badge badge-${isExp?'red':isWarn?'amber':'green'}">${isExp?'Expired':isWarn?'Expiring Soon':'Valid'}</span></td>
+        </tr>`;
+      });
+    }).join('')}</tbody>
+  </table>
+</div>`}`;
+  }
+  window.renderTeam = render;
+  render();
+};
+
+// ===== DAILY DIARY =====
+VIEW_RENDERERS['diary'] = async function(el) {
+  await loadData('diary');
+  const entries = appData.diary;
+  const farms = getFarms();
+  const uploadKey = 'diary-' + today().replace(/-/g,'');
+
+  el.innerHTML = `
+<div class="grid-2" style="gap:16px">
+  <div>
+    <div class="card mb-12">
+      <div class="card-hd"><div class="card-title"><i class="ti ti-notebook"></i> New Entry</div></div>
+      <div class="form-row cols-2">
+        <div class="field"><label class="req">Date</label><input type="date" id="dd-date" value="${today()}"></div>
+        <div class="field"><label class="req">Wind Farm</label>
+          <select id="dd-farm"><option value="">— Select —</option>${farms.map(f=>`<option>${f}</option>`).join('')}</select>
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="field"><label>Turbine</label><input id="dd-wtg" placeholder="WTG ID"></div>
+        <div class="field"><label>Job Ref</label><input id="dd-ref"></div>
+      </div>
+      <div class="field mb-12"><label>Technicians on site</label><input id="dd-techs" placeholder="Names, comma separated"></div>
+      <div class="section-title"><i class="ti ti-cloud"></i>Weather</div>
+      <div class="form-row cols-2" style="margin-bottom:6px">
+        <div style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;grid-column:1/-1">Morning</div>
+        <div class="field"><label>Temp (°C)</label><input type="number" id="dd-am-temp"></div>
+        <div class="field"><label>Humidity (%)</label><input type="number" id="dd-am-rh"></div>
+        <div class="field"><label>Wind (m/s)</label><input type="number" step=".1" id="dd-am-wind"></div>
+        <div class="field"><label>Conditions</label><input id="dd-am-cond" placeholder="Sunny, Partly cloudy…"></div>
+      </div>
+      <div class="form-row cols-2 mb-12">
+        <div style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;grid-column:1/-1">Afternoon</div>
+        <div class="field"><label>Temp (°C)</label><input type="number" id="dd-pm-temp"></div>
+        <div class="field"><label>Humidity (%)</label><input type="number" id="dd-pm-rh"></div>
+        <div class="field"><label>Wind (m/s)</label><input type="number" step=".1" id="dd-pm-wind"></div>
+        <div class="field"><label>Conditions</label><input id="dd-pm-cond" placeholder="Sunny, Partly cloudy…"></div>
+      </div>
+      <div class="field mb-12"><label>Work completed today</label><textarea id="dd-work" rows="3" placeholder="Describe work activities…"></textarea></div>
+      <div class="field mb-12"><label>Delays / Issues</label><textarea id="dd-delays" rows="2" placeholder="Any delays, weather stops, equipment issues…"></textarea></div>
+      <div class="field mb-12"><label>Notes</label><textarea id="dd-notes" rows="2"></textarea></div>
+      ${renderUploadWidget(uploadKey, 'Site Photos')}
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <div style="flex:1"></div>
+        <button class="btn btn-primary" onclick="saveDiaryEntry()"><i class="ti ti-device-floppy"></i>Save Entry</button>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="card-title mb-12"><i class="ti ti-history"></i> Recent Entries</div>
+    ${entries.length ? entries.slice().reverse().slice(0,10).map(e=>`
+    <div class="card mb-8">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <strong>${fmtDate(e.DiaryDate||e.Date)}</strong>
+        <span class="text-sm text-muted">${e.WindFarm||'—'} · ${e.WTGID||''}</span>
+      </div>
+      <div class="text-sm">${e.Technicians||''}</div>
+      ${e.WeatherAMTemp||e.WeatherAMCond?`<div class="text-sm text-muted">AM: ${e.WeatherAMTemp||'—'}°C · ${e.WeatherAMCond||'—'}</div>`:''}
+      ${e.Notes?`<div class="text-sm mt-8">${(e.Notes||'').substring(0,100)}…</div>`:''}
+    </div>`).join('') : `<div class="empty-state" style="padding:24px"><p>No diary entries yet</p></div>`}
+  </div>
+</div>`;
+};
+
+async function saveDiaryEntry() {
+  const farm = gv('dd-farm');
+  if (!farm) { toast('Please select a wind farm', 'error'); return; }
+  const fields = {
+    DiaryDate: gv('dd-date'), WindFarm: farm, WTGID: gv('dd-wtg'),
+    Technicians: gv('dd-techs'), JobRef: gv('dd-ref'),
+    WeatherAMTemp: +gv('dd-am-temp')||null, WeatherAMRH: +gv('dd-am-rh')||null,
+    WeatherAMWind: +gv('dd-am-wind')||null, WeatherAMCond: gv('dd-am-cond'),
+    WeatherPMTemp: +gv('dd-pm-temp')||null, WeatherPMRH: +gv('dd-pm-rh')||null,
+    WeatherPMWind: +gv('dd-pm-wind')||null, WeatherPMCond: gv('dd-pm-cond'),
+    ScheduleJSON: gv('dd-work'), DelaysJSON: gv('dd-delays'), Notes: gv('dd-notes'),
+  };
+  try {
+    if (isDemo) {
+      appData.diary.push({ ...fields, _spId: 'demo-' + Date.now() });
+    } else {
+      const created = await spCreateItem('DIARY', fields);
+      appData.diary.push(created);
+    }
+    toast('Diary entry saved');
+    showView('diary');
+  } catch(e) {
+    toast('Save failed: ' + e.message, 'error');
+  }
+}
+
+// ===== DOCUMENTS =====
+VIEW_RENDERERS['documents'] = async function(el) {
+  el.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px"><div class="spinner"></div></div>`;
+  try {
+    if (isDemo) { el.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="ti ti-folder"></i></div><p>Documents require SharePoint connection</p></div>`; return; }
+    const files = await spGetDocuments();
+    renderDocuments(el, files, '');
+  } catch(e) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="ti ti-alert-circle"></i></div><p>Could not load documents: ${e.message}</p></div>`;
+  }
+};
+
+function renderDocuments(el, items, path) {
+  const folders = items.filter(i => i.folder);
+  const files = items.filter(i => !i.folder);
+  el.innerHTML = `
+<div class="filter-bar">
+  <div style="font-size:13px;color:var(--tx2)">${path || 'Documents'}</div>
+  ${path ? `<button class="btn btn-secondary btn-sm" onclick="navDocsUp()"><i class="ti ti-arrow-left"></i>Back</button>` : ''}
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+  ${folders.map(f=>`<div class="card" style="cursor:pointer" onclick="navDocsInto('${f.name}')">
+    <i class="ti ti-folder" style="font-size:32px;color:var(--amber);display:block;margin-bottom:10px"></i>
+    <div style="font-weight:600">${f.name}</div>
+    <div class="text-sm text-muted">${f.folder?.childCount||0} items</div>
+  </div>`).join('')}
+  ${files.map(f=>`<div class="card" style="cursor:pointer" onclick="openDoc('${f.webUrl}')">
+    <i class="ti ti-${fileIcon(f.name)}" style="font-size:32px;color:var(--blue);display:block;margin-bottom:10px"></i>
+    <div style="font-weight:600;font-size:13px;word-break:break-word">${f.name}</div>
+    <div class="text-sm text-muted">${fmtSize(f.size||0)} · ${fmtDate(f.lastModifiedDateTime)}</div>
+  </div>`).join('')}
+  ${!folders.length && !files.length ? `<div class="empty-state" style="grid-column:1/-1;padding:48px"><div class="empty-icon"><i class="ti ti-folder-open"></i></div><p>This folder is empty</p></div>` : ''}
+</div>`;
+}
+
+let docPath = [];
+window.navDocsInto = async function(folder) {
+  docPath.push(folder);
+  const el = document.getElementById('content');
+  el.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px"><div class="spinner"></div></div>`;
+  const items = await spGetDocuments(docPath.join('/'));
+  renderDocuments(el, items, docPath.join('/'));
+};
+window.navDocsUp = async function() {
+  docPath.pop();
+  const el = document.getElementById('content');
+  el.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px"><div class="spinner"></div></div>`;
+  const items = await spGetDocuments(docPath.length ? docPath.join('/') : '');
+  renderDocuments(el, items, docPath.join('/'));
+};
+window.openDoc = function(url) { window.open(url, '_blank'); };
+
+// ===== REPORTS =====
+VIEW_RENDERERS['reports'] = function(el) {
+  const templates = [
+    {oem:'Nordex',cls:'nordex',doc:'Repair Report',code:'NALL03_RR_10165_EN Rev.03',view:'nordex-rr'},
+    {oem:'Nordex',cls:'nordex',doc:'Inspection Report',code:'NALL03_IR_10167_EN Rev.03',view:'nordex-ir'},
+    {oem:'Vestas',cls:'vestas',doc:'Repair Report',code:'Vestas RR Template',view:'generic-rr',data:{oem:'Vestas'}},
+    {oem:'Vestas',cls:'vestas',doc:'Inspection Report',code:'Vestas IR Template',view:'generic-ir',data:{oem:'Vestas'}},
+    {oem:'GE Vernova',cls:'ge',doc:'Repair Report',code:'GE Blade Repair Report',view:'generic-rr',data:{oem:'GE Vernova'}},
+    {oem:'GE Vernova',cls:'ge',doc:'Inspection Report',code:'GE Blade Inspection Report',view:'generic-ir',data:{oem:'GE Vernova'}},
+    {oem:'Siemens Gamesa',cls:'sg',doc:'Repair Report',code:'SG Blade Repair Report',view:'generic-rr',data:{oem:'Siemens Gamesa'}},
+    {oem:'Siemens Gamesa',cls:'sg',doc:'Inspection Report',code:'SG Blade Inspection Report',view:'generic-ir',data:{oem:'Siemens Gamesa'}},
+  ];
+  el.innerHTML = `
+<div style="font-size:13px;color:var(--tx2);margin-bottom:16px">Select an OEM template to fill out and export as .docx</div>
+<div class="report-grid">
+  ${templates.map(t=>`<div class="report-card" onclick="showView('${t.view}')">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <span class="oem-pill oem-${t.cls}">${t.oem}</span>
+    </div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px">${t.doc}</div>
+    <div class="text-sm text-muted">${t.code}</div>
+    <div style="margin-top:14px;color:var(--blue);font-size:13px;font-weight:600">Open Template →</div>
+  </div>`).join('')}
+</div>`;
+};
+
+
+// ===== NORDEX REPORT FORMS =====
+let nrrFindings = [], nirFindings = [];
+
+VIEW_RENDERERS['nordex-rr'] = function(el) {
+  nrrFindings = [];
+  const farms = getFarms();
+  const uploadKey = 'nrr-' + Date.now().toString(36);
+  el.innerHTML = `
+<div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+  <button class="btn btn-secondary btn-sm" onclick="showView('reports')"><i class="ti ti-arrow-left"></i>Back</button>
+  <span class="oem-pill oem-nordex">Nordex</span>
+  <span class="text-sm text-muted">NALL03_RR_10165_EN Rev.03</span>
+  <span class="badge badge-grey" style="margin-left:auto">Confidential</span>
+</div>
+<div class="alert alert-warn"><i class="ti ti-alert-triangle"></i><div><strong>Safety Checklist required.</strong> Confirm safety checklist has been read before completing this report.</div></div>
+
+<div class="grid-2" style="gap:16px">
+<div>
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-building-factory-2"></i>WTG & Site Data</div>
+  <div id="nrr-autofill-banner" class="alert alert-success" style="display:none"><i class="ti ti-check"></i><span id="nrr-autofill-msg"></span></div>
+  <div class="form-row cols-2">
+    <div class="field"><label class="req">Wind Farm</label>
+      <select id="nrr-farm" onchange="nrrSelectFarm(this.value)">
+        <option value="">— Select —</option>${farms.map(f=>`<option>${f}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field"><label>WTG</label>
+      <select id="nrr-wtg" onchange="nrrSelectWTG(this.value)"><option value="">— Select farm first —</option></select>
+    </div>
+  </div>
+  <div class="form-row cols-3">
+    <div class="field"><label>WTG Model</label><input id="nrr-model" placeholder="Auto-filled — edit if needed" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>WTG Serial</label><input id="nrr-serial" placeholder="Auto-filled — edit if needed" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>Hub Height (m)</label><input id="nrr-hub" placeholder="Auto-filled — edit if needed" style="background:rgba(37,99,235,.04)"></div>
+  </div>
+  <div class="form-row cols-3">
+    <div class="field"><label>Country</label><input id="nrr-country" value="Australia"></div>
+    <div class="field"><label>State</label><input id="nrr-state" placeholder="Auto-filled — edit if needed" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>City</label><input id="nrr-city" placeholder="Auto-filled — edit if needed" style="background:rgba(37,99,235,.04)"></div>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-propeller"></i>Rotor Blades</div>
+  <div class="form-row cols-2">
+    <div class="field"><label>Blade Type</label><input id="nrr-btype" placeholder="Auto-filled — edit if needed" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label class="req">Blade Set Number</label><input id="nrr-bset" placeholder="e.g. 0229"></div>
+  </div>
+  <div class="form-row cols-3">
+    <div class="field"><label class="req">Blade A Serial</label><input id="nrr-ba"></div>
+    <div class="field"><label class="req">Blade B Serial</label><input id="nrr-bb"></div>
+    <div class="field"><label class="req">Blade C Serial</label><input id="nrr-bc"></div>
+  </div>
+  <div class="form-row cols-3">
+    <div class="field"><label>Blade Noise Atypical?</label><select id="nrr-noise"><option value="">—</option><option>No</option><option>Yes</option></select></div>
+    <div class="field"><label>Loose Parts?</label><select id="nrr-loose"><option value="">—</option><option>No</option><option>Yes</option></select></div>
+    <div class="field"><label>Vacuum in Blade?</label><select id="nrr-vac"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-tool"></i>Repair Details</div>
+  <div class="form-row cols-2">
+    <div class="field"><label class="req">Service Company</label><input id="nrr-company" value="ProTech Access Pty Ltd"></div>
+    <div class="field"><label>Purchase Order</label><input id="nrr-po"></div>
+  </div>
+  <div class="form-row cols-2">
+    <div class="field"><label class="req">Responsible Technicians</label><input id="nrr-techs" placeholder="Names, comma separated"></div>
+    <div class="field"><label>Access Method</label>
+      <select id="nrr-access"><option>Rope Access (Abseiling)</option><option>Hydraulic Platform</option><option>Rope + Drone Combo</option></select>
+    </div>
+  </div>
+  <div class="form-row cols-3">
+    <div class="field"><label class="req">Repair Start Date</label><input type="date" id="nrr-start" value="${today()}"></div>
+    <div class="field"><label>Repair End Date</label><input type="date" id="nrr-end" value="${today()}"></div>
+    <div class="field"><label>Repair Break</label><input id="nrr-break" placeholder="None"></div>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-cloud"></i>Weather Logbook</div>
+  <table class="data-table" id="nrr-weather-tbl" style="margin-bottom:8px">
+    <thead><tr><th>Date</th><th>Temp (°C)</th><th>Humidity (%)</th><th>Wind (m/s)</th><th>Conditions</th><th></th></tr></thead>
+    <tbody id="nrr-weather-body">
+      <tr>
+        <td><input type="date" class="nrr-wd" value="${today()}" style="min-width:130px"></td>
+        <td><input type="number" class="nrr-wt" style="width:70px"></td>
+        <td><input type="number" class="nrr-wrh" style="width:70px"></td>
+        <td><input type="number" step=".1" class="nrr-ww" style="width:70px"></td>
+        <td><input class="nrr-wc" placeholder="Conditions"></td>
+        <td><button class="btn-ghost btn-xs" onclick="this.closest('tr').remove()"><i class="ti ti-x"></i></button></td>
+      </tr>
+    </tbody>
+  </table>
+  <button class="btn btn-secondary btn-sm" onclick="addWeatherRow()"><i class="ti ti-plus"></i>Add Day</button>
+</div>
+
+</div>
+<div>
+
+<div class="form-section">
+  <div class="section-title" style="justify-content:space-between">
+    <span><i class="ti ti-map-pin"></i>Findings & Repair Overview</span>
+    <button class="btn btn-secondary btn-sm" onclick="addNrrFinding()"><i class="ti ti-plus"></i>Add Finding</button>
+  </div>
+  <div id="nrr-findings-list">
+    <div class="empty-state" style="padding:16px"><p>No findings added</p></div>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-title" style="justify-content:space-between">
+    <span><i class="ti ti-flask"></i>Materials Used</span>
+    <button class="btn btn-secondary btn-sm" onclick="addNrrMaterial()"><i class="ti ti-plus"></i>Add from library</button>
+  </div>
+  <div id="nrr-materials-list">
+    <div class="empty-state" style="padding:16px"><p>No materials added</p></div>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-writing"></i>Remarks & Certification</div>
+  <div class="form-row cols-2 mb-12">
+    <div class="field"><label class="req">Completed By</label><input id="nrr-by"></div>
+    <div class="field"><label>Completion Date</label><input type="date" id="nrr-certdate" value="${today()}"></div>
+  </div>
+  <div class="field"><label>Additional Remarks</label><textarea id="nrr-remarks" rows="3"></textarea></div>
+</div>
+
+${renderUploadWidget(uploadKey, 'Report Attachments (photos, data records)')}
+
+</div>
+</div>
+
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+  <button class="btn btn-secondary" onclick="showView('reports')">Cancel</button>
+  <button class="btn btn-primary" onclick="exportNordexRR()"><i class="ti ti-file-download"></i>Export .docx</button>
+</div>`;
+};
+
+function nrrSelectFarm(farm) {
+  const wtgs = appData.registry.filter(r => r.WindFarm === farm);
+  const farmData = getFarmData(farm);
+  const sel = document.getElementById('nrr-wtg');
+  if (!sel) return;
+  sel.innerHTML = wtgs.length
+    ? `<option value="">— Select —</option>${wtgs.map(w=>`<option value="${w.WTGID}">${w.WTGID}</option>`).join('')}`
+    : `<option value="">No turbines registered</option>`;
+  if (farmData) {
+    sv('nrr-state', farmData.State); sv('nrr-city', farmData.City);
+    sv('nrr-btype', farmData.BladeType);
+  }
+  if (wtgs.length === 1) nrrSelectWTG(wtgs[0].WTGID);
+}
+
+function nrrSelectWTG(wtgId) {
+  const farm = gv('nrr-farm');
+  const rec = appData.registry.find(r => r.WindFarm === farm && r.WTGID === wtgId);
+  const farmData = getFarmData(farm);
+  const data = rec || farmData;
+  if (data) {
+    sv('nrr-model', data.TurbineModel||data.TurbineModel||'');
+    sv('nrr-hub', data.HubHeight||data.hub||'');
+    sv('nrr-btype', data.BladeType||data.bladeType||'');
+    sv('nrr-ba', rec?.BladeASerial||'');
+    sv('nrr-bb', rec?.BladeBSerial||'');
+    sv('nrr-bc', rec?.BladeCSerial||'');
+    sv('nrr-state', data.State||data.state||'');
+    sv('nrr-city', data.City||data.city||'');
+    const b = document.getElementById('nrr-autofill-banner');
+    const m = document.getElementById('nrr-autofill-msg');
+    if (b&&m) { m.textContent = ` Auto-filled: ${farm} / ${wtgId}`; b.style.display='flex'; }
+  }
+}
+
+function addWeatherRow() {
+  const tbody = document.getElementById('nrr-weather-body');
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><input type="date" class="nrr-wd" value="${today()}" style="min-width:130px"></td>
+    <td><input type="number" class="nrr-wt" style="width:70px"></td>
+    <td><input type="number" class="nrr-wrh" style="width:70px"></td>
+    <td><input type="number" step=".1" class="nrr-ww" style="width:70px"></td>
+    <td><input class="nrr-wc" placeholder="Conditions"></td>
+    <td><button class="btn-ghost btn-xs" onclick="this.closest('tr').remove()"><i class="ti ti-x"></i></button></td>`;
+  tbody.appendChild(tr);
+}
+
+let nrrMaterials = [];
+function addNrrFinding() {
+  nrrFindings.push({sev:2,blade:'A',dfFrom:'',dfTo:'',pdFrom:'',pdTo:'',side:'LE',amount:'',findingType:'',ri:'',desc:'',repairAreaMm:'',steps:{}});
+  refreshNrrFindings();
+}
+
+function refreshNrrFindings() {
+  const el = document.getElementById('nrr-findings-list');
+  if (!el) return;
+  if (!nrrFindings.length) { el.innerHTML = `<div class="empty-state" style="padding:16px"><p>No findings added</p></div>`; return; }
+  el.innerHTML = nrrFindings.map((f,i)=>`
+  <div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ${catColor(f.sev)};border-radius:8px;padding:12px;margin-bottom:10px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <div class="cat-badge cat-${f.sev}">${f.sev}</div>
+      <strong>Finding ${String(i+1).padStart(2,'0')}</strong>
+      <span>Blade:</span>
+      <select onchange="nrrFindings[${i}].blade=this.value" style="width:auto;font-size:12px">
+        <option ${f.blade==='A'?'selected':''}>A</option><option ${f.blade==='B'?'selected':''}>B</option><option ${f.blade==='C'?'selected':''}>C</option>
+      </select>
+      <select onchange="nrrFindings[${i}].sev=+this.value;refreshNrrFindings()" style="width:auto;font-size:12px">
+        ${[1,2,3,4,5].map(n=>`<option value="${n}" ${f.sev===n?'selected':''}>Cat ${n}</option>`).join('')}
+      </select>
+      <button class="btn-ghost btn-xs" style="margin-left:auto;color:var(--red)" onclick="nrrFindings.splice(${i},1);refreshNrrFindings()"><i class="ti ti-x"></i></button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:8px">
+      <div class="field"><label style="font-size:10px">DF from (m)</label><input type="number" step=".1" value="${f.dfFrom}" oninput="nrrFindings[${i}].dfFrom=this.value" style="font-size:12px;padding:4px 6px"></div>
+      <div class="field"><label style="font-size:10px">DF to (m)</label><input type="number" step=".1" value="${f.dfTo}" oninput="nrrFindings[${i}].dfTo=this.value" style="font-size:12px;padding:4px 6px"></div>
+      <div class="field"><label style="font-size:10px">PD from %</label><input type="number" value="${f.pdFrom}" oninput="nrrFindings[${i}].pdFrom=this.value" style="font-size:12px;padding:4px 6px"></div>
+      <div class="field"><label style="font-size:10px">PD to %</label><input type="number" value="${f.pdTo}" oninput="nrrFindings[${i}].pdTo=this.value" style="font-size:12px;padding:4px 6px"></div>
+      <div class="field"><label style="font-size:10px">Side/Edge</label>
+        <select onchange="nrrFindings[${i}].side=this.value" style="font-size:12px;padding:4px 6px">
+          ${['LE','TE','PS','SS','LE+PS','LE+SS','TE+PS','TE+SS'].map(s=>`<option ${f.side===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label style="font-size:10px">Amount</label><input value="${f.amount}" oninput="nrrFindings[${i}].amount=this.value" style="font-size:12px;padding:4px 6px" placeholder="300×80mm"></div>
+    </div>
+    <div class="form-row cols-3 mb-8" style="gap:8px">
+      <div class="field"><label style="font-size:10px">Finding Type / IR Ref</label><input value="${f.findingType}" oninput="nrrFindings[${i}].findingType=this.value" style="font-size:12px;padding:4px 6px" placeholder="Delamination / IR ref"></div>
+      <div class="field"><label style="font-size:10px">RI Used (incl. rev.)</label><input value="${f.ri}" oninput="nrrFindings[${i}].ri=this.value" style="font-size:12px;padding:4px 6px" placeholder="NALL03_RI_10080_EN/10"></div>
+      <div class="field"><label style="font-size:10px">Repair Area (mm×mm)</label><input value="${f.repairAreaMm}" oninput="nrrFindings[${i}].repairAreaMm=this.value" style="font-size:12px;padding:4px 6px" placeholder="300×80"></div>
+    </div>
+    <div class="field mb-8"><label style="font-size:11px">Description</label>
+      <textarea rows="2" oninput="nrrFindings[${i}].desc=this.value" style="font-size:13px">${f.desc||''}</textarea>
+    </div>
+    <div style="background:var(--surface);border-radius:6px;padding:8px;border:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);margin-bottom:6px">Work Steps</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px">
+        ${[['grinding','Surface grinding'],['chamfering','Chamfering laminate'],['lamination','Lamination / layup'],['hardback','Hardback'],['innerLayers','Blade inner layers'],['coreRepair','Core material repair'],['outerLayers','Blade outer layers'],['vacuumInfusion','Vacuum infusion'],['compressionProto','Compression protocol'],['bonding','Bonding repairs'],['contourGrinding','Contour grinding'],['coating','Coating'],['functionalTest','Functional test']].map(([k,l])=>`
+          <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:2px">
+            <input type="checkbox" ${(f.steps||{})[k]?'checked':''} onchange="nrrFindings[${i}].steps=nrrFindings[${i}].steps||{};nrrFindings[${i}].steps['${k}']=this.checked" style="width:13px;height:13px">${l}
+          </label>`).join('')}
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+function addNrrMaterial() {
+  // Show material picker from library
+  const mats = appData.materials;
+  if (!nrrMaterials) nrrMaterials = [];
+  const name = window.prompt('Enter material name or part number:');
+  if (!name) return;
+  const found = mats.find(m => (m.MaterialName||'').toLowerCase().includes(name.toLowerCase()) || (m.PartNo||'').toLowerCase().includes(name.toLowerCase()));
+  if (found) {
+    nrrMaterials.push({ findingId:'01', sap: found.PartNo||'', material: found.MaterialName||'', batch:'', expiry:'', qty:'' });
+  } else {
+    nrrMaterials.push({ findingId:'01', sap:'', material: name, batch:'', expiry:'', qty:'' });
+  }
+  refreshNrrMaterials();
+}
+
+function refreshNrrMaterials() {
+  const el = document.getElementById('nrr-materials-list');
+  if (!el) return;
+  if (!nrrMaterials || !nrrMaterials.length) { el.innerHTML = `<div class="empty-state" style="padding:16px"><p>No materials added</p></div>`; return; }
+  el.innerHTML = `<table class="data-table">
+    <thead><tr><th>Finding ID</th><th>SAP/Part No.</th><th>Material</th><th>Batch No.</th><th>Expiry</th><th>Qty</th><th></th></tr></thead>
+    <tbody>${nrrMaterials.map((m,i)=>`<tr>
+      <td><input value="${m.findingId}" oninput="nrrMaterials[${i}].findingId=this.value" style="width:50px;font-size:12px;padding:3px 6px"></td>
+      <td><input value="${m.sap}" oninput="nrrMaterials[${i}].sap=this.value" style="font-size:12px;padding:3px 6px" class="font-mono"></td>
+      <td><input value="${m.material}" oninput="nrrMaterials[${i}].material=this.value" style="font-size:12px;padding:3px 6px"></td>
+      <td><input value="${m.batch}" oninput="nrrMaterials[${i}].batch=this.value" style="font-size:12px;padding:3px 6px"></td>
+      <td><input value="${m.expiry}" oninput="nrrMaterials[${i}].expiry=this.value" style="font-size:12px;padding:3px 6px" placeholder="MM/YYYY"></td>
+      <td><input value="${m.qty}" oninput="nrrMaterials[${i}].qty=this.value" style="width:80px;font-size:12px;padding:3px 6px" placeholder="1.2 kg"></td>
+      <td><button class="btn-ghost btn-xs" onclick="nrrMaterials.splice(${i},1);refreshNrrMaterials()"><i class="ti ti-x"></i></button></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+// Nordex IR is similar — reuse the same structure
+VIEW_RENDERERS['nordex-ir'] = function(el) {
+  nirFindings = [];
+  const farms = getFarms();
+  const uploadKey = 'nir-' + Date.now().toString(36);
+  const ATTACHMENTS = ['Anti-Icing System','Drain holes open','Erosion protection foil','LE protection paint','IDD blade','Lightning monitoring system (LMS)','LPS equipotential bondings','LPS receptors','LPS registration card','LPS tip receptor','Rain deflector','Signal color','Stall strips','Structural health monitoring (SHM)','TE serrations','TE flaps','Vortex generators','Zig-zag tape','IPC','Others'];
+
+  el.innerHTML = `
+<div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+  <button class="btn btn-secondary btn-sm" onclick="showView('reports')"><i class="ti ti-arrow-left"></i>Back</button>
+  <span class="oem-pill oem-nordex">Nordex</span>
+  <span class="text-sm text-muted">NALL03_IR_10167_EN Rev.03</span>
+  <span class="badge badge-grey" style="margin-left:auto">Confidential</span>
+</div>
+
+<div class="grid-2" style="gap:16px">
+<div>
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-building-factory-2"></i>WTG & Site Data</div>
+  <div id="nir-autofill-banner" class="alert alert-success" style="display:none"><i class="ti ti-check"></i><span id="nir-autofill-msg"></span></div>
+  <div class="form-row cols-2">
+    <div class="field"><label>Wind Farm</label>
+      <select id="nir-farm" onchange="nirSelectFarm(this.value)">
+        <option value="">— Select —</option>${farms.map(f=>`<option>${f}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field"><label>WTG</label>
+      <select id="nir-wtg" onchange="nirSelectWTG(this.value)"><option value="">— Select farm first —</option></select>
+    </div>
+  </div>
+  <div class="form-row cols-3">
+    <div class="field"><label>WTG Model</label><input id="nir-model" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>WTG Serial</label><input id="nir-serial" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>Hub Height (m)</label><input id="nir-hub" style="background:rgba(37,99,235,.04)"></div>
+  </div>
+  <div class="form-row cols-3">
+    <div class="field"><label>Blade Type</label><input id="nir-btype" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>Blade Set No.</label><input id="nir-bset"></div>
+    <div class="field"></div>
+  </div>
+  <div class="form-row cols-3">
+    <div class="field"><label class="req">Blade A Serial</label><input id="nir-ba"></div>
+    <div class="field"><label class="req">Blade B Serial</label><input id="nir-bb"></div>
+    <div class="field"><label class="req">Blade C Serial</label><input id="nir-bc"></div>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-search"></i>Inspection Details</div>
+  <div class="form-row cols-2">
+    <div class="field"><label class="req">Start Date</label><input type="date" id="nir-start" value="${today()}"></div>
+    <div class="field"><label>End Date</label><input type="date" id="nir-end" value="${today()}"></div>
+  </div>
+  <div class="form-row cols-2">
+    <div class="field"><label class="req">Service Company</label><input id="nir-svc" value="ProTech Access Pty Ltd"></div>
+    <div class="field"><label class="req">Technicians</label><input id="nir-techs"></div>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-checklist"></i>Blade Attachments & Accessories</div>
+  <div style="font-size:12px;color:var(--tx3);margin-bottom:8px">Check if inspected and note any deviations</div>
+  <table class="data-table" style="font-size:12px">
+    <thead><tr><th style="width:55%">Attachment</th><th style="width:12%;text-align:center">Inspected?</th><th>Comment</th></tr></thead>
+    <tbody>${ATTACHMENTS.map((a,i)=>`<tr>
+      <td>${a}</td>
+      <td style="text-align:center"><input type="checkbox" id="nir-att-${i}" style="width:15px;height:15px"></td>
+      <td><input id="nir-att-c-${i}" placeholder="Comment" style="font-size:11px;padding:3px 6px"></td>
+    </tr>`).join('')}</tbody>
+  </table>
+</div>
+
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-alert-triangle"></i>General Blade Deviations</div>
+  <table class="data-table" style="font-size:12px">
+    <thead><tr><th>Deviation</th><th style="width:12%;text-align:center">Yes</th><th>Comment</th></tr></thead>
+    <tbody>
+      <tr><td>Blade noise atypical during operation</td><td style="text-align:center"><input type="checkbox" id="nir-dev-noise" style="width:15px;height:15px"></td><td><input id="nir-dev-noise-c" placeholder="What kind of noise?" style="font-size:11px;padding:3px 6px"></td></tr>
+      <tr><td>Loose parts inside blade</td><td style="text-align:center"><input type="checkbox" id="nir-dev-loose" style="width:15px;height:15px"></td><td><input id="nir-dev-loose-c" placeholder="Kind, weight, amount" style="font-size:11px;padding:3px 6px"></td></tr>
+      <tr><td>Vacuum inside blade</td><td style="text-align:center"><input type="checkbox" id="nir-dev-vac" style="width:15px;height:15px"></td><td><input id="nir-dev-vac-c" placeholder="e.g. blade hatch hard to open" style="font-size:11px;padding:3px 6px"></td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
+<div>
+<div class="form-section">
+  <div class="section-title" style="justify-content:space-between">
+    <span><i class="ti ti-map-pin"></i>Inspection Findings</span>
+    <button class="btn btn-secondary btn-sm" onclick="addNirFinding()"><i class="ti ti-plus"></i>Add Finding</button>
+  </div>
+  <div id="nir-findings-list"><div class="empty-state" style="padding:16px"><p>No findings added</p></div></div>
+</div>
+
+<div class="form-section">
+  <div class="section-title" style="justify-content:space-between">
+    <span><i class="ti ti-bolt"></i>LPS Measurement</span>
+    <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;cursor:pointer">
+      <input type="checkbox" id="nir-lps-done" onchange="document.getElementById('nir-lps-section').style.display=this.checked?'':'none'" style="width:15px;height:15px"> Performed
+    </label>
+  </div>
+  <div id="nir-lps-section" style="display:none">
+    <div class="form-row cols-4 mb-12">
+      <div class="field"><label style="font-size:11px">Device type</label><input id="nir-lps-dev" placeholder="e.g. Megger MOM2"></div>
+      <div class="field"><label style="font-size:11px">Method</label>
+        <select id="nir-lps-method"><option>2-terminal method</option><option>4-terminal method</option></select>
+      </div>
+      <div class="field"><label style="font-size:11px">Last calibration</label><input type="date" id="nir-lps-cal"></div>
+      <div class="field"><label style="font-size:11px">Calibration expiry</label><input type="date" id="nir-lps-exp"></div>
+    </div>
+    ${['A','B','C'].map(b=>`
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;margin-bottom:6px;padding:5px 8px;background:var(--surface2);border-radius:5px">Blade ${b}</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead><tr style="background:var(--surface2)"><th style="padding:5px 8px;text-align:left;border-bottom:1px solid var(--border)">From</th><th style="padding:5px 8px;border-bottom:1px solid var(--border)">Used bolt</th><th style="padding:5px 8px;border-bottom:1px solid var(--border)">To</th><th style="padding:5px 8px;border-bottom:1px solid var(--border)">Resistance (Ω)</th></tr></thead>
+        <tbody>
+          ${['Equipotential bonding 3 (TE)','Equipotential bonding 2 (TE)','Equipotential bonding 1 (TE)','Receptor 5 PS','Receptor 5 SS','Receptor 4 PS','Receptor 4 SS','Receptor 3 PS','Receptor 3 SS','Receptor 2 PS','Receptor 2 SS','Receptor 1 PS','Receptor 1 SS','Tip receptor (PS bolt)','Tip receptor (SS bolt)'].map(pt=>`
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:4px 8px;color:var(--tx3)">Longitudinal bolt</td>
+            <td style="padding:3px 6px"><input class="nir-lps-bolt-${b}" placeholder="—" style="width:70px;font-size:11px;padding:2px 5px"></td>
+            <td style="padding:4px 8px">${pt}</td>
+            <td style="padding:3px 6px"><input type="number" step=".001" class="nir-lps-res-${b}" placeholder="0.000" style="width:90px;font-size:11px;padding:2px 5px"></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`).join('')}
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-writing"></i>Remarks & Certification</div>
+  <div class="form-row cols-2 mb-12">
+    <div class="field"><label class="req">Completed By</label><input id="nir-by"></div>
+    <div class="field"><label>Completion Date</label><input type="date" id="nir-certdate" value="${today()}"></div>
+  </div>
+  <div class="field"><label>Additional Remarks</label><textarea id="nir-remarks" rows="3"></textarea></div>
+</div>
+
+${renderUploadWidget(uploadKey, 'Inspection Attachments (photos, LPS data)')}
+</div>
+</div>
+
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+  <button class="btn btn-secondary" onclick="showView('reports')">Cancel</button>
+  <button class="btn btn-primary" onclick="exportNordexIR()"><i class="ti ti-file-download"></i>Export .docx</button>
+</div>`;
+};
+
+function nirSelectFarm(farm) {
+  const wtgs = appData.registry.filter(r => r.WindFarm === farm);
+  const farmData = getFarmData(farm);
+  const sel = document.getElementById('nir-wtg');
+  if (!sel) return;
+  sel.innerHTML = wtgs.length
+    ? `<option value="">— Select —</option>${wtgs.map(w=>`<option value="${w.WTGID}">${w.WTGID}</option>`).join('')}`
+    : `<option value="">No turbines registered</option>`;
+  if (farmData) { sv('nir-btype', farmData.BladeType); }
+  if (wtgs.length === 1) nirSelectWTG(wtgs[0].WTGID);
+}
+
+function nirSelectWTG(wtgId) {
+  const farm = gv('nir-farm');
+  const rec = appData.registry.find(r => r.WindFarm === farm && r.WTGID === wtgId);
+  const farmData = getFarmData(farm);
+  const data = rec || farmData;
+  if (data) {
+    sv('nir-model', data.TurbineModel||''); sv('nir-hub', data.HubHeight||data.hub||'');
+    sv('nir-btype', data.BladeType||'');
+    sv('nir-ba', rec?.BladeASerial||''); sv('nir-bb', rec?.BladeBSerial||''); sv('nir-bc', rec?.BladeCSerial||'');
+    const b = document.getElementById('nir-autofill-banner');
+    const m = document.getElementById('nir-autofill-msg');
+    if (b&&m) { m.textContent = ` Auto-filled: ${farm} / ${wtgId}`; b.style.display='flex'; }
+  }
+}
+
+function addNirFinding() {
+  nirFindings.push({sev:2,blade:'A',dfFrom:'',dfTo:'',pdFrom:'',pdTo:'',side:'LE',amount:'',desc:''});
+  refreshNirFindings();
+}
+
+function refreshNirFindings() {
+  const el = document.getElementById('nir-findings-list');
+  if (!el) return;
+  if (!nirFindings.length) { el.innerHTML = `<div class="empty-state" style="padding:16px"><p>No findings added</p></div>`; return; }
+  el.innerHTML = nirFindings.map((f,i)=>`
+  <div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ${catColor(f.sev)};border-radius:8px;padding:12px;margin-bottom:8px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+      <div class="cat-badge cat-${f.sev}">${f.sev}</div>
+      <strong>Finding ${String(i+1).padStart(2,'0')}</strong>
+      Blade: <select onchange="nirFindings[${i}].blade=this.value" style="width:auto;font-size:12px"><option ${f.blade==='A'?'selected':''}>A</option><option ${f.blade==='B'?'selected':''}>B</option><option ${f.blade==='C'?'selected':''}>C</option></select>
+      <select onchange="nirFindings[${i}].sev=+this.value;refreshNirFindings()" style="width:auto;font-size:12px">
+        ${[1,2,3,4,5].map(n=>`<option value="${n}" ${f.sev===n?'selected':''}>Cat ${n}</option>`).join('')}
+      </select>
+      <button class="btn-ghost btn-xs" style="margin-left:auto;color:var(--red)" onclick="nirFindings.splice(${i},1);refreshNirFindings()"><i class="ti ti-x"></i></button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:8px">
+      <div class="field"><label style="font-size:10px">DF from (m)</label><input type="number" step=".1" value="${f.dfFrom}" oninput="nirFindings[${i}].dfFrom=this.value" style="font-size:12px;padding:4px 6px"></div>
+      <div class="field"><label style="font-size:10px">DF to (m)</label><input type="number" step=".1" value="${f.dfTo}" oninput="nirFindings[${i}].dfTo=this.value" style="font-size:12px;padding:4px 6px"></div>
+      <div class="field"><label style="font-size:10px">PD from %</label><input type="number" value="${f.pdFrom}" oninput="nirFindings[${i}].pdFrom=this.value" style="font-size:12px;padding:4px 6px"></div>
+      <div class="field"><label style="font-size:10px">PD to %</label><input type="number" value="${f.pdTo}" oninput="nirFindings[${i}].pdTo=this.value" style="font-size:12px;padding:4px 6px"></div>
+      <div class="field"><label style="font-size:10px">Side/Edge</label>
+        <select onchange="nirFindings[${i}].side=this.value" style="font-size:12px;padding:4px 6px">
+          ${['LE','TE','PS','SS','LE+PS','LE+SS','TE+PS','TE+SS'].map(s=>`<option ${f.side===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label style="font-size:10px">Amount</label><input value="${f.amount}" oninput="nirFindings[${i}].amount=this.value" style="font-size:12px;padding:4px 6px" placeholder="300×80mm"></div>
+    </div>
+    <div class="field"><label style="font-size:11px">Description</label>
+      <textarea rows="2" oninput="nirFindings[${i}].desc=this.value" style="font-size:13px">${f.desc||''}</textarea>
+    </div>
+  </div>`).join('');
+}
+
+
+// ===== GENERIC REPORT FORMS =====
+VIEW_RENDERERS['generic-rr'] = function(el) {
+  const farms = getFarms();
+  const uploadKey = 'grr-' + Date.now().toString(36);
+  el.innerHTML = `
+<div style="margin-bottom:14px;display:flex;align-items:center;gap:10px">
+  <button class="btn btn-secondary btn-sm" onclick="showView('reports')"><i class="ti ti-arrow-left"></i>Back to Templates</button>
+</div>
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-building-factory-2"></i>WTG & Site Data</div>
+  <div class="form-row cols-2">
+    <div class="field"><label class="req">Wind Farm</label>
+      <select id="grr-farm" onchange="grrSelectFarm(this.value)">
+        <option value="">— Select —</option>${farms.map(f=>`<option>${f}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field"><label class="req">Turbine ID</label>
+      <select id="grr-wtg"><option value="">— Select farm first —</option></select>
+    </div>
+  </div>
+  <div class="form-row cols-3">
+    <div class="field"><label>OEM</label><input id="grr-oem" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>Model</label><input id="grr-model" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>Blade Type</label><input id="grr-btype" style="background:rgba(37,99,235,.04)"></div>
+  </div>
+  <div class="form-row cols-3">
+    <div class="field"><label>Blade A Serial</label><input id="grr-ba" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>Blade B Serial</label><input id="grr-bb" style="background:rgba(37,99,235,.04)"></div>
+    <div class="field"><label>Blade C Serial</label><input id="grr-bc" style="background:rgba(37,99,235,.04)"></div>
+  </div>
+</div>
+<div class="form-section">
+  <div class="section-title"><i class="ti ti-tool"></i>Repair Details</div>
+  <div class="form-row cols-2">
+    <div class="field"><label class="req">Service Company</label><input id="grr-company" value="ProTech Access Pty Ltd"></div>
+    <div class="field"><label class="req">Technician(s)</label><input id="grr-techs"></div>
+  </div>
+  <div class="form-row cols-3">
+    <div class="field"><label class="req">Start Date</label><input type="date" id="grr-start" value="${today()}"></div>
+    <div class="field"><label>End Date</label><input type="date" id="grr-end" value="${today()}"></div>
+    <div class="field"><label>Blade Position</label>
+      <select id="grr-blade"><option>Blade A (0°)</option><option>Blade B (120°)</option><option>Blade C (240°)</option></select>
+    </div>
+  </div>
+  <div class="field mb-12"><label>Repair Description</label><textarea id="grr-desc" rows="4" placeholder="Describe the repair work performed…"></textarea></div>
+</div>
+${renderUploadWidget(uploadKey, 'Attachments')}
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+  <button class="btn btn-secondary" onclick="showView('reports')">Cancel</button>
+  <button class="btn btn-primary" onclick="toast('Generic export coming soon — use Nordex templates for full export','info',3000)"><i class="ti ti-file-download"></i>Export .docx</button>
+</div>`;
+};
+
+function grrSelectFarm(farm) {
+  const wtgs = appData.registry.filter(r => r.WindFarm === farm);
+  const farmData = getFarmData(farm);
+  const sel = document.getElementById('grr-wtg');
+  if (!sel) return;
+  sel.innerHTML = wtgs.length
+    ? `<option value="">— Select —</option>${wtgs.map(w=>`<option>${w.WTGID}</option>`).join('')}`
+    : `<option value="">No turbines registered</option>`;
+  if (farmData) {
+    sv('grr-oem', farmData.OEM); sv('grr-model', farmData.TurbineModel);
+    sv('grr-btype', farmData.BladeType);
+  }
+}
+
+VIEW_RENDERERS['generic-ir'] = function(el) {
+  el.innerHTML = `
+<div style="margin-bottom:14px">
+  <button class="btn btn-secondary btn-sm" onclick="showView('reports')"><i class="ti ti-arrow-left"></i>Back</button>
+</div>
+<div class="alert alert-info"><i class="ti ti-info-circle"></i>Use the New Inspection form for detailed inspection capture. This template is for quick summary export.</div>
+<div class="empty-state" style="padding:40px">
+  <div class="empty-icon"><i class="ti ti-file-description"></i></div>
+  <p>Generic Inspection Report</p>
+  <div class="hint">Select an inspection from the list to generate a summary report</div>
+  <button class="btn btn-primary btn-sm mt-12" onclick="showView('inspections')">View Inspections</button>
+</div>`;
+};
+
+// ===== FIELD OPS =====
+VIEW_RENDERERS['field-ops'] = function(el) {
+  const farms = getFarms();
+  el.innerHTML = `
+<div class="grid-2" style="gap:16px">
+  <div class="card">
+    <div class="card-hd"><div class="card-title"><i class="ti ti-hard-hat"></i> Today's Site</div></div>
+    <div class="field mb-12"><label>Wind Farm</label>
+      <select id="fo-farm" onchange="foSelectFarm(this.value)">
+        <option value="">— Select site —</option>${farms.map(f=>`<option>${f}</option>`).join('')}
+      </select>
+    </div>
+    <div id="fo-site-info" style="color:var(--tx3);font-size:13px">Select a wind farm to see site info</div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><div class="card-title"><i class="ti ti-cloud"></i> Weather Check</div></div>
+    <div class="form-row cols-2">
+      <div class="field"><label>Temperature (°C)</label><input type="number" id="fo-temp"></div>
+      <div class="field"><label>Humidity (%RH)</label><input type="number" id="fo-rh"></div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="field"><label>Wind Speed (m/s)</label><input type="number" step=".1" id="fo-wind"></div>
+      <div class="field"><label>Conditions</label><input id="fo-cond"></div>
+    </div>
+    <div id="fo-weather-warn" style="display:none;margin-top:8px"></div>
+    <button class="btn btn-secondary btn-sm mt-12" onclick="foCheckWeather()"><i class="ti ti-check"></i>Check Go/No-Go</button>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:16px">
+  <div class="card" style="cursor:pointer;text-align:center" onclick="showView('new-inspection')">
+    <i class="ti ti-clipboard-list" style="font-size:32px;color:var(--blue);margin-bottom:8px;display:block"></i>
+    <div style="font-weight:700">New Inspection</div>
+    <div class="text-sm text-muted">Capture findings</div>
+  </div>
+  <div class="card" style="cursor:pointer;text-align:center" onclick="showView('new-repair')">
+    <i class="ti ti-tool" style="font-size:32px;color:var(--orange);margin-bottom:8px;display:block"></i>
+    <div style="font-weight:700">New Repair Job</div>
+    <div class="text-sm text-muted">Log repair work</div>
+  </div>
+  <div class="card" style="cursor:pointer;text-align:center" onclick="showView('diary')">
+    <i class="ti ti-notebook" style="font-size:32px;color:var(--green);margin-bottom:8px;display:block"></i>
+    <div style="font-weight:700">Daily Diary</div>
+    <div class="text-sm text-muted">Log today's work</div>
+  </div>
+  <div class="card" style="cursor:pointer;text-align:center" onclick="showView('procedures')">
+    <i class="ti ti-books" style="font-size:32px;color:var(--purple);margin-bottom:8px;display:block"></i>
+    <div style="font-weight:700">Repair Procedures</div>
+    <div class="text-sm text-muted">Step-by-step guides</div>
+  </div>
+  <div class="card" style="cursor:pointer;text-align:center" onclick="showView('materials')">
+    <i class="ti ti-package" style="font-size:32px;color:var(--cyan);margin-bottom:8px;display:block"></i>
+    <div style="font-weight:700">Material Library</div>
+    <div class="text-sm text-muted">Specs & stock levels</div>
+  </div>
+  <div class="card" style="cursor:pointer;text-align:center" onclick="showView('documents')">
+    <i class="ti ti-folder" style="font-size:32px;color:var(--amber);margin-bottom:8px;display:block"></i>
+    <div style="font-weight:700">Documents</div>
+    <div class="text-sm text-muted">RIs, templates, certs</div>
+  </div>
+</div>`;
+};
+
+function foSelectFarm(farm) {
+  const data = getFarmData(farm);
+  const el = document.getElementById('fo-site-info');
+  if (!el || !data) return;
+  el.innerHTML = `
+<div style="margin-top:4px">
+  <div class="form-row cols-2">
+    <div><div class="text-sm text-muted">OEM</div><div style="font-weight:700">${data.OEM||'—'}</div></div>
+    <div><div class="text-sm text-muted">Model</div><div style="font-weight:700">${data.TurbineModel||'—'}</div></div>
+    <div><div class="text-sm text-muted">Blade Type</div><div style="font-weight:700">${data.BladeType||'—'}</div></div>
+    <div><div class="text-sm text-muted">Blade Length</div><div style="font-weight:700">${data.BladeLength||'—'}m</div></div>
+    <div><div class="text-sm text-muted">Hub Height</div><div style="font-weight:700">${data.HubHeight||'—'}m</div></div>
+    <div><div class="text-sm text-muted">Location</div><div style="font-weight:700">${data.City||''}, ${data.State||''}</div></div>
+  </div>
+</div>`;
+}
+
+function foCheckWeather() {
+  const temp = +gv('fo-temp');
+  const rh = +gv('fo-rh');
+  const wind = +gv('fo-wind');
+  const el = document.getElementById('fo-weather-warn');
+  if (!el) return;
+  const issues = [];
+  if (temp < 5) issues.push('Temperature below 5°C — resin application not recommended');
+  if (rh > 70) issues.push('Humidity above 70% — laminating not recommended');
+  if (wind > 11) issues.push('Wind above 11 m/s — rope access may not be permitted');
+  if (wind > 8) issues.push('Wind above 8 m/s — check OEM requirements for access');
+  if (issues.length) {
+    el.style.display = 'block';
+    el.innerHTML = `<div class="alert alert-warn"><i class="ti ti-alert-triangle"></i><div><strong>Go/No-Go Issues:</strong><ul style="margin-top:4px;padding-left:16px">${issues.map(i=>`<li>${i}</li>`).join('')}</ul></div></div>`;
+  } else {
+    el.style.display = 'block';
+    el.innerHTML = `<div class="alert alert-success"><i class="ti ti-check"></i><strong>Conditions OK</strong> — Go for blade work</div>`;
+  }
+}
+
+// ===== DOCX EXPORT (Nordex RR) =====
+async function exportNordexRR() {
+  try {
+    const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, HeadingLevel, BorderStyle } = docx;
+    const farm = gv('nrr-farm'), wtg = gv('nrr-wtg');
+    const weatherRows = Array.from(document.querySelectorAll('#nrr-weather-body tr')).map(tr => {
+      const ins = tr.querySelectorAll('input');
+      return [ins[0]?.value||'', ins[1]?.value||'', ins[2]?.value||'', ins[3]?.value||'', ins[4]?.value||''].join('\t');
+    });
+
+    const makeHeader = (text) => new Paragraph({ children:[new TextRun({text, bold:true, size:24, color:'003082'})], spacing:{after:120} });
+    const makeRow = (cells) => new TableRow({ children: cells.map(c => new TableCell({ children:[new Paragraph({children:[new TextRun({text:String(c), size:18})]})], width:{size:100/cells.length, type:WidthType.PERCENTAGE} })) });
+    const makeField = (label, value) => new Table({ rows: [makeRow([label, value])], width:{size:100,type:WidthType.PERCENTAGE} });
+
+    const children = [
+      new Paragraph({ children:[new TextRun({text:'NORDEX REPAIR REPORT', bold:true, size:36, color:'003082'})], alignment:AlignmentType.CENTER, spacing:{after:200} }),
+      new Paragraph({ children:[new TextRun({text:`NALL03_RR_10165_EN Rev.03`, size:20, color:'666666'})], alignment:AlignmentType.CENTER, spacing:{after:400} }),
+      makeHeader('1. WTG & SITE DATA'),
+      new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[
+        makeRow(['Wind Farm', farm||'', 'WTG', wtg||'']),
+        makeRow(['WTG Model', gv('nrr-model'), 'WTG Serial', gv('nrr-serial')]),
+        makeRow(['Country', gv('nrr-country'), 'State', gv('nrr-state')]),
+        makeRow(['Hub Height (m)', gv('nrr-hub'), 'City', gv('nrr-city')]),
+      ]}),
+      new Paragraph({text:'', spacing:{after:200}}),
+      makeHeader('2. ROTOR BLADE DATA'),
+      new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[
+        makeRow(['Blade Type', gv('nrr-btype'), 'Blade Set No.', gv('nrr-bset')]),
+        makeRow(['Blade A Serial', gv('nrr-ba'), 'Blade B Serial', gv('nrr-bb')]),
+        makeRow(['Blade C Serial', gv('nrr-bc'), 'Noise Atypical', gv('nrr-noise')]),
+      ]}),
+      new Paragraph({text:'', spacing:{after:200}}),
+      makeHeader('3. REPAIR DETAILS'),
+      new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[
+        makeRow(['Service Company', gv('nrr-company'), 'Purchase Order', gv('nrr-po')]),
+        makeRow(['Technicians', gv('nrr-techs'), 'Access Method', gv('nrr-access')]),
+        makeRow(['Start Date', gv('nrr-start'), 'End Date', gv('nrr-end')]),
+      ]}),
+      new Paragraph({text:'', spacing:{after:200}}),
+      makeHeader('4. WEATHER LOGBOOK'),
+      new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[
+        makeRow(['Date','Temperature (°C)','Humidity (%)','Wind (m/s)','Conditions']),
+        ...Array.from(document.querySelectorAll('#nrr-weather-body tr')).map(tr => {
+          const ins = tr.querySelectorAll('input');
+          return makeRow([ins[0]?.value||'', ins[1]?.value||'°C', ins[2]?.value||'%', ins[3]?.value||'m/s', ins[4]?.value||'']);
+        }),
+      ]}),
+      new Paragraph({text:'', spacing:{after:200}}),
+      makeHeader('5. FINDINGS & REPAIR OVERVIEW'),
+      ...nrrFindings.flatMap((f,i) => [
+        new Paragraph({ children:[new TextRun({text:`Finding ${String(i+1).padStart(2,'0')} — Category ${f.sev} — Blade ${f.blade}`, bold:true, size:20})], spacing:{before:200,after:80} }),
+        new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[
+          makeRow(['DF from (m)', f.dfFrom, 'DF to (m)', f.dfTo]),
+          makeRow(['PD from (%)', f.pdFrom, 'PD to (%)', f.pdTo]),
+          makeRow(['Side/Edge', f.side, 'Amount', f.amount]),
+          makeRow(['Finding Type / IR Ref', f.findingType, 'RI Used', f.ri]),
+          makeRow(['Repair Area', f.repairAreaMm, '', '']),
+        ]}),
+        new Paragraph({ children:[new TextRun({text:'Description: '+f.desc, size:18})], spacing:{before:80,after:80} }),
+        new Paragraph({ children:[new TextRun({text:'Work steps: '+(Object.entries(f.steps||{}).filter(([k,v])=>v).map(([k])=>k).join(', ')||'—'), size:18})], spacing:{after:160} }),
+      ]),
+      new Paragraph({text:'', spacing:{after:200}}),
+      makeHeader('6. MATERIALS USED'),
+      new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[
+        makeRow(['Finding','SAP/Part No.','Material','Batch No.','Expiry','Qty']),
+        ...(nrrMaterials||[]).map(m => makeRow([m.findingId, m.sap, m.material, m.batch, m.expiry, m.qty])),
+      ]}),
+      new Paragraph({text:'', spacing:{after:200}}),
+      makeHeader('7. CERTIFICATION'),
+      new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[
+        makeRow(['Completed By', gv('nrr-by'), 'Date', gv('nrr-certdate')]),
+      ]}),
+      new Paragraph({ children:[new TextRun({text:'Remarks: '+gv('nrr-remarks'), size:18})], spacing:{before:120,after:200} }),
+    ];
+
+    const doc = new Document({ sections:[{ children }] });
+    const blob = await Packer.toBlob(doc);
+    const fname = `Nordex_RR_${(farm||'Site').replace(/\s+/g,'_')}_${(wtg||'WTG').replace(/\s+/g,'_')}_${gv('nrr-start')||today()}.docx`;
+    saveAs(blob, fname);
+    toast('Nordex Repair Report exported: '+fname);
+  } catch(e) {
+    console.error(e);
+    toast('Export failed: '+e.message, 'error');
+  }
+}
+
+async function exportNordexIR() {
+  try {
+    const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType } = docx;
+    const farm = gv('nir-farm'), wtg = gv('nir-wtg');
+    const makeRow = (cells) => new TableRow({ children: cells.map(c => new TableCell({ children:[new Paragraph({children:[new TextRun({text:String(c||''), size:18})]})], width:{size:100/cells.length, type:WidthType.PERCENTAGE} })) });
+    const makeHeader = (t) => new Paragraph({ children:[new TextRun({text:t, bold:true, size:24, color:'003082'})], spacing:{before:240,after:120} });
+
+    // Attachment checklist
+    const ATTACHMENTS = ['Anti-Icing System','Drain holes open','Erosion protection foil','LE protection paint','IDD blade','Lightning monitoring system (LMS)','LPS equipotential bondings','LPS receptors','LPS registration card','LPS tip receptor','Rain deflector','Signal color','Stall strips','Structural health monitoring (SHM)','TE serrations','TE flaps','Vortex generators','Zig-zag tape','IPC','Others'];
+    const attRows = ATTACHMENTS.map((a,i) => makeRow([
+      a,
+      document.getElementById('nir-att-'+i)?.checked ? 'Yes' : 'No',
+      document.getElementById('nir-att-c-'+i)?.value || '',
+    ]));
+
+    const children = [
+      new Paragraph({ children:[new TextRun({text:'NORDEX INSPECTION REPORT', bold:true, size:36, color:'003082'})], alignment:AlignmentType.CENTER, spacing:{after:200} }),
+      new Paragraph({ children:[new TextRun({text:'NALL03_IR_10167_EN Rev.03', size:20, color:'666666'})], alignment:AlignmentType.CENTER, spacing:{after:400} }),
+      makeHeader('1. WTG & SITE DATA'),
+      new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[
+        makeRow(['Wind Farm', farm||'', 'WTG', wtg||'']),
+        makeRow(['WTG Model', gv('nir-model'), 'WTG Serial', gv('nir-serial')]),
+        makeRow(['Blade Type', gv('nir-btype'), 'Blade Set', gv('nir-bset')]),
+        makeRow(['Blade A', gv('nir-ba'), 'Blade B', gv('nir-bb')]),
+        makeRow(['Blade C', gv('nir-bc'), '', '']),
+      ]}),
+      new Paragraph({text:'', spacing:{after:160}}),
+      makeHeader('2. INSPECTION DETAILS'),
+      new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[
+        makeRow(['Start Date', gv('nir-start'), 'End Date', gv('nir-end')]),
+        makeRow(['Service Company', gv('nir-svc'), 'Technicians', gv('nir-techs')]),
+      ]}),
+      new Paragraph({text:'', spacing:{after:160}}),
+      makeHeader('3. BLADE ATTACHMENTS & ACCESSORIES'),
+      new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[ makeRow(['Attachment','Inspected?','Comment']), ...attRows ] }),
+      new Paragraph({text:'', spacing:{after:160}}),
+      makeHeader('4. GENERAL BLADE DEVIATIONS'),
+      new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[
+        makeRow(['Blade noise atypical', document.getElementById('nir-dev-noise')?.checked?'Yes':'No', gv('nir-dev-noise-c')]),
+        makeRow(['Loose parts inside blade', document.getElementById('nir-dev-loose')?.checked?'Yes':'No', gv('nir-dev-loose-c')]),
+        makeRow(['Vacuum inside blade', document.getElementById('nir-dev-vac')?.checked?'Yes':'No', gv('nir-dev-vac-c')]),
+      ]}),
+      new Paragraph({text:'', spacing:{after:160}}),
+      makeHeader('5. INSPECTION FINDINGS'),
+      ...nirFindings.flatMap((f,i) => [
+        new Paragraph({ children:[new TextRun({text:`Finding ${String(i+1).padStart(2,'0')} — Category ${f.sev} — Blade ${f.blade}`, bold:true, size:20})], spacing:{before:200,after:80} }),
+        new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[
+          makeRow(['DF from', f.dfFrom+'m', 'DF to', f.dfTo+'m']),
+          makeRow(['PD from', f.pdFrom+'%', 'PD to', f.pdTo+'%']),
+          makeRow(['Side/Edge', f.side, 'Amount', f.amount]),
+        ]}),
+        new Paragraph({ children:[new TextRun({text:f.desc||'', size:18})], spacing:{before:80,after:80} }),
+      ]),
+      new Paragraph({text:'', spacing:{after:160}}),
+      makeHeader('6. LPS MEASUREMENTS'),
+      document.getElementById('nir-lps-done')?.checked
+        ? new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[
+            makeRow(['Device', gv('nir-lps-dev'), 'Method', gv('nir-lps-method')]),
+            makeRow(['Last Calibration', gv('nir-lps-cal'), 'Expiry', gv('nir-lps-exp')]),
+          ]})
+        : new Paragraph({ children:[new TextRun({text:'LPS measurement not performed', size:18, italics:true, color:'666666'})] }),
+      new Paragraph({text:'', spacing:{after:160}}),
+      makeHeader('7. CERTIFICATION'),
+      new Table({ width:{size:100,type:WidthType.PERCENTAGE}, rows:[
+        makeRow(['Completed By', gv('nir-by'), 'Date', gv('nir-certdate')]),
+      ]}),
+      new Paragraph({ children:[new TextRun({text:'Remarks: '+gv('nir-remarks'), size:18})], spacing:{before:120} }),
+    ];
+
+    const doc = new Document({ sections:[{ children }] });
+    const blob = await Packer.toBlob(doc);
+    const fname = `Nordex_IR_${(farm||'Site').replace(/\s+/g,'_')}_${(wtg||'WTG').replace(/\s+/g,'_')}_${gv('nir-start')||today()}.docx`;
+    saveAs(blob, fname);
+    toast('Nordex Inspection Report exported: '+fname);
+  } catch(e) {
+    console.error(e);
+    toast('Export failed: '+e.message, 'error');
+  }
+}
+
+// ===== DEMO DATA =====
+function seedDemoData() {
+  // Minimal demo data — just enough to show the app working
+  appData.farms = [
+    {WindFarm:'Dundonnell Wind Farm',State:'VIC',City:'Mortlake',OEM:'Vestas',TurbineModel:'V150-4.2MW',BladeType:'V150 Blade',BladeLength:'73.7',HubHeight:'105',RotorDiam:'150',_spId:'demo-1'},
+    {WindFarm:'Macarthur Wind Farm',State:'VIC',City:'Macarthur',OEM:'Vestas',TurbineModel:'V112-3.0MW',BladeType:'V112 Blade',BladeLength:'54.6',HubHeight:'94',RotorDiam:'112',_spId:'demo-2'},
+    {WindFarm:'MacIntyre Wind Farm',State:'QLD',City:'Warwick',OEM:'Vestas',TurbineModel:'V150-4.5MW',BladeType:'V150 Blade',BladeLength:'73.7',HubHeight:'105',RotorDiam:'150',_spId:'demo-6'},
+    {WindFarm:'Sapphire Wind Farm',State:'NSW',City:'Glen Innes',OEM:'Vestas',TurbineModel:'V150-4.5MW',BladeType:'V150 Blade',BladeLength:'73.7',HubHeight:'105',RotorDiam:'150',_spId:'demo-3'},
+    {WindFarm:'Hornsdale Wind Farm',State:'SA',City:'Jamestown',OEM:'Siemens Gamesa',TurbineModel:'SWT-3.0-108',BladeType:'B52.5 / SWT-3.0',BladeLength:'52.5',HubHeight:'80',RotorDiam:'108',_spId:'demo-4'},
+    {WindFarm:'Stockyard Hill Wind Farm',State:'VIC',City:'Skipton',OEM:'Goldwind',TurbineModel:'GW 2.5-121',BladeType:'GW-B59.5',BladeLength:'59.5',HubHeight:'90',RotorDiam:'121',_spId:'demo-5'},
+  ];
+  appData.team = [
+    {FullName:'Josh Torres',Role:'Senior Blade Technician',Email:'josh@protechaccess.com.au',Phone:'+61 400 000 001',Availability:'available',CertsJSON:'[{"name":"GWO BST","expiry":"2026-03-15"},{"name":"BZEE","expiry":"2025-12-01"},{"name":"Level 2 Composite","expiry":"2026-08-20"}]',_spId:'demo-t1'},
+    {FullName:'Madi Chen',Role:'Blade Technician',Email:'madi@protechaccess.com.au',Phone:'+61 400 000 002',Availability:'available',CertsJSON:'[{"name":"GWO BST","expiry":"2026-05-20"},{"name":"Level 1 Composite","expiry":"2026-01-15"}]',_spId:'demo-t2'},
+    {FullName:'Adam Williams',Role:'Lead Technician',Email:'adam@protechaccess.com.au',Phone:'+61 400 000 003',Availability:'mobilised',CertsJSON:'[{"name":"GWO BST","expiry":"2026-07-10"},{"name":"OEM Certified","expiry":"2026-02-28"},{"name":"Level 2 Composite","expiry":"2026-09-01"}]',_spId:'demo-t3'},
+    {FullName:'Sam Nguyen',Role:'Rope Access Tech',Email:'sam@protechaccess.com.au',Phone:'+61 400 000 004',Availability:'available',CertsJSON:'[{"name":"GWO BST","expiry":"2025-09-15"},{"name":"IRATA L2","expiry":"2026-03-01"}]',_spId:'demo-t4'},
+  ];
+  appData.materials = [
+    {MaterialName:'Epikote Resin MGS LR 135',PartNo:'MGS-LR135',Category:'Resin / Hardener',Supplier:'Hexion',StockQty:25,Unit:'kg',ReorderLevel:5,MixRatio:'100:30',PotLife:'50 min @ 23°C',_spId:'demo-m1'},
+    {MaterialName:'Sikadur 330 Structural Adhesive',PartNo:'SIK-330',Category:'Structural Adhesive',Supplier:'Sika',StockQty:3,Unit:'kg',ReorderLevel:3,MixRatio:'100:30',_spId:'demo-m2'},
+    {MaterialName:'3M W4600 LEP Tape 100mm',PartNo:'3M-W4600-100',Category:'LEP System',Supplier:'3M',StockQty:45,Unit:'m',ReorderLevel:50,_spId:'demo-m3'},
+    {MaterialName:'Hempel Windcoat Topcoat RAL7035',PartNo:'HEM-WCT',Category:'Coating / Primer',Supplier:'Hempel',StockQty:20,Unit:'L',ReorderLevel:5,MixRatio:'4:1',_spId:'demo-m4'},
+  ];
+  appData.fabrics = [
+    {FabricName:'Saertex UD E-Glass 1200g',PartCode:'SAE-UD1200',FibreType:'E-Glass',Construction:'Unidirectional (UD) 0°',Orientation:'0°',ArealWeight:1200,RollWidth:1270,StockQty:150,ReorderLevel:30,Supplier:'Saertex',OEMApprovals:'Nordex, Vestas',_spId:'demo-f1'},
+    {FabricName:'Saertex Biaxial E-Glass 800g',PartCode:'SAE-BX800',FibreType:'E-Glass',Construction:'Biaxial ±45°',Orientation:'±45°',ArealWeight:800,RollWidth:1270,StockQty:100,ReorderLevel:20,Supplier:'Saertex',OEMApprovals:'Nordex, Vestas, GE',_spId:'demo-f2'},
+  ];
+  appData.inspections = [];
+  appData.repairs = [];
+  appData.diary = [];
+  appData.registry = [];
+  appData.loaded = { farms:true, team:true, materials:true, fabrics:true, inspections:true, repairs:true, diary:true, registry:true };
+}
+
+// ===== PROFILE =====
+function showProfile() {
+  toast(`Signed in as ${currentUser?.name || currentUser?.username || 'Demo User'}${isDemo?' (Demo Mode)':''}`, 'info', 3000);
+}
+
+// ===== INIT =====
+window.addEventListener('load', initAuth);
+</script>
+</body>
+</html>
